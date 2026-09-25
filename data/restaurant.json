@@ -1,0 +1,31 @@
+[
+  {
+    "id": 1,
+    "name": "kin&folk kelowna",
+    "category": "korean",
+    "address": "281 lawrence avenue",
+    "is_open": true
+  },
+  {
+    "id": 2,
+    "name":"King Tap's",
+    "category": "continental",
+    "address": "1352 water street",
+    "is_open": true
+  },
+  {
+    "id": 3,
+    "name":"Derrick's steakhouse",
+    "category": "italian",
+    "address": "1560 water street",
+    "is_open": true
+  },
+  {
+     "id": 4,
+    "name":"Earl's kitchen and bar",
+    "category": "mexican",
+    "address": "211 bernard",
+    "is_open": true
+  }
+
+]
