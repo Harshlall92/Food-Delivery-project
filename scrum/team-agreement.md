@@ -93,11 +93,11 @@ How will your team make decisions?
 
 How will your team handle disagreements?
 
-	Step 1 \- direct conversation : the team members will raise a disagreement and try to solve it by discussing it further.
+	Step 1 \- Direct conversation : the team members will raise a disagreement and try to solve it by discussing it further.
 
-	Step 2 \- If two members cannot fix the issue by themselves the third team member will step in initiating a group discussion. 
+	Step 2 \- If two members cannot fix the issue by themselves the other team members will step in for a group discussion. 
 
-	Step 3- if the issue still remains, we might escalate it to the TA.
+	Step 3 \- If the issue still remains, we might escalate it to the TA.
 
 Describe the steps you will take to resolve conflicts within the team before involving the instructor or TA.
 
@@ -106,8 +106,6 @@ Describe the steps you will take to resolve conflicts within the team before inv
 ### 9\. Anticipated Challenges
 
 Identify potential challenges your team may face and explain how you will address them.
-
-Consider situations such as:
 
 * Missed meetings \- Notify the team in advance, missed information will be shared via meeting notes or by calling the teammate at a later point before the next meeting.  
     
@@ -130,6 +128,8 @@ Harsh: I will personally commit to trying to complete the assigned work on sched
 Zuhear: I will try to attend meetings on time and communicate when there might be issues early to not give others a surprise ghosting. I will also try to support team members when they struggle with a problem.
 
 Likhitha : I will try to make sure everybody in the team is contributing fairly by distributing the workload fairly, I will also try to arrange short communications between meetings if there is something that needs to be done before the next meeting or closer to a deadline.
+
+Adam : 
 
 Examples:
 
