@@ -20,6 +20,7 @@
     - [4.2 Restaurant Repository](#42-restaurant-repository)
     - [4.3 API Endpoints](#43-api-endpoints)
     - [4.4 Concurrency \& File Integrity](#44-concurrency--file-integrity)
+    - [4.5 Service Requirements](#45-service-requirements)
   - [5. Non-Functional Requirements](#5-non-functional-requirements)
   - [6. Verification \& Testing](#6-verification--testing)
     - [6.1 API Tests](#61-api-tests)
@@ -104,6 +105,10 @@ A REST API built entirely in Python using FastAPI. It reads from and writes to f
 
 * **FQ-SYNC-001:** Concurrent write operations to the same data file must be serialized to prevent simultaneous modification and data corruption.
 
+### 4.5 Service Requirements
+
+* **FQ-SERV-001:** Restaurant service must connect to the Restaurant repository.
+* **FQ-SERV-002:** Restaurant service must ask the repository to return a list of all restaurants stored.
 
 ---
 
@@ -132,8 +137,8 @@ A REST API built entirely in Python using FastAPI. It reads from and writes to f
 * **TEST-API-001:** The `GET /` endpoint returns `Welcome to the Pilates Princesses Food Delivery Service!`.
 * **TEST-API-002:** The `GET /health` endpoint returns `HTTP 200`
 * **TEST-API-003:** The `GET /api/restaurants` endpoint returns HTTP status of 200.
-* **TEST-API-004:** The `GET /api/restaurants` returns _____.
-* **TEST-API-005:** If the underlying JSON is invalid, `GET /api/restaurants` returns _____.
+* **TEST-API-004:** The `GET /api/restaurants` returns a list of restaurant objects.
+
 
 ---
 
@@ -152,7 +157,7 @@ A REST API built entirely in Python using FastAPI. It reads from and writes to f
 
 **Testing Requirements:**
 
-* Next ID for api test requirement: `TEST-API-006`
+* Next ID for api test requirement: `TEST-API-005`
 
 **Non-Functional Requirements:**
 
