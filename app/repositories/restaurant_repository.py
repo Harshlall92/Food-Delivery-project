@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from anyio import open_file
 
 class RestaurantRepository:
 
@@ -8,9 +9,9 @@ class RestaurantRepository:
 
     async def get_restaurants(self):
         try:
-            with open(self.filepath, "r", encoding="utf-8") as file:
-                contents = json.load(file)
-                return contents
+            async with await open_file(self.filepath, "r", encoding="utf-8") as file:
+                contents = await file.read()
+                return json.loads(contents)
         except FileNotFoundError:
-            raise FileNotFoundError(f"File {self.filepath} not found.")
+            print(f"File not found: {self.filepath}")
         return []
