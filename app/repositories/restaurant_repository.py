@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 class RestaurantRepository:
 
     def __init__(self, filepath: str = "data/restaurants.json"):
@@ -9,5 +12,5 @@ class RestaurantRepository:
                 contents = json.load(file)
                 return contents
         except FileNotFoundError:
-            raise FileNotFoundError(f"File {filepath} not found.")
+            raise FileNotFoundError(f"File {self.filepath} not found.")
         return []
