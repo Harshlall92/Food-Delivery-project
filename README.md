@@ -1,86 +1,128 @@
+# Pilates Princesses' Food Delivery Application
+
+COSC 310 - Software Engineering
 Team Name: Pilates Princesses
 
-Python Version: 3.14.7
+The Pialtes Princesses Food Delivery Application is a REST API that can retrieve all restaurants stored in a JSON restaurants database.
 
-Setup Instructions:
+## Installation & Setup
 
-Windows (PowerShell)
+Follow these steps to set up the project locally.
 
-python \--version
+### Prerequisites
 
-pip \--version
+- **Python**: Version 3.14.7 is required. Download it [here](https://www.python.org/downloads/release/python-3147/).
 
-macOS/Linux
+### Step-By-Step Instructions
 
-python3 \--version
+#### 1. Clone the Repository
 
-pip3 \--version
+If you have Git installed:
 
-Install Python Extension in VSCode
+```bash
+git clone https://github.com/Harshlall92/Food-Delivery-project
+cd Food-Delivery-project
+```
 
-Virtual-Environment Instructions:
+If you don't have Git installed, click on the green `<> Code` button on the right side of the screen, then scroll down and click `Download ZIP`. Extract the project in your file explorer and open it in your preferred IDE (VSCode).
 
-Windows
+#### 2. Create a Virtual Environment
 
-cd path\\to\\your\\project
+Once the project is open in your IDE, open a terminal.
 
-python \-m venv .venv
+If your terminal is not in the project directory, use:
 
-.venv\\Scripts\\Activate.ps1
+```bash
+cd path/to/project
+```
 
-macOS/Linux  
-cd path/to/your/project
+Once the terminal is in the project directory use:
 
-python3 \-m venv .venv
+```bash
+python -m venv .venv
+```
 
-source .venv/bin/activate
+to create the virutal environment.
 
-Dependency Installation:
+#### 3. Activate the virual environment
 
-pip install fastapi uvicorn pydantic pytest
+- **Windows (PowerShell)**:
 
-pip list
+```bash
+.\venv\Scripts\Activate.ps1
+```
 
-pip show fastapi
+- **Windows (Command Prompt)**:
 
-pip uninstall requests
+```cmd
+venv\Scripts\activate.bat
+```
 
-How To Start The Application:
+- **macOS / Linux**:
 
-uvicorn app.main:app \--reload
+```bash
+source venv/bin/activate
+```
 
-API Endpoint Paths:
+#### 4. Install Dependencies
 
-/restaurants, /health, /
+Install the required packages listed in `requirements.txt`:
 
-/docs Path:
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-http://127.0.0.1:8000/docs
+## Running the Application
 
-Location of Representative Data:
+To start the application, run the following command in your terminal:
 
-Food-Delivery-project/data/restaurants.json
+```bash
+uvicorn app.main:app --reload
+```
 
-How to Run Tests:
+The application can then be opened in your web browser at [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
-pytest \-v
+### API Endpoint Paths
 
-Brief Repository Structure:
+- `/`
+- `/health`
+- `/restaurants`
 
-\[
+API documentation can be found at: `/docs`
 
-{
 
-    "id": 1,
+## Representative Data
 
-    "name": "kin\&folk kelowna",
+- **Restaurants**: [Food-Delivery-project/data/restaurants.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/restaurants.json)
 
-    "category": "korean",
+## Tests
 
-    "address": "281 lawrence avenue",
+Tests can be run with the following command in your terminal:
 
-    "is\_open": true
+```bash
+pytest -v
+```
 
-}
+## Repository Structure
 
-\]
+```
+Food-Delivery-project/
+├── app/
+│   ├── api/
+│   │   └── routes/
+│   ├── repositories/
+│   ├── schemas/
+│   ├── services/
+│   └── main.py
+├── data/
+│   └── restaurants.json
+├── docs/
+│   └── milestone0-requirements.md
+├── scrum/
+│   └── team-agreement.md
+├── tests/
+├── .gitignore
+├── requirements.txt
+└── README.md
+```
