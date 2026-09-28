@@ -94,7 +94,19 @@ API documentation can be found at: `/docs`
 
 ## Representative Data
 
-- **Restaurants**: [Food-Delivery-project/data/restaurants.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/restaurants.json)
+**Restaurants**: [Food-Delivery-project/data/restaurants.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/restaurants.json)
+
+Restaurant JSON follows the following schema:
+
+```json
+{
+    "id": 1,
+    "name": "Restaurant Name",
+    "address": "Restaurant Address",
+    "category": "Restauant Category",
+    "is_open": true
+}
+```
 
 ## Tests
 
