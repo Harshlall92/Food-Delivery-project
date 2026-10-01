@@ -1,21 +1,14 @@
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.schemas.restaurant import Restaurant
 
-class RestaurantService:
+async def get_restaurants(repository: RestaurantRepository) -> list[Restaurant]:
 
-    repository: RestaurantRepository
+    query = await repository.get_restaurants()
 
-    def __init__(self, repository: RestaurantRepository = RestaurantRepository()):
-        self.repository = repository
+    return [
+        validate_restaurant(restaurant)
+        for restaurant in query
+    ]
 
-    async def get_restaurants(self) -> list[Restaurant]:
-
-        query = await self.repository.get_restaurants()
-
-        return [
-            self.validate_restaurant(restaurant)
-            for restaurant in query
-        ]
-
-    def validate_restaurant(self, restaurant: dict) -> Restaurant:
-       return Restaurant(**restaurant)
+def validate_restaurant(restaurant: dict) -> Restaurant:
+    return Restaurant(**restaurant)

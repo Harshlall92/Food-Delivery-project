@@ -2,7 +2,7 @@ from pydantic_core import ValidationError
 import pytest
 from unittest.mock import patch
 from app.repositories.restaurant_repository import RestaurantRepository
-from app.services.restaurant_service import RestaurantService
+from app.services.restaurant_service import *
 from app.schemas.restaurant import Restaurant
 
 mock_repository = RestaurantRepository()
@@ -24,9 +24,7 @@ async def test_get_restaurants(mocker):
         return_value=mock_data
     )
 
-    service = RestaurantService(mock_repository)
-
-    result = await service.get_restaurants()
+    result = await get_restaurants(mock_repository)
 
     assert len(result) == 2
     assert isinstance(result[0], Restaurant)
@@ -51,9 +49,7 @@ async def test_get_restaurants_on_empty_data(mocker):
         return_value=[]
     )
 
-    service = RestaurantService(mock_repository)
-
-    result = await service.get_restaurants()
+    result = await get_restaurants(mock_repository)
 
     assert result == []
 
@@ -61,9 +57,7 @@ async def test_get_restaurants_on_empty_data(mocker):
 async def test_validate_restaurant():
     data = {"id": 1, "name": "Test Restaurant", "address": "123 Test St", "category": "Italian"}
 
-    service = RestaurantService(mock_repository)
-
-    restaurant = service.validate_restaurant(data)
+    restaurant = validate_restaurant(data)
 
     assert isinstance(restaurant, Restaurant)
     assert restaurant.id == 1
@@ -78,10 +72,8 @@ async def test_validate_restaurant_with_missing_fields():
         "name": "Test Restaurant"
     }
 
-    service = RestaurantService()
-
     try:
-        service.validate_restaurant(data)
+        validate_restaurant(data)
         assert False, "Expected a ValidationError due to missing fields"
     except ValidationError as e:
         assert True
@@ -96,9 +88,7 @@ async def test_validate_restaurant_with_extra_fields():
         "extra_field": "extra_value"
     }
 
-    service = RestaurantService()
-
-    restaurant = service.validate_restaurant(data)
+    restaurant = validate_restaurant(data)
 
     # Asserting that the service does not raise an error and returns a Restaurant instance, ignoring the extra field
 
@@ -113,10 +103,8 @@ async def test_validate_restaurant_with_invalid_types():
         "category": None
     }
 
-    service = RestaurantService()
-
     try:
-        service.validate_restaurant(data)
+        validate_restaurant(data)
         assert False, "Expected a ValidationError due to invalid types"
     except ValidationError as e:
         assert True
