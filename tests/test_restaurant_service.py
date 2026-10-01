@@ -15,7 +15,7 @@ async def test_get_restaurant_valid_model():
     ]
 
     with patch(
-        "app.services.restaurant_service.RestaurantRepository.get_restaurants",
+        "app.services.restaurant_service.RestaurantRepository.get_all",
         new_callable = AsyncMock,
         return_value = fake_data,
     ):
