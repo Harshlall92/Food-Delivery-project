@@ -15,7 +15,7 @@ def test_get_restaurant():
             ),
     ]
     with patch(
-        "app.api.routes.restaurants.rService.get_restaurants",
+        "app.api.routes.restaurants.service.get_restaurants",
         new_callable=AsyncMock,
         return_value = fake_data
     ):
@@ -28,7 +28,7 @@ def test_get_restaurant():
 def test_get_restaurant_fail():
     client = TestClient(app, raise_server_exceptions = False)
     with patch(
-        "app.api.routes.restaurants.rService.get_restaurants",
+        "app.api.routes.restaurants.service.get_restaurants",
         new_callable=AsyncMock,
         side_effect = ValueError(),
     ):
