@@ -1,45 +1,21 @@
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.schemas.restaurant import Restaurant
 
-async def get_restaurants() -> list[Restaurant]:
-    """
-    Fetches a list of restaurants from the restaurant repository.
-    
-    Returns:
-        list: A list of restaurant objects.
-    """
-    repo = RestaurantRepository()
+class RestaurantService:
 
-    query = await repo.get_restaurants()
+    repository: RestaurantRepository
 
-    return [
-        validate_restaurant(restaurant)
-        for restaurant in query
-    ]
+    def __init__(self, repository: RestaurantRepository = RestaurantRepository()):
+        self.repository = repository
 
-def validate_restaurant(restaurant: dict) -> Restaurant:
-    """
-    Validates and converts a restaurant dictionary to a Restaurant object.
-    
-    Args:
-        restaurant (dict): A dictionary representing a restaurant.
-    
-    Returns:
-        Restaurant: A validated Restaurant object.
-    """
+    async def get_restaurants(self) -> list[Restaurant]:
 
-    if restaurant["id"] is None:
-        raise ValueError("Restaurant ID cannot be None")
-    if restaurant["name"] is None:
-        raise ValueError("Restaurant name cannot be None")
-    if restaurant["address"] is None:
-        raise ValueError("Restaurant address cannot be None")
-    if restaurant["category"] is None:
-        raise ValueError("Restaurant category cannot be None")
+        query = await self.repository.get_restaurants()
 
-    return Restaurant(
-        id=restaurant["id"],
-        name=restaurant["name"],
-        address=restaurant["address"],
-        category=restaurant["category"]
-    )
+        return [
+            self.validate_restaurant(restaurant)
+            for restaurant in query
+        ]
+
+    def validate_restaurant(self, restaurant: dict) -> Restaurant:
+       return Restaurant(**restaurant)
