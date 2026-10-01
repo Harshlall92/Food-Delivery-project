@@ -1,19 +1,34 @@
 import json
 
-from typing import TypeVar, Generic
 from pydantic import BaseModel
 from pathlib import Path
 from anyio import open_file
 
-
-
-class BaseRepository:
+class BaseRepository[T: BaseModel]:
 
     file_path: Path
-    T = TypeVar('T', bound=BaseModel)
 
     def __init__(self, file_path: str):
         self.file_path = Path(file_path)
+
+    """
+    Database Operations
+    """
+
+    async def get_all(self) -> list[dict]:
+        return await self._read_file()
+
+    async def add_record(self, record: T):
+        data = await self._read_file()
+        data.append(record.model_dump())
+        await self._write_file(data)
+
+    async def get_by_id(self, record_id: str) -> dict | None:
+        data = await self._read_file()
+        for item in data:
+            if item.get("id") == record_id:
+                return item
+        return None
 
     """
     Data Persistence Methods
