@@ -1,10 +1,13 @@
-from pydantic import BaseModel
+from pydantic import UUID7, BaseModel, Field
+from uuid6 import uuid7
 
 class Restaurant(BaseModel):
-    id: int
+    id: UUID7 = Field(default_factory=uuid7, frozen=True) 
 
-    name: str
+    name: str = Field(min_length=1)
     
-    address: str
+    address: str = Field(min_length=1)
     
-    category: str
+    cuisine: str = Field(min_length=1)
+
+    active: bool = True
