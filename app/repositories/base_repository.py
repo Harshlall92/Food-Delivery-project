@@ -3,6 +3,7 @@ import json
 from pydantic import BaseModel
 from pathlib import Path
 from anyio import open_file
+from uuid import UUID
 
 class BaseRepository[T: BaseModel]:
 
@@ -23,7 +24,7 @@ class BaseRepository[T: BaseModel]:
         data.append(record.model_dump())
         await self._write_file(data)
 
-    async def get_by_id(self, record_id: str) -> dict | None:
+    async def get_by_id(self, record_id: UUID) -> dict | None:
         data = await self._read_file()
         for item in data:
             if item.get("id") == record_id:
