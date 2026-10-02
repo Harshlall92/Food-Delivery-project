@@ -1,10 +1,11 @@
 import pytest
 from pydantic import ValidationError
 from app.schemas.restaurant import Restaurant
+from uuid6 import UUID
 
 def test_restaurant_valid_creation():
     r=Restaurant(name= "Test", address="street", cuisine="italian")
-    assert isinstance(r.id,str)
+    assert isinstance(r.id, UUID)
     assert r.active is True
 
 def test_restaurant_missing_name():
@@ -32,4 +33,5 @@ def test_restaurant_idfreeze():
      r = Restaurant(name="Test", address="123 Main St", cuisine="italian")
      with pytest.raises(ValidationError):
           r.id = "diff-id"
+
 
