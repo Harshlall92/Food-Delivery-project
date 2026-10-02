@@ -18,12 +18,13 @@ async def test_get_restaurants(mocker):
         {"id": 2, "name": "Another Test", "address": "456 Oak Ave", "category": "Mexican"}
     ]
 
-    with patch(
-        "app.services.restaurant_service.RestaurantRepository.get_all",
-        new_callable = AsyncMock,
-        return_value = fake_data,
-    ):
-        result = await get_restaurants()
+    mocker.patch.object(
+        mock_repository,
+        "get_all",
+        return_value=mock_data
+    )
+    
+    result = await get_restaurants(mock_repository)
 
     assert len(result) == 2
     assert isinstance(result[0], Restaurant)
@@ -44,7 +45,7 @@ async def test_get_restaurants_on_empty_data(mocker):
 
     mocker.patch.object(
         mock_repository,
-        "get_restaurants",
+        "get_all",
         return_value=[]
     )
 

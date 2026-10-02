@@ -3,7 +3,7 @@ from app.schemas.restaurant import Restaurant
 
 async def get_restaurants(repository: RestaurantRepository) -> list[Restaurant]:
 
-    query = await repo.get_all()
+    query = await repository.get_all()
 
     return [
         validate_restaurant(restaurant)
