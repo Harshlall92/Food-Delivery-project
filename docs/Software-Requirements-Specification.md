@@ -223,7 +223,7 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 
 #### 3.2.1 Restaurant Model
 
-- **DATA-PYD-001:** THe `Restaurant` model SHALL have an id
+- **DATA-PYD-001:** The `Restaurant` model SHALL have an id
   - **DATA-PYD-001.1:** The `Restaurant` model id SHALL be a UUID
   - **DATA-PYD-001.2:** The `Restaurant` model id SHALL be [unique](Api-Specification.md)
   - **DATA-PYD-001.3:** The `Restaurant` model id SHALL be immutable once set
@@ -268,6 +268,18 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 - **DATA-PYD-014:** The `RestauantOutput` model SHALL have an id
   - **DATA-PYD-014.1:** The `RestaurantOutput` model id SHALL be a UUID
   - **DATA-PYD-014.2:** The `RestaurantOutput` model id SHALL be [unique]
+- **DATA-PYD-015:** The `RestaurantOutput` model SHALL have a name
+  - **DATA-PYD-015.1:** The name SHALL be a non-empty string
+- **DATA-PYD-016:** The `RestaurantOutput` model SHALL have an address
+  - **DATA-PYD-016.1:** The address SHALL be a non-empty string
+- **DATA-PYD-017:** The `RestaurantOutput` model SHALL have a cuisine
+  - **DATA-PYD-017.1:** The cuisine SHALL be a non-empty string
+- **DATA-PYD-018:** The `RestaurantOutput` model SHALL have an `active` flag
+  - **DATA-PYD-018.1:** The `active` flag SHALL be a boolean
+- **DATA-PYD-019:** The `RestaurantOutput` model SHALL have a list of menu items
+  - **DATA-PYD-019.1:** The list of menu items SHALL be a list of `MenuItem` models
+  - **DATA-PYD-019.2:** The list of menu items SHALL be empty if the restaurant has no menu items
+
 ---
 
 ### 3.3 Repository
@@ -436,7 +448,7 @@ Note, not all services have diagrams, but the diagrams that are present should p
   - **FR-SERV-007.3:** The service SHALL raise an error if the input data is invalid or incomplete
   - **FR-SERV-007.4:** The service SHALL return `None` if the restaurant is not found
 
-###### 3.4.1.2.2 Querys <!-- omit from toc -->
+###### 3.4.1.2.2 Queries <!-- omit from toc -->
 
 - **FR-SERV-008:** The service SHALL provide a function to search for restaurants by name from the restaurant repository
   - **FR-SERV-008.1:** The service SHALL convert the restaurant data from the repository into a list of `RestaurantOutput` objects before returning it
@@ -500,21 +512,21 @@ This section describes the requirements for the external interfaces of the syste
 
 ### 5.1 README Documentation
 
-- **NFR-RDME-001:** `README.md` SHALL contain enough information for a new team member or TA to run the project.
-- **NFR-RDME-002:** The team name SHALL be listed.
-- **NFR-RDME-003:** The required python version SHALL be listed.
-- **NFR-RDME-004:** Setup instructions SHALL be included.
-  - **NFR-RDME-004.1:** Instructions for cloning the project.
-  - **NFR-RDME-004.2:** Instructions for setting up the virtual environment.
+- **NFR-RDME-001:** `README.md` SHALL contain enough information for a new team member or TA to run the project
+- **NFR-RDME-002:** The team name SHALL be listed
+- **NFR-RDME-003:** The required python version SHALL be listed
+- **NFR-RDME-004:** Setup instructions SHALL be included
+  - **NFR-RDME-004.1:** Instructions for cloning the project
+  - **NFR-RDME-004.2:** Instructions for setting up the virtual environment
   - **NFR-RDME-004.3:** Instructions for installing necessary dependencies
-  - **NFR-RDME-004.4:** Instructions for how to start the application.
-- **NFR-RDME-005:** API endpoint paths must be listed.
-  - **NFR-RDME-005.1:** The base URL of the API must be provided.
-  - **NFR-RDME-005.2:** Each endpoint must be documented with its method, path, and description.
+  - **NFR-RDME-004.4:** Instructions for how to start the application
+- **NFR-RDME-005:** API endpoint paths must be listed
+  - **NFR-RDME-005.1:** The base URL of the API must be provided
+  - **NFR-RDME-005.2:** Each endpoint must be documented with its method, path, and description
 - **NFR-RDME-006:** The `/docs` path must be listed.
-- **NFR-RDME-007:** The location and format of represented data must be provided.
-- **NFR-RDME-008:** Instructions for how to run tests must be listed.
-- **NFR-RDME-009:** A brief repository structure must be included.
+- **NFR-RDME-007:** The location and format of represented data must be provided
+- **NFR-RDME-008:** Instructions for how to run tests must be listed
+- **NFR-RDME-009:** A brief repository structure must be included
 
 ---
 
@@ -636,23 +648,19 @@ flowchart TB
   end
     START["START"] --> Actor["Restaurant Owner"]
     Actor -- RestaurantInput --> A
-    A L_A_B_0@--> B
+    A --> B
     B -- Invalid Data --> F
     E --> END2["END2"]
     B -- Valid Data --> C
     C -- Restaurant --> D
     D --> END1["END1"] & G
     F --> E
-    G L_G_E_0@--> E
+    G --> E
 
     START@{ shape: sm-circ}
     Actor@{ shape: person}
     END2@{ shape: framed-circle}
     END1@{ shape: framed-circle}
-
-    L_A_B_0@{ curve: linear } 
-    L_D_G_0@{ curve: linear } 
-    L_G_E_0@{ curve: linear }
 ```
 
 **iii.b Add Menu Item**
@@ -676,7 +684,7 @@ flowchart TB
     end
       START["START"] --> Actor["Restaurant Owner"]
       Actor -- MenuItemInput --> A
-      A L_A_B_0@-->|Menu Item Input| B
+      A -->|Menu Item Input| B
       A -->|Restaurant Id| H
       B -- Invalid Data --> F
       H -- Invalid Restaurant Id --> I
@@ -687,16 +695,12 @@ flowchart TB
       C -- MenuItem --> D
       D --> END1["END1"] & G
       F --> E
-      G L_G_E_0@--> E
+      G --> E
   
       START@{ shape: sm-circ}
       Actor@{ shape: person}
       END2@{ shape: framed-circle}
       END1@{ shape: framed-circle}
-  
-      L_A_B_0@{ curve: linear } 
-      L_D_G_0@{ curve: linear } 
-      L_G_E_0@{ curve: linear }
 ```
 
 **iii.c Get Restaurant By Id**
@@ -721,7 +725,7 @@ flowchart TB
     end
       START["START"] --> Actor["Customer"]
       Actor -- Restaurant Id --> A
-      A L_A_B_0@--> B
+      A --> B
       B -- Invalid Restaurant Id --> F
       F --> E
       E --> END2["END2"]
@@ -739,8 +743,6 @@ flowchart TB
       END2@{ shape: framed-circle}
       END1@{ shape: framed-circle}
   
-      L_A_B_0@{ curve: linear } 
-      L_D_G_0@{ curve: linear } 
 ```
 
 ### iv. Database Schema
