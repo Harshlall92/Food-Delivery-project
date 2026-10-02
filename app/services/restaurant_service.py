@@ -10,7 +10,7 @@ async def get_restaurants() -> list[Restaurant]:
     """
     repo = RestaurantRepository()
 
-    query = await repo.get_restaurants()
+    query = await repo.get_all()
 
     return [
         validate_restaurant(restaurant)
