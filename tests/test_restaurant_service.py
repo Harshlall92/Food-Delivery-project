@@ -10,8 +10,8 @@ def anyio_backend():
 @pytest.mark.anyio
 async def test_get_restaurant_valid_model():
     fake_data = [
-        {"id" : 1, "name": "Place1", "address": "Street1", "category": "Type1",},
-        {"id" : 2, "name": "Place2", "address": "Street2", "category": "Type2",},
+        {"id" : "01a0fd78-2c5c-72f4-b913-672a802a7116", "name": "Place1", "address": "Street1", "cuisine": "Type1",},
+        {"id" : "01a0fd78-2c5d-735a-b1f3-b8c18b0d708a", "name": "Place2", "address": "Street2", "cuisine": "Type2",},
     ]
 
     with patch(
@@ -25,6 +25,7 @@ async def test_get_restaurant_valid_model():
 
 @pytest.mark.anyio
 async def test_null_valid_model():
-    fake_data = {"id" : 1, "name": None, "address": "Street1", "category": "Type1",}
+    fake_data = {"id" : "01a0fd78-2c5c-72f4-b913-672a802a7116", "name": None, "address": "Street1", "category": "Type1",}
     with pytest.raises(ValueError):
         validate_restaurant(fake_data)
+

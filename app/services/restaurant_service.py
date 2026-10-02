@@ -28,18 +28,17 @@ def validate_restaurant(restaurant: dict) -> Restaurant:
         Restaurant: A validated Restaurant object.
     """
 
-    if restaurant["id"] is None:
-        raise ValueError("Restaurant ID cannot be None")
     if restaurant["name"] is None:
         raise ValueError("Restaurant name cannot be None")
     if restaurant["address"] is None:
         raise ValueError("Restaurant address cannot be None")
-    if restaurant["category"] is None:
-        raise ValueError("Restaurant category cannot be None")
+    if restaurant["cuisine"] is None:
+        raise ValueError("Restaurant cuisine cannot be None")
 
     return Restaurant(
         id=restaurant["id"],
         name=restaurant["name"],
         address=restaurant["address"],
-        category=restaurant["category"]
+        cuisine=restaurant["cuisine"]
     )
+
