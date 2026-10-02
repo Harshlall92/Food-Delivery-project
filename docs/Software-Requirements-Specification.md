@@ -27,7 +27,7 @@
 - [3. Sytem Features and Functional Requirements](#3-sytem-features-and-functional-requirements)
   - [3.1 Database](#31-database)
     - [3.1.1 Restaurants Database](#311-restaurants-database)
-    - [3.1.2 MenuItems Database](#312-menuitems-database)
+    - [3.1.2 Menu Items Database](#312-menu-items-database)
   - [3.2 Pydantic Models](#32-pydantic-models)
     - [3.2.1 Restaurant Model](#321-restaurant-model)
     - [3.2.2 Menu Item Model](#322-menu-item-model)
@@ -35,7 +35,7 @@
     - [3.2.4 Restaurant Output Model](#324-restaurant-output-model)
   - [3.3 Repository](#33-repository)
     - [3.3.1 Restaurant Repository](#331-restaurant-repository)
-    - [3.3.2 MenuItem Repository](#332-menuitem-repository)
+    - [3.3.2 Menu Item Repository](#332-menu-item-repository)
   - [3.4 API Routes](#34-api-routes)
     - [3.4.1 Customer Restaurants API Route](#341-customer-restaurants-api-route)
     - [3.4.2 Restaurant Owner Restaurant API](#342-restaurant-owner-restaurant-api)
@@ -207,12 +207,12 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 - **DATA-RST-005:** A restaurant SHALL have a cuisine.
 - **DATA-RST-006:** A restaurant SHALL have an `active` flag
 
-#### 3.1.2 MenuItems Database
+#### 3.1.2 Menu Items Database
 
 - **DATA-MUI-001:** Menu Items SHALL be stored in `data/menu_items.json`
 - **DATA-MUI-002:** A Menu Item SHALL have a unique id.
-- **DATA-MUI-003:** A Menu Item SHALL have a name
-- **DATA-MUI-004:** A Menu Item SHALL have a link to an exisitng restaurant
+- **DATA-MUI-003:** A Menu Item SHALL have a link to an exisitng restaurant
+- **DATA-MUI-004:** A Menu Item SHALL have a name
 - **DATA-MUI-005:** A Menu Item SHALL have a description
 - **DATA-MUI-006:** A Menu Item SHALL have a price
 - **DATA-MUI-007:** A Menu Item SHALL have an `active` flag
@@ -226,7 +226,8 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 - **DATA-PYD-001:** The `Restaurant` model SHALL have an id
   - **DATA-PYD-001.1:** The `Restaurant` model id SHALL be a UUID
   - **DATA-PYD-001.2:** The `Restaurant` model id SHALL be [unique](Api-Specification.md)
-  - **DATA-PYD-001.3:** The `Restaurant` model id SHALL be immutable once set
+  - **DATA-PYD-001.3:** The `Restaurant` model id SHALL be generated automatically upon creation
+  - **DATA-PYD-001.4:** The `Restaurant` model id SHALL be immutable once set
 - **DATA-PYD-002:** The `Restaurant` model SHALL have a name
   - **DATA-PYD-002.1:** The name SHALL be a non-empty string
 - **DATA-PYD-003:** The `Restaurant` model SHALL have an address
@@ -241,7 +242,8 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 - **DATA-PYD-006:** The `MenuItem` model SHALL have an id
   - **DATA-PYD-006.1:** The `MenuItem` model id SHALL be a UUID
   - **DATA-PYD-006.2:** The `MenuItem` model id SHALL be [unique](Api-Specification.md)
-  - **DATA-PYD-006.3:** The `MenuItem` model id SHALL be immutable once set
+  - **DATA-PYD-006.3:** THe `MenuItem` model id SHALL be generated automatically upon creation
+  - **DATA-PYD-006.4:** The `MenuItem` model id SHALL be immutable once set
 - **DATA-PYD-007:** The `MenuItem` model SHALL have a restaurant_id
   - **DATA-PYD-007.1:** The restaurant_id SHALL be a UUID
   - **DATA-PYD-007.2:** The restaurant_id SHALL reference an existing restaurant
@@ -250,9 +252,11 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
   - **DATA-PYD-008.1:** The name SHALL be a non-empty string
 - **DATA-PYD-009:** The `MenuItem` model SHALL have a description
   - **DATA-PYD-009.1:** The description SHALL be a non-empty string
+  - **DATA-PYD-009.2:** The description SHALL have a maximum length of 500 characters
 - **DATA-PYD-010:** The `MenuItem` model SHALL have a price
   - **DATA-PYD-010.1:** The price SHALL be a Decimal
   - **DATA-PYD-010.2:** The price SHALL be greater than or equal to 0.0
+  - **DATA-PYD-010.3:** The price SHALL have at most 2 decimal places
 
 #### 3.2.3 Restaurant Input Model
 
@@ -308,12 +312,14 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 - **FR-REPO-013:** The restaurant repository SHALL be able to retrieve all cuisines from the list of restaurants
   - **FR-REPO-013.1:** Cuisine types SHALL be normalized
   - **FR-REPO-013.2:** The list of cuisines SHALL be unique
+- **FR-REPO-014:** The restaurant repository SHALL use the `Restaurant` model as its type parameter
 
-#### 3.3.2 MenuItem Repository
+#### 3.3.2 Menu Item Repository
 
-- **FR-REPO-014:** The menu item repository SHALL have a file path of `data/menu_items.json`
-- **FR-REPO-015:** The menu item repository SHALL be able to retrieve all menu items for a specific restaurant
-  - **FR-REPO-015.1:** The repository SHALL return an empty list if no menu items are found for the restaurant
+- **FR-REPO-015:** The menu item repository SHALL have a file path of `data/menu_items.json`
+- **FR-REPO-016:** The menu item repository SHALL be able to retrieve all menu items for a specific restaurant
+  - **FR-REPO-016.1:** The repository SHALL return an empty list if no menu items are found for the restaurant
+- **FR-REPO-017:** The menu item repository SHALL use the `MenuItem` model as its type parameter
 
 ---
 
