@@ -11,3 +11,13 @@ class Restaurant(BaseModel):
     cuisine: str = Field(min_length=1)
 
     active: bool = True
+
+class RestaurantInput(BaseModel):
+    name: str = Field(min_length=1) 
+        
+    address: str = Field(min_length=1)
+        
+    cuisine: str = Field(min_length=1)
+    
+    active: bool = True
+    
