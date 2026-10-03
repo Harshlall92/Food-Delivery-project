@@ -19,12 +19,13 @@ class BaseRepository[T: BaseModel]:
     async def get_all(self) -> list[dict]:
         return await self._read_file()
 
-    async def add_record(self, record: T):
+    async def add_record(self, record: T) -> dict:
         data = await self._read_file()
         record_dict = record.model_dump()
         record_dict["id"] = str(uuid7())
         data.append(record_dict)
         await self._write_file(data)
+        return record_dict
 
     async def get_by_id(self, record_id: uuid7) -> dict | None:
         data = await self._read_file()
