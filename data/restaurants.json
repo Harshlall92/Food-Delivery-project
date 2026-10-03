@@ -27,11 +27,4 @@
         "address": "211 bernard",
         "active": true
     },
-    {
-        "name": "string",
-        "address": "string",
-        "cuisine": "string",
-        "active": true,
-        "id": "01a103e8-4d86-7196-a3d6-ca8a6e82ea88"
-    }
-]
+   
