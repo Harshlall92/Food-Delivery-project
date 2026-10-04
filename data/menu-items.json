@@ -1,0 +1,18 @@
+[
+    {
+        "id": "01a0fd78-2c5c-72f4-b714-672a802a7117",
+        "restaurant_id": "01a0fd78-2c5c-72f4-b913-672a802a7116",
+        "name": "Dumplings",
+        "description": "Yummy tasty chili oil dumplings",
+        "price": 123.123,
+        "active": true
+    },
+    {
+        "id": "01a0fd78-2c5c-72f4-b714-672a802a7118",
+        "restaurant_id": "01a0fd78-2c5c-72f4-b913-672a802a7116",
+        "name": "Soup",
+        "description": "Yummy tasty mushroom soup",
+        "price": 123.123,
+        "active": true
+    }
+]
