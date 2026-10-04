@@ -1,6 +1,6 @@
 from pydantic_core import ValidationError
 import pytest
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.services.restaurant_service import *
 from app.schemas.restaurant import Restaurant
@@ -109,3 +109,45 @@ async def test_validate_restaurant_with_invalid_types():
         assert False, "Expected a ValidationError due to invalid types"
     except ValidationError as e:
         assert True
+
+@pytest.mark.anyio
+async def test_create_restaurants_valid():
+    data = RestaurantInput(name = "place", address = "street", cuisine = "type", active = True)
+    fake_data = {
+        "id": "01a0fd78-2c5c-72f4-b913-672a802a7116",
+        "name": "place",
+        "address": "street",
+        "cuisine": "type",
+        "active" : True
+    }
+
+    with patch(
+        "app.services.restaurant_service.RestaurantRepository.add_record",
+        new_callable = AsyncMock,
+        return_value = fake_data
+    ):
+        responce = await create_restaurants(RestaurantRepository,data)
+
+    assert isinstance(responce, Restaurant)
+    assert responce.name == "place"
+    assert str(responce.id) == fake_data["id"]
+
+@pytest.mark.anyio
+async def test_create_restaurants_invalid_format():
+    data = RestaurantInput(name = "place", address = "street", cuisine = "type", active = True)
+    fake_data = {
+        "id": "01a0fd78-2c5c-72f4-b913-672a802a7116",
+        "name": True,
+        "address": "type",
+        "cuisine": "street",
+        "active" : "place"
+    }
+    with patch(
+        "app.services.restaurant_service.RestaurantRepository.add_record",
+        new_callable = AsyncMock,
+        return_value = fake_data
+    ):
+        try:
+           await create_restaurants(RestaurantRepository,data)
+        except ValueError:
+           pass
