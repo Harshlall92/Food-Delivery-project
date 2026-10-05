@@ -11,8 +11,11 @@ async def get_restaurants(repository: RestaurantRepository) -> list[Restaurant]:
     ]
 
 async def create_restaurants(repository: RestaurantRepository, data: RestaurantInput) -> Restaurant:
-    saved = await repository.add_record(data)
-    return validate_restaurant(saved)
+    record = Restaurant(**data.model_dump())
+
+    await repository.add_record(record)
+
+    return record
 
 
 
