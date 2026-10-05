@@ -33,6 +33,8 @@
     - [3.2.2 Menu Item Model](#322-menu-item-model)
     - [3.2.3 Restaurant Input Model](#323-restaurant-input-model)
     - [3.2.4 Restaurant Output Model](#324-restaurant-output-model)
+    - [3.2.4 Menu Item Input Model](#324-menu-item-input-model)
+    - [3.2.5 Menu Item Output Model](#325-menu-item-output-model)
   - [3.3 Repository](#33-repository)
     - [3.3.1 Restaurant Repository](#331-restaurant-repository)
     - [3.3.2 Menu Item Repository](#332-menu-item-repository)
@@ -40,8 +42,9 @@
     - [3.4.1 Customer Restaurants API Route](#341-customer-restaurants-api-route)
     - [3.4.2 Restaurant Owner Restaurant API](#342-restaurant-owner-restaurant-api)
     - [3.4.3 Restaurant Owner Menu Item API](#343-restaurant-owner-menu-item-api)
-  - [3.4 Services](#34-services)
-    - [3.4.1 Restaurant Services](#341-restaurant-services)
+  - [3.5 Services](#35-services)
+    - [3.5.1 Restaurant Services](#351-restaurant-services)
+    - [3.5.2 Menu Item Services](#352-menu-item-services)
 - [4. External Interface Requirements](#4-external-interface-requirements)
   - [4.1 User Interfaces](#41-user-interfaces)
     - [4.1.1 Customer User Interface](#411-customer-user-interface)
@@ -284,6 +287,34 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
   - **DATA-PYD-019.1:** The list of menu items SHALL be a list of `MenuItem` models
   - **DATA-PYD-019.2:** The list of menu items SHALL be empty if the restaurant has no menu items
 
+#### 3.2.4 Menu Item Input Model
+
+- **DATA-PYD-020:** The `MenuItemInput` model SHALL have a name
+  - **DATA-PYD-020.1:** The name SHALL be a non-empty string
+- **DATA-PYD-021:** The `MenuItemInput` model SHALL have a description
+  - **DATA-PYD-021.1:** The description SHALL be a non-empty string
+  - **DATA-PYD-021.2:** The description SHALL have a maximum length of 500 characters
+- **DATA-PYD-022:** The `MenuItemInput` model SHALL have a price
+  - **DATA-PYD-022.1:** The price SHALL be a Decimal
+  - **DATA-PYD-022.2:** The price SHALL be greater than or equal to 0.0
+  - **DATA-PYD-022.3:** The price SHALL have at most 2 decimal places
+
+#### 3.2.5 Menu Item Output Model
+
+- **DATA-PYD-023:** The `MenuItemOutput` model SHALL have an id
+  - **DATA-PYD-023.1:** The `MenuItemOutput` model id SHALL be a UUID
+  - **DATA-PYD-023.2:** The `MenuItemOutput` model id SHALL be [unique]
+- **DATA-PYD-024:** The `MenuItemOutput` model SHALL have a name
+  - **DATA-PYD-024.1:** The name SHALL be a non-empty string
+- **DATA-PYD-025:** THe `MenuItemOutput` model SHALL have a description
+  - **DATA-PYD-025.1:** The description SHALL be a non-empty string
+  - **DATA-PYD-025.2:** The description SHALL have a maximum length of 500 characters
+- **DATA-PYD-026:** The `MenuItemOutput` model SHALL have a price
+  - **DATA-PYD-026.1:** The price SHALL be a Decimal
+  - **DATA-PYD-026.2:** The price SHALL be greater than or equal to 0.0
+  - **DATA-PYD-026.3:** The price SHALL have at most 2 decimal places
+- **DATA-PYD-027:** The `MenuItemOutput` model SHALL have an `active` flag
+
 ---
 
 ### 3.3 Repository
@@ -392,10 +423,10 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 
 #### 3.4.3 Restaurant Owner Menu Item API
 
-##### 3.4.3.1 Create Menu Item Endpoint <!-- omit from toc -->
+##### 3.4.3.1 Add Menu Items for Restaurant Endpoint <!-- omit from toc -->
 
 - **FR-API-013:** The endpoint SHALL expose an endpoint to add a new menu item to a specific restaurant by its unique id
-  - **FR-API-013.1:** The endpoint SHALL be defined as `POST /restaurants/{restaurant_id}/menu_items`
+  - **FR-API-013.1:** The endpoint SHALL be defined as `POST /restaurants/{restaurant_id}/menu`
   - **FR-API-013.2:** The endpoint SHALL accept a `MenuItemInput` object
   - **FR-API-013.3:** The endpoint SHALL return `HTTP 201` if the menu item is created successfully
   - **FR-API-013.4:** The endpoint SHALL return a `MenuItemOutput` object
@@ -404,7 +435,7 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 ##### 3.4.3.2 Get Menu Item by Id Endpoint <!-- omit from toc -->
 
 - **FR-API-014:** The endpoint SHALL expose an endpoint to view the details of a specific menu item by its unique id
-  - **FR-API-014.1:** The endpoint SHALL be defined as `GET /restaurants/{restaurant_id}/menu_items/{menu_item_id}`
+  - **FR-API-014.1:** The endpoint SHALL be defined as `GET /restaurants/{restaurant_id}/menu/{menu_item_id}`
   - **FR-API-014.2:** The endpoint SHALL return `HTTP 200` if the request is successful
   - **FR-API-014.3:** The endpoint SHALL return a `MenuItemOutput` object
   - **FR-API-014.4:** The endpoint SHALL return `HTTP 404` if the restaurant or menu item is not found
@@ -412,7 +443,7 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 ##### 3.4.3.3 Update Menu Item Endpoint <!-- omit from toc -->
 
 - **FR-API-015:** The endpoint SHALL expose an endpoint to update the details of a specific menu item by its unique id
-  - **FR-API-015.1:** The endpoint SHALL be defined as `PUT /restaurants/{restaurant_id}/menu_items/{menu_item_id}`
+  - **FR-API-015.1:** The endpoint SHALL be defined as `PUT /restaurants/{restaurant_id}/menu/{menu_item_id}`
   - **FR-API-015.2:** The endpoint SHALL accept a `MenuItemInput` object
   - **FR-API-015.3:** The endpoint SHALL return `HTTP 200` if the menu item is updated successfully
   - **FR-API-015.4:** The endpoint SHALL return a `MenuItemOutput` object
@@ -420,23 +451,23 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 
 ---
 
-### 3.4 Services
+### 3.5 Services
 
 For aid in the development of services, please refer to the diagram in [Appendix A](#appendix-a-analysis-models) for a visual representation of the service layer and its interactions with the API and Repository layers.
 
 Note, not all services have diagrams, but the diagrams that are present should provide a good reference for the development of the services.
 
-#### 3.4.1 Restaurant Services
+#### 3.5.1 Restaurant Services
 
-##### 3.4.1.1 Create Models <!-- omit from toc -->
+##### 3.5.1.1 Create Models <!-- omit from toc -->
 
 - **FR-SERV-001:** The service SHALL provide a function to create a `Restaurant` object from raw json data
 - **FR-SERV-002:** The service SHALL provide a function to create a `Restaurant` object from a `RestaurantInput`
 - **FR-SERV-003:** The service SHALL provie a function to create a `RestaurantOutput` object from a `Restaurant` and a list of `MenuItemOutput` objects
 
-##### 3.4.1.2 Interaction with Repository <!-- omit from toc -->
+##### 3.5.1.2 Interaction with Repository <!-- omit from toc -->
 
-###### 3.4.1.2.1 CRUD Operations <!-- omit from toc -->
+###### 3.5.1.2.1 CRUD Operations <!-- omit from toc -->
 
 - **FR-SERV-004:** The service SHALL provide a function to retrieve all restaurants from the restaurant repository
   - **FR-SERV-004.1:** The service SHALL convert the restaurant data from the repository into a list of `RestaurantOutput` objects before returning it
@@ -454,7 +485,7 @@ Note, not all services have diagrams, but the diagrams that are present should p
   - **FR-SERV-007.3:** The service SHALL raise an error if the input data is invalid or incomplete
   - **FR-SERV-007.4:** The service SHALL return `None` if the restaurant is not found
 
-###### 3.4.1.2.2 Queries <!-- omit from toc -->
+###### 3.5.1.2.2 Queries <!-- omit from toc -->
 
 - **FR-SERV-008:** The service SHALL provide a function to search for restaurants by name from the restaurant repository
   - **FR-SERV-008.1:** The service SHALL convert the restaurant data from the repository into a list of `RestaurantOutput` objects before returning it
@@ -463,7 +494,7 @@ Note, not all services have diagrams, but the diagrams that are present should p
 - **FR-SERV-01-:** The service SHALL provide a function to filter restaurants by cuisine type from the restaurant repository
   - **FR-SERV-010.1:** The service SHALL convert the restaurant data from the repository into a list of `RestaurantOutput` objects before returning it
 
-##### 3.4.1.3 Interaction with API Layer <!-- omit from toc -->
+##### 3.5.1.3 Interaction with API Layer <!-- omit from toc -->
 
 - **FR-SERV-011:** The service SHALL provide a function to handle a request to retrieve all restaurants from the restaurant repository
 - **FR-SERV-012:** The service SHALL provide a function to handle a request to add a new restaurant to the restaurant repository
@@ -472,6 +503,38 @@ Note, not all services have diagrams, but the diagrams that are present should p
 - **FR-SERV-015:** The service SHALL provide a function to handle a request to search for restaurants by name from the restaurant repository
 - **FR-SERV-016:** The service SHALL provide a function to handle a request to retrieve all cuisines from the list of restaurants in the restaurant repository
 - **FR-SERV-017:** The service SHALL provide a function to handle a request to filter restaurants by cuisine type from the restaurant repository
+
+#### 3.5.2 Menu Item Services
+
+##### 3.5.2.1 Create Models <!-- omit from toc -->
+- **FR-SERV-018:** The service SHALL provide a function to create a `MenuItem` object from raw json data
+- **FR-SERV-019:** The service SHALL provide a function to create a `MenuItem` object from a `MenuItemInput`
+- **FR-SERV-020:** The service SHALL provide a function to create a `MenuItemOutput` object from a `MenuItem`
+
+##### 3.5.2.2 Interaction with Repository <!-- omit from toc -->
+
+- **FR-SERV-021:** The service SHALL provide a function to retrieve all menu items for a specific restaurant from the menu item repository
+  - **FR-SERV-021.1:** The service SHALL convert the menu item data from the repository into a list of `MenuItemOutput` objects before returning it
+  - **FR-SERV-021.2:** The service SHALL raise an error if any menu item data is invalid or incomplete
+- **FR-SERV-022:** The service SHALL provide a function to add a new menu item to the menu item repository
+  - **FR-SERV-022.1:** The service SHALL validate the input data before adding the menu item
+  - **FR-SERV-022.2:** The service SHALL return a `MenuItemOutput` object if the menu item is added successfully
+  - **FR-SERV-022.3:** The service SHALL raise an error if the input data is invalid or incomplete
+- **FR-SERV-023:** The service SHALL provide a function to retrieve a specific menu item by its unique id from the menu item repository
+  - **FR-SERV-023.1:** The service SHALL convert the menu item data from the repository into a `MenuItemOutput` object before returning it
+  - **FR-SERV-023.2:** The service SHALL return `None` if the menu item is not found
+- **FR-SERV-024:** The service SHALL provide a function to update an existing menu item in the menu item repository
+  - **FR-SERV-024.1:** The service SHALL validate the input data before updating the menu item
+  - **FR-SERV-024.2:** The service SHALL return a `MenuItemOutput` object if the menu item is updated successfully
+  - **FR-SERV-024.3:** The service SHALL raise an error if the input data is invalid or incomplete
+  - **FR-SERV-024.4:** The service SHALL return `None` if the menu item is not found
+
+##### 3.5.2.3 Interaction with API Layer <!-- omit from toc -->
+
+- **FR-SERV-025:** The service SHALL provide a function to handle a request to create a new menu item in the menu item repository
+- **FR-SERV-026:** The service SHALL provide a function to handle a request to retrieve all menu items for a specific restaurant from the menu item repository
+- **FR-SERV-027:** The service SHALL provide a function to handle a request to retrieve a specific menu item by its unique id from the menu item repository
+- **FR-SERV-028:** The service SHALL provide a function to handle a request to update an existing menu item in the menu item repository
 
 ---
 
@@ -502,15 +565,15 @@ This section describes the requirements for the external interfaces of the syste
   - **FR-UI-006.2:** Editable data should be limited to fields defined in the `RestaurantInput` model
   - **FR-UI-006.3:** Fields should be pre-populated with the current restaurant data
 - **FR-UI-007:** The system SHALL provide a user interface for restaurant owners to add a new menu item to a specific restaurant.
-  - **FR-UI-007.1:** Linked to the API endpoint `POST /restaurants/{restaurant_id}/menu_items`
+  - **FR-UI-007.1:** Linked to the API endpoint `POST /restaurants/{restaurant_id}/menu`
   - **FR-UI-007.2:** Form should include fields as defined in the `MenuItemInput` model
   - **FR-UI-007.3:** The form should be associated with the specific restaurant identified by `{restaurant_id}`
 - **FR-UI-008:** The system SHALL provide a user interface for restaurant owners to update the details of an existing menu item.
-  - **FR-UI-008.1:** Linked to the API endpoint `PUT /restaurants/{restaurant_id}/menu_items/{menu_item_id}`
+  - **FR-UI-008.1:** Linked to the API endpoint `PUT /restaurants/{restaurant_id}/menu/{menu_item_id}`
   - **FR-UI-008.2:** Editable data should be limited to fields defined in the `MenuItemInput` model
   - **FR-UI-008.3:** Fields should be pre-populated with the current menu item data
 - **FR-UI-009:** The system SHALL provide a user interface for restaurant owners to view the details of a specific menu item.
-  - **FR-UI-009.1:** Linked to the API endpoint `GET /restaurants/{restaurant_id}/menu_items/{menu_item_id}`
+  - **FR-UI-009.1:** Linked to the API endpoint `GET /restaurants/{restaurant_id}/menu/{menu_item_id}`
 
 ---
 
