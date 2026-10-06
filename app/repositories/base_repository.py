@@ -2,6 +2,8 @@ import json
 
 from pydantic import BaseModel
 from pathlib import Path
+import anyio
+
 class BaseRepository[T: BaseModel]:
 
     file_path: Path
@@ -37,7 +39,7 @@ class BaseRepository[T: BaseModel]:
 
     async def _read_file(self) -> list[dict]:
         try:
-            async with await open_file(self.file_path, "r", encoding="utf-8") as file:
+            async with await anyio.open_file(self.file_path, "r", encoding="utf-8") as file:
                 contents = await file.read()
                 return json.loads(contents)
         except FileNotFoundError:
@@ -47,7 +49,7 @@ class BaseRepository[T: BaseModel]:
         return []
 
     async def _write_file(self, data: list[dict]):
-        async with await open_file(self.file_path, "w", encoding="utf-8") as file:
+        async with await anyio.open_file(self.file_path, "w", encoding="utf-8") as file:
             await file.write(json.dumps(data, indent=4))
 
     """
@@ -55,9 +57,9 @@ class BaseRepository[T: BaseModel]:
     """
 
     async def _handle_file_not_found(self):
-        async with await open_file(self.file_path, "w", encoding="utf-8") as file:
+        async with await anyio.open_file(self.file_path, "w", encoding="utf-8") as file:
             await file.write("[]")
 
     async def _handle_invalid_json(self):
-        async with await open_file(self.file_path, "w", encoding="utf-8") as file:
+        async with await anyio.open_file(self.file_path, "w", encoding="utf-8") as file:
             await file.write("[]")
