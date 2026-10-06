@@ -2,9 +2,6 @@ import json
 
 from pydantic import BaseModel
 from pathlib import Path
-from anyio import open_file
-from uuid6 import UUID
-
 class BaseRepository[T: BaseModel]:
 
     file_path: Path

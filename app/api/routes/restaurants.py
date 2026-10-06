@@ -1,9 +1,7 @@
-from fastapi import FastAPI, APIRouter,status
+from fastapi import APIRouter,status
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.schemas.restaurant import *
 import app.services.restaurant_service as rService
-from pydantic import UUID7, BaseModel, Field
-from uuid6 import uuid7
 
 router = APIRouter(prefix = "/restaurants")
 

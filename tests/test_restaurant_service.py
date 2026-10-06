@@ -1,6 +1,6 @@
 from pydantic_core import ValidationError
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.services.restaurant_service import *
 from app.schemas.restaurant import Restaurant

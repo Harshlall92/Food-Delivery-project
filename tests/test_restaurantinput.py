@@ -1,7 +1,5 @@
-import pytest
 from pydantic import ValidationError
-from app.schemas.restaurant import Restaurant, RestaurantInput
-from uuid6 import UUID
+from app.schemas.restaurant import RestaurantInput
 
 
 def test_model_creates_with_valid_data():
