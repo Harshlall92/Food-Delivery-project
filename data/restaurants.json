@@ -1,31 +1,31 @@
 [
-  {
-    "id": "01a0fd78-2c5c-72f4-b913-672a802a7116",
-    "name": "kin&folk kelowna",
-    "cuisine": "korean",
-    "address": "281 lawrence avenue",
-    "active": true
-  },
-  {
-    "id": "01a0fd78-2c5d-735a-b1f3-b8c18b0d708a",
-    "name":"King Tap's",
-    "cuisine": "continental",
-    "address": "1352 water street",
-    "active": true
-  },
-  {
-    "id": "01a0fd78-2c5e-797e-8e55-e32179141ad1",
-    "name":"Derrick's steakhouse",
-    "cuisine": "italian",
-    "address": "1560 water street",
-    "active": true
-  },
-  {
-    "id": "01a0fd78-2c5f-7e29-abd4-4f60bd4b9e1e",
-    "name":"Earl's kitchen and bar",
-    "cuisine": "mexican",
-    "address": "211 bernard",
-    "active": true
-  }
-
+    {
+        "id": "01a0fd78-2c5c-72f4-b913-672a802a7116",
+        "name": "kin&folk kelowna",
+        "cuisine": "korean",
+        "address": "281 lawrence avenue",
+        "active": true
+    },
+    {
+        "id": "01a0fd78-2c5d-735a-b1f3-b8c18b0d708a",
+        "name": "King Tap's",
+        "cuisine": "continental",
+        "address": "1352 water street",
+        "active": true
+    },
+    {
+        "id": "01a0fd78-2c5e-797e-8e55-e32179141ad1",
+        "name": "Derrick's steakhouse",
+        "cuisine": "italian",
+        "address": "1560 water street",
+        "active": true
+    },
+    {
+        "id": "01a0fd78-2c5f-7e29-abd4-4f60bd4b9e1e",
+        "name": "Earl's kitchen and bar",
+        "cuisine": "mexican",
+        "address": "211 bernard",
+        "active": true
+    }
 ]
+   

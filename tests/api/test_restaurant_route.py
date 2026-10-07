@@ -1,8 +1,8 @@
 from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
+from app.repositories.restaurant_repository import RestaurantRepository
 from app.main import app
-from app.schemas.restaurant import Restaurant
-
+from app.schemas.restaurant import *
 client = TestClient(app)
 
 def test_get_restaurant():
@@ -35,4 +35,26 @@ def test_get_restaurant_fail():
         response = client.get("/restaurants")
     assert response.status_code == 500
 
-    
+def test_create_restaurant_integrated(tmp_path):
+    file_path = tmp_path / "test.json"
+    with patch("app.repositories.restaurant_repository.FILE_PATH", str(file_path)):
+
+        payload = {
+            "name": "Test Restaurant",
+            "address": "123 Test St",
+            "cuisine": "Italian"
+        }
+
+        response = client.post("/restaurants", json=payload)
+
+    assert response.status_code == 201
+    response_data = response.json()
+
+    assert response_data["name"] == "Test Restaurant"
+
+    contents = file_path.read_text(encoding="utf-8")
+    assert "Test Restaurant" in contents
+
+def test_create_restaurant_fail():
+    responce = client.post("/restaurants", json = {"name": "place"})
+    assert responce.status_code == 422

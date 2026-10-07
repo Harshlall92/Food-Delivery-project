@@ -4,7 +4,6 @@ from unittest.mock import patch
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.services.restaurant_service import *
 from app.schemas.restaurant import Restaurant
-from uuid6 import UUID
 
 mock_repository = RestaurantRepository()
 
@@ -28,13 +27,15 @@ async def test_get_restaurants(mocker):
     result = await get_restaurants(mock_repository)
 
     assert len(result) == 2
+
     assert isinstance(result[0], Restaurant)
     assert isinstance(result[1], Restaurant)
-    assert result[0].id == UUID(mock_data[0]["id"])
+    assert result[0].id == mock_data[0]["id"]
     assert result[0].name == mock_data[0]["name"]
     assert result[0].address == mock_data[0]["address"]
     assert result[0].cuisine == mock_data[0]["cuisine"]
-    assert result[1].id == UUID(mock_data[1]["id"])
+
+    assert result[1].id == mock_data[1]["id"]
     assert result[1].name == mock_data[1]["name"]
     assert result[1].address == mock_data[1]["address"]
     assert result[1].cuisine == mock_data[1]["cuisine"]
@@ -61,7 +62,7 @@ async def test_validate_restaurant():
     restaurant = validate_restaurant(data)
 
     assert isinstance(restaurant, Restaurant)
-    assert restaurant.id == UUID("01a0fd78-2c5c-72f4-b913-672a802a7116")
+    assert restaurant.id == "01a0fd78-2c5c-72f4-b913-672a802a7116"
     assert restaurant.name == "Test Restaurant"
     assert restaurant.address == "123 Test St"
     assert restaurant.cuisine == "Italian"
@@ -109,3 +110,26 @@ async def test_validate_restaurant_with_invalid_types():
         assert False, "Expected a ValidationError due to invalid types"
     except ValidationError as e:
         assert True
+
+@pytest.mark.anyio
+async def test_create_restaurants(tmp_path):
+    test_file = tmp_path / "test.json"
+
+    with patch("app.repositories.restaurant_repository.FILE_PATH", str(test_file)):
+        mock_repository = RestaurantRepository()
+
+    assert mock_repository.file_path == test_file
+
+    data = RestaurantInput(name="Test Restaurant", address="123 Test St", cuisine="Italian")
+    result = await create_restaurants(mock_repository, data)
+
+    assert isinstance(result, Restaurant)
+    assert result.name == "Test Restaurant"
+    assert result.address == "123 Test St"
+    assert result.cuisine == "Italian"
+
+    contents = await mock_repository._read_file()
+
+    assert len(contents) == 1
+
+        

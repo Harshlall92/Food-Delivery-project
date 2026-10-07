@@ -2,8 +2,7 @@ import json
 
 from pydantic import BaseModel
 from pathlib import Path
-from anyio import open_file
-from uuid import UUID
+import anyio
 
 class BaseRepository[T: BaseModel]:
 
@@ -19,12 +18,15 @@ class BaseRepository[T: BaseModel]:
     async def get_all(self) -> list[dict]:
         return await self._read_file()
 
-    async def add_record(self, record: T):
+    async def add_record(self, record: T) -> dict:
         data = await self._read_file()
-        data.append(record.model_dump())
-        await self._write_file(data)
+        record_dict = record.model_dump()
 
-    async def get_by_id(self, record_id: UUID) -> dict | None:
+        data.append(record_dict)
+        await self._write_file(data)
+        return record_dict
+
+    async def get_by_id(self, record_id: str) -> dict | None:
         data = await self._read_file()
         for item in data:
             if item.get("id") == record_id:
@@ -37,7 +39,7 @@ class BaseRepository[T: BaseModel]:
 
     async def _read_file(self) -> list[dict]:
         try:
-            async with await open_file(self.file_path, "r", encoding="utf-8") as file:
+            async with await anyio.open_file(self.file_path, "r", encoding="utf-8") as file:
                 contents = await file.read()
                 return json.loads(contents)
         except FileNotFoundError:
@@ -47,7 +49,7 @@ class BaseRepository[T: BaseModel]:
         return []
 
     async def _write_file(self, data: list[dict]):
-        async with await open_file(self.file_path, "w", encoding="utf-8") as file:
+        async with await anyio.open_file(self.file_path, "w", encoding="utf-8") as file:
             await file.write(json.dumps(data, indent=4))
 
     """
@@ -55,9 +57,9 @@ class BaseRepository[T: BaseModel]:
     """
 
     async def _handle_file_not_found(self):
-        async with await open_file(self.file_path, "w", encoding="utf-8") as file:
+        async with await anyio.open_file(self.file_path, "w", encoding="utf-8") as file:
             await file.write("[]")
 
     async def _handle_invalid_json(self):
-        async with await open_file(self.file_path, "w", encoding="utf-8") as file:
+        async with await anyio.open_file(self.file_path, "w", encoding="utf-8") as file:
             await file.write("[]")
