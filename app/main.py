@@ -1,9 +1,10 @@
 from fastapi import FastAPI
-from app.api.routes import restaurants
+from app.api.routes import restaurants, menu_items
 
 app = FastAPI()
 
 app.include_router(restaurants.router)
+app.include_router(menu_items.router)
 
 @app.get("/health")
 def health():
