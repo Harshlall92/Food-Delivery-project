@@ -1,9 +1,12 @@
+from pathlib import Path
+
 from fastapi import APIRouter,status
+from fastapi.responses import HTMLResponse
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.schemas.restaurant import *
 import app.services.restaurant_service as rService
 
-router = APIRouter(prefix = "/restaurants")
+router = APIRouter(prefix = "/api/restaurants")
 
 
 @router.get("", response_model=list[Restaurant])

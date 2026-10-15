@@ -1,0 +1,20 @@
+#restaurant-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.restaurant-card {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: white;
+    color: #222;
+    text-align: left;
+    cursor: pointer;
+}
+
+.restaurant-card:hover {
+    background: #f0f0f0;
+    transform: scale(1.01);
+}
