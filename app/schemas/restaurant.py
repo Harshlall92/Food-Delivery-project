@@ -12,3 +12,16 @@ class RestaurantInput(BaseModel):
     name: str = Field(min_length=1) 
     address: str = Field(min_length=1)
     cuisine: str = Field(min_length=1)
+
+class MenuItem(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid7()), frozen=True)
+    restaurant_id: str
+    name: str = Field(min_length=1)
+    price: float = Field(gt=0)
+    description: str = ""
+    available: bool = True
+
+class MenuItemInput(BaseModel):
+    name: str = Field(min_length=1)
+    price: float = Field(gt=0)
+    description: str = ""
