@@ -2,6 +2,7 @@ from unittest import result
 
 from fastapi import APIRouter,status, HTTPException
 from app.repositories.restaurant_repository import RestaurantRepository
+from app.repositories.menu_item_repository import MenuItemRepository
 from app.schemas.restaurant import *
 import app.services.restaurant_service as rService
 import app.services.menu_item_service as mService
@@ -13,7 +14,7 @@ router = APIRouter(prefix = "/restaurants")
 async def get_restaurants():
     return await rService.get_restaurants(RestaurantRepository())
 
-@router.post("",response_model=Restaurant, status_code = status.HTTP_201_CREATED  )
+@router.post("",response_model=Restaurant, status_code = status.HTTP_201_CREATED)
 async def create_restaurants(payload: RestaurantInput):
     return await rService.create_restaurants(RestaurantRepository(), payload)
 
@@ -25,6 +26,6 @@ async def create_restaurants(payload: RestaurantInput):
 )
 async def get_full_restaurant_info(restaurant_id: str):
     try:
-        return await rService.get_full_restaurant_info(RestaurantRepository(), rService.mService.MenuItemRepository(), restaurant_id)
+        return await rService.get_full_restaurant_info(RestaurantRepository(), MenuItemRepository(), restaurant_id)
     except mService.RestaurantNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
