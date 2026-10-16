@@ -17,6 +17,9 @@ async def get_restaurants_by_name(repository: RestaurantRepository, name: str|No
 
     if(name is not None):
         query = await repository.get_by_name(name)
+
+    if not query:
+        raise mService.RestaurantNotFoundError(f"No restaurants found matching {name}.")
     
     return [
         validate_restaurant(restaurant)
@@ -25,8 +28,12 @@ async def get_restaurants_by_name(repository: RestaurantRepository, name: str|No
 
 
 async def get_restaurants_by_cuisine(repository: RestaurantRepository, cuisine: str|None = None) -> list[Restaurant]:
+    
     if(cuisine is not None):
-            query = await repository.get_by_cuisine(cuisine)
+        query = await repository.get_by_cuisine(cuisine)
+
+    if not query:
+        raise mService.RestaurantNotFoundError(f"Restaurant with cuisine {cuisine} not found.")
         
     return [
         validate_restaurant(restaurant)
