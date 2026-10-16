@@ -29,4 +29,7 @@ def restaurants_page():
 @app.get("/restaurants/new")
 def new_restaurant_page():
     return FileResponse(FRONTEND_PATH / "create-restaurant.html", media_type="text/html")
-    
+
+@app.get("/restaurants/{restaurant_id}")
+def restaurant_detail_page(restaurant_id: str):
+    return FileResponse(FRONTEND_PATH / "restaurant-detail.html", media_type="text/html")
