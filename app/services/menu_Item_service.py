@@ -1,6 +1,6 @@
 from app.repositories.menu_item_repository import MenuItemRepository
 from app.repositories.restaurant_repository import RestaurantRepository
-from app.schemas.restaurant import MenuItem, MenuItemInput
+from app.schemas.menu_item import MenuItem, MenuItemInput, MenuItemOutput
 
 
 class RestaurantNotFoundError(Exception):
@@ -21,3 +21,10 @@ async def create_menu_item(
     record = MenuItem(restaurant_id=restaurant_id, **data.model_dump())
     await menu_item_repository.add_record(record)
     return record
+
+async def get_menu_items_by_restaurant_id(menu_item_repository: MenuItemRepository, restaurant_id: str) -> list[MenuItemOutput]:
+    menu_items = await menu_item_repository.get_menu_items_by_restaurant_id(restaurant_id)
+    return [validate_menu_item(item) for item in menu_items]
+
+def validate_menu_item(menu_item: dict) -> MenuItemOutput:
+    return MenuItemOutput(**menu_item)

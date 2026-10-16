@@ -1,18 +1,20 @@
 from pydantic_core import ValidationError
 import pytest
+import json
 from unittest.mock import patch
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.services.restaurant_service import *
 from app.schemas.restaurant import Restaurant
-
-mock_repository = RestaurantRepository()
+from tests.util.helpers import *
 
 @pytest.fixture
 def anyio_backend():
     return "asyncio"
 
 @pytest.mark.anyio
-async def test_get_restaurants(mocker):
+async def test_get_restaurants(tmp_path, mocker):
+    mock_repository = create_restaurant_repository(create_restaurant_file(tmp_path))
+
     mock_data = [
         {"id": "01a0fd78-2c5c-72f4-b913-672a802a7116", "name": "Restaurant A", "address": "123 Main St", "cuisine": "Italian"},
         {"id": "01a0fd78-2c5d-735a-b1f3-b8c18b0d708a", "name": "Another Test", "address": "456 Oak Ave", "cuisine": "Mexican"}
@@ -43,7 +45,9 @@ async def test_get_restaurants(mocker):
 
 
 @pytest.mark.anyio
-async def test_get_restaurants_on_empty_data(mocker):
+async def test_get_restaurants_on_empty_data(tmp_path, mocker):
+
+    mock_repository = create_restaurant_repository(create_restaurant_file(tmp_path))
 
     mocker.patch.object(
         mock_repository,
@@ -113,12 +117,7 @@ async def test_validate_restaurant_with_invalid_types():
 
 @pytest.mark.anyio
 async def test_create_restaurants(tmp_path):
-    test_file = tmp_path / "test.json"
-
-    with patch("app.repositories.restaurant_repository.FILE_PATH", str(test_file)):
-        mock_repository = RestaurantRepository()
-
-    assert mock_repository.file_path == test_file
+    mock_repository = create_restaurant_repository(create_restaurant_file(tmp_path))
 
     data = RestaurantInput(name="Test Restaurant", address="123 Test St", cuisine="Italian")
     result = await create_restaurants(mock_repository, data)
@@ -132,4 +131,36 @@ async def test_create_restaurants(tmp_path):
 
     assert len(contents) == 1
 
+@pytest.mark.anyio
+async def test_get_full_restaurant_info(tmp_path):
+    restaurant_file = create_restaurant_file(tmp_path)
+    restaurant_repository = create_restaurant_repository(restaurant_file)
+
+    menu_items_file = create_menu_item_file(tmp_path)
+    menu_item_repository = create_menu_item_repository(menu_items_file)
+
+    restaurant_data = {
+        "id": "01a0fd78-2c5c-72f4-b913-672a802a7116",
+        "name": "Test Restaurant",
+        "address": "123 Test St",
+        "cuisine": "Italian"
+    }
+
+    restaurant_file.write_text(json.dumps([restaurant_data]))
+
+    mock_menu_items = [
+        {"id": "1", "restaurant_id": restaurant_data["id"], "name": "Pizza", "price": 10.99, "description": "Delicious pizza", "available": True},
+        {"id": "2", "restaurant_id": restaurant_data["id"], "name": "Pasta", "price": 12.99, "description": "Tasty pasta", "available": True}
+    ]
+
+    menu_items_file.write_text(json.dumps(mock_menu_items))
+
+    result = await get_full_restaurant_info(restaurant_repository, menu_item_repository, restaurant_data["id"])
+
+    assert result is not None
+    assert result.id == restaurant_data["id"]
+    assert result.name == restaurant_data["name"]
+    assert result.address == restaurant_data["address"]
+    assert result.cuisine == restaurant_data["cuisine"]
+    assert len(result.menu_items) == 2
         
