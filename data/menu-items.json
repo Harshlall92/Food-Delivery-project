@@ -1,0 +1,34 @@
+[
+    {
+        "id": "01a14168-8ce8-7d38-9d02-30cb0bb998ca",
+        "restaurant_id": "01a0fd78-2c5c-72f4-b913-672a802a7116",
+        "name": "pizza",
+        "price": 1.0,
+        "description": "cool pizza",
+        "available": true
+    },
+    {
+        "id": "01a1416a-114a-7c6a-9c50-49aebbba4842",
+        "restaurant_id": "01a0fd78-2c5d-735a-b1f3-b8c18b0d708a",
+        "name": "dumplings",
+        "price": 10.0,
+        "description": "chicken dumplings",
+        "available": true
+    },
+    {
+        "id": "01a1416a-588c-7521-954c-54425f37d15e",
+        "restaurant_id": "01a0fd78-2c5d-735a-b1f3-b8c18b0d708a",
+        "name": "pasta",
+        "price": 20.0,
+        "description": "chicken pasta",
+        "available": true
+    },
+    {
+        "id": "01a1416a-a9a2-7b54-b770-61cfb8a6c968",
+        "restaurant_id": "01a0fd78-2c5d-735a-b1f3-b8c18b0d708a",
+        "name": "mango juice",
+        "price": 2.0,
+        "description": "iced mango and water",
+        "available": true
+    }
+]
