@@ -25,3 +25,8 @@ def index():
 @app.get("/restaurants")
 def restaurants_page():
     return FileResponse(FRONTEND_PATH / "restaurants.html", media_type="text/html")
+
+@app.get("/restaurants/new")
+def new_restaurant_page():
+    return FileResponse(FRONTEND_PATH / "create-restaurant.html", media_type="text/html")
+    
