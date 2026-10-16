@@ -2,8 +2,8 @@ from fastapi import APIRouter, HTTPException, status
 
 from app.repositories.menu_item_repository import MenuItemRepository
 from app.repositories.restaurant_repository import RestaurantRepository
-from app.schemas.restaurant import MenuItem, MenuItemInput
-import app.services.menu_Item_service as mService
+from app.schemas.menu_item import MenuItem, MenuItemInput
+import app.services.menu_item_service as mService
 
 router = APIRouter(prefix="/restaurants/{restaurant_id}/menu-items", tags=["menu items"])
 

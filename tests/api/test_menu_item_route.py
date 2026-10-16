@@ -1,10 +1,8 @@
 import json
 
 from fastapi.testclient import TestClient
-from pydantic import ValidationError
 
 from app.main import app
-from app.schemas.restaurant import MenuItemInput
 
 
 # Helper: makes empty temporary data files and tells the app to use them,
@@ -38,7 +36,7 @@ def test_add_menu_item_works(tmp_path, monkeypatch):
 
     response = client.post(
         f"/restaurants/{restaurant_id}/menu-items",
-        json={"name": "Margherita", "description": "Classic pizza", "price": 12.5},
+        json={"name": "Margherita", "description": "Classic pizza", "price": "12.50"},
     )
 
     # 201 means "created"
