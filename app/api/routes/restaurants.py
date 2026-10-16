@@ -14,7 +14,27 @@ router = APIRouter(prefix = "/api/restaurants")
 async def get_restaurants():
     return await rService.get_restaurants(RestaurantRepository())
 
-@router.post("",response_model=Restaurant, status_code = status.HTTP_201_CREATED)
+@router.get("/search", 
+            response_model=list[Restaurant], 
+            responses={404: {"description": "Restaurant not found"}},
+            description="Retrieves restaurants that contain the given name")
+async def search_restaurants(name: str):
+    try:
+        return await rService.get_restaurants_by_name(RestaurantRepository(), name)
+    except mService.RestaurantNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+@router.get("/filter", 
+            response_model=list,
+            responses={404: {"description": "Restaurant serving cuisine not found"}},
+            description="Retrieves restaurants that serve the given cuisine")
+async def filter_restaurants(cuisine: str):
+    try:
+        return await rService.get_restaurants_by_cuisine(RestaurantRepository(), cuisine)
+    except mService.RestaurantNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+@router.post("", response_model=Restaurant, status_code = status.HTTP_201_CREATED)
 async def create_restaurants(payload: RestaurantInput):
     return await rService.create_restaurants(RestaurantRepository(), payload)
 
