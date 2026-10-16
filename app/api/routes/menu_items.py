@@ -5,7 +5,7 @@ from app.repositories.restaurant_repository import RestaurantRepository
 from app.schemas.menu_item import MenuItem, MenuItemInput
 import app.services.menu_item_service as mService
 
-router = APIRouter(prefix="/restaurants/{restaurant_id}/menu-items", tags=["menu items"])
+router = APIRouter(prefix="/api/restaurants/{restaurant_id}/menu-items", tags=["menu items"])
 
 
 @router.post(

@@ -87,10 +87,11 @@ The application can then be opened in your web browser at [http://127.0.0.1:8000
 
 - `GET /` - Returns a welcome message.
 - `GET /health` - Returns a health check message.
-- `GET /restaurants` - Returns a list of all restaurants.
-- `GET /restaurants/{restaurant_id}` - Returns the full details of a restaurant, including its name, address, cuisine, and menu items.
-- `POST /restaurants` - Creates a new restaurant.
-- `POST /restaurants/{restaurant_id}/menu_items` - Creates a new menu item for a specific restaurant.
+  
+- `GET /api/restaurants` - Returns a list of all restaurants.
+- `GET /api/restaurants/{restaurant_id}` - Returns the full details of a restaurant, including its name, address, cuisine, and menu items.
+- `POST /api/restaurants` - Creates a new restaurant.
+- `POST /api/restaurants/{restaurant_id}/menu_items` - Creates a new menu item for a specific restaurant.
 
 API documentation can be found at: `/docs`
 

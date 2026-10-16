@@ -7,7 +7,7 @@ from app.schemas.restaurant import *
 import app.services.restaurant_service as rService
 import app.services.menu_item_service as mService
 
-router = APIRouter(prefix = "/restaurants")
+router = APIRouter(prefix = "/api/restaurants")
 
 
 @router.get("", response_model=list[Restaurant])
