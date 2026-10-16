@@ -1,4 +1,6 @@
 from app.repositories.restaurant_repository import RestaurantRepository
+from app.repositories.menu_item_repository import MenuItemRepository
+from app.services import menu_item_service as mService
 from app.schemas.restaurant import *
 
 async def get_restaurants(repository: RestaurantRepository) -> list[Restaurant]:
@@ -18,6 +20,19 @@ async def create_restaurants(repository: RestaurantRepository, data: RestaurantI
     return record
 
 
+async def get_full_restaurant_info(restaurant_repository: RestaurantRepository, menu_item_repository: MenuItemRepository, restaurant_id: str) -> FullRestaurantOutput | None:
+
+    restaurant = await restaurant_repository.get_by_id(restaurant_id)
+
+    if restaurant is None:
+        raise mService.RestaurantNotFoundError(f"Restaurant with ID {restaurant_id} not found.")
+
+    menu_items = await mService.get_menu_items_by_restaurant_id(menu_item_repository, restaurant_id)
+
+    return FullRestaurantOutput(
+        **restaurant,
+        menu_items=menu_items
+    )
 
 def validate_restaurant(restaurant: dict) -> Restaurant:
     return Restaurant(**restaurant)
