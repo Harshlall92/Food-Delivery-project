@@ -13,15 +13,11 @@ class RestaurantInput(BaseModel):
     address: str = Field(min_length=1)
     cuisine: str = Field(min_length=1)
 
-class MenuItem(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid7()), frozen=True)
-    restaurant_id: str
-    name: str = Field(min_length=1)
-    price: float = Field(gt=0)
-    description: str = ""
-    available: bool = True
+class RestaurantOutput(BaseModel):
+    id: str
+    name: str
+    address: str
+    cuisine: str
 
-class MenuItemInput(BaseModel):
-    name: str = Field(min_length=1)
-    price: float = Field(gt=0)
-    description: str = ""
+class FullRestaurantOutput(RestaurantOutput):
+    menu_items: list = []
