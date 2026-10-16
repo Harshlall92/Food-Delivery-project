@@ -12,6 +12,32 @@ async def get_restaurants(repository: RestaurantRepository) -> list[Restaurant]:
         for restaurant in query
     ]
 
+
+async def get_restaurants_by_name(repository: RestaurantRepository, name: str|None = None) -> list[Restaurant]:
+
+    if(name is not None):
+        query = await repository.get_by_name(name)
+    
+    return [
+        validate_restaurant(restaurant)
+        for restaurant in query
+    ]
+
+
+async def get_restaurants_by_cuisine(repository: RestaurantRepository, cuisine: str|None = None) -> list[Restaurant]:
+    if(cuisine is not None):
+            query = await repository.get_by_cuisine(cuisine)
+        
+    return [
+        validate_restaurant(restaurant)
+        for restaurant in query
+    ]
+
+
+async def get_all_cuisines(repository: RestaurantRepository) -> list:
+    return None
+
+
 async def create_restaurants(repository: RestaurantRepository, data: RestaurantInput) -> Restaurant:
     record = Restaurant(**data.model_dump())
 

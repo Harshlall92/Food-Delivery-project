@@ -14,7 +14,15 @@ router = APIRouter(prefix = "/api/restaurants")
 async def get_restaurants():
     return await rService.get_restaurants(RestaurantRepository())
 
-@router.post("",response_model=Restaurant, status_code = status.HTTP_201_CREATED)
+@router.get("/search", response_model=list[Restaurant])
+async def search_restaurants(name: str):
+    return await rService.get_restaurants_by_name(RestaurantRepository(), name)
+
+@router.get("/filter", response_model=list)
+async def filter_restaurants(cuisine: str):
+    return await rService.get_restaurants_by_cuisine(RestaurantRepository(), cuisine)
+
+@router.post("", response_model=Restaurant, status_code = status.HTTP_201_CREATED)
 async def create_restaurants(payload: RestaurantInput):
     return await rService.create_restaurants(RestaurantRepository(), payload)
 
