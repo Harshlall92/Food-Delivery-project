@@ -21,3 +21,9 @@ class RestaurantOutput(BaseModel):
 
 class FullRestaurantOutput(RestaurantOutput):
     menu_items: list = []
+
+class RestaurantUpdate(BaseModel):
+    name: str | None = None
+    address: str | None = None
+    cuisine: str | None = None
+    active: bool | None = None
