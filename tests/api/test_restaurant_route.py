@@ -23,7 +23,7 @@ def test_get_restaurant():
         new_callable=AsyncMock,
         return_value = fake_data
     ):
-        response = client.get("/restaurants")
+        response = client.get("/api/restaurants")
     assert response.status_code == 200
     assert response.json() == [
         {"id" : "01a0fd78-2c5c-72f4-b913-672a802a7116", "name" : "place", "address" : "street", "cuisine" : "type","active":True}
@@ -36,7 +36,7 @@ def test_get_restaurant_fail():
         new_callable=AsyncMock,
         side_effect = ValueError(),
     ):
-        response = client.get("/restaurants")
+        response = client.get("/api/restaurants")
     assert response.status_code == 500
 
 def test_create_restaurant_integrated(tmp_path):
@@ -49,7 +49,7 @@ def test_create_restaurant_integrated(tmp_path):
             "cuisine": "Italian"
         }
 
-        response = client.post("/restaurants", json=payload)
+        response = client.post("/api/restaurants", json=payload)
 
     assert response.status_code == 201
     response_data = response.json()
@@ -60,7 +60,7 @@ def test_create_restaurant_integrated(tmp_path):
     assert "Test Restaurant" in contents
 
 def test_create_restaurant_fail():
-    response = client.post("/restaurants", json = {"name": "place"})
+    response = client.post("/api/restaurants", json = {"name": "place"})
     assert response.status_code == 422
 
 def test_get_restaurant_by_id_integrated(tmp_path, monkeypatch):
@@ -89,7 +89,7 @@ def test_get_restaurant_by_id_integrated(tmp_path, monkeypatch):
 
     menu_items_file.write_text(json.dumps(menu_items_data))
 
-    response = client.get(f"/restaurants/{restaurant_id}")
+    response = client.get(f"/api/restaurants/{restaurant_id}")
 
     assert response.status_code == 200
     response_data = response.json()
@@ -101,6 +101,6 @@ def test_get_restaurant_by_id_integrated(tmp_path, monkeypatch):
     assert len(response_data["menu_items"]) == 2
 
 def test_get_restaurant_by_id_not_found():
-    response = client.get("/restaurants/nonexistent-id")
+    response = client.get("/api/restaurants/nonexistent-id")
     assert response.status_code == 404
 

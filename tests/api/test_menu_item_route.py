@@ -23,7 +23,7 @@ def setup_test_files(tmp_path, monkeypatch):
 # Helper: creates a restaurant through the API and returns its id.
 def create_test_restaurant(client):
     response = client.post(
-        "/restaurants",
+        "/api/restaurants",
         json={"name": "Test Place", "address": "1 Main St", "cuisine": "Italian"},
     )
     return response.json()["id"]
@@ -35,7 +35,7 @@ def test_add_menu_item_works(tmp_path, monkeypatch):
     restaurant_id = create_test_restaurant(client)
 
     response = client.post(
-        f"/restaurants/{restaurant_id}/menu-items",
+        f"/api/restaurants/{restaurant_id}/menu-items",
         json={"name": "Margherita", "description": "Classic pizza", "price": "12.50"},
     )
 
@@ -57,7 +57,7 @@ def test_add_menu_item_to_unknown_restaurant_gives_404(tmp_path, monkeypatch):
     client = TestClient(app)
 
     response = client.post(
-        "/restaurants/fake-id/menu-items",
+        "/api/restaurants/fake-id/menu-items",
         json={"name": "Margherita", "price": 12.5},
     )
 
@@ -73,7 +73,7 @@ def test_add_menu_item_with_zero_price_gives_422(tmp_path, monkeypatch):
     restaurant_id = create_test_restaurant(client)
 
     response = client.post(
-        f"/restaurants/{restaurant_id}/menu-items",
+        f"/api/restaurants/{restaurant_id}/menu-items",
         json={"name": "Margherita", "price": 0},
     )
 
@@ -90,7 +90,7 @@ def test_add_menu_item_with_negative_price_gives_422(tmp_path, monkeypatch):
     restaurant_id = create_test_restaurant(client)
 
     response = client.post(
-        f"/restaurants/{restaurant_id}/menu-items",
+        f"/api/restaurants/{restaurant_id}/menu-items",
         json={"name": "Margherita", "price": -5},
     )
 
