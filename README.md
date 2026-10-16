@@ -85,9 +85,12 @@ The application can then be opened in your web browser at [http://127.0.0.1:8000
 
 ### API Endpoint Paths
 
-- `/`
-- `/health`
-- `/restaurants`
+- `GET /` - Returns a welcome message.
+- `GET /health` - Returns a health check message.
+- `GET /restaurants` - Returns a list of all restaurants.
+- `GET /restaurants/{restaurant_id}` - Returns the full details of a restaurant, including its name, address, cuisine, and menu items.
+- `POST /restaurants` - Creates a new restaurant.
+- `POST /restaurants/{restaurant_id}/menu_items` - Creates a new menu item for a specific restaurant.
 
 API documentation can be found at: `/docs`
 
@@ -100,11 +103,26 @@ Restaurant JSON follows the following schema:
 
 ```json
 {
-    "id": 1,
+    "id": "01a0fd78-2c5c-72f4-b913-672a802a7116",
     "name": "Restaurant Name",
     "address": "Restaurant Address",
     "category": "Restauant Category",
     "is_open": true
+}
+```
+
+**Menu Items**: [Food-Delivery-project/data/menu_items.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/menu_items.json)
+
+Menu Item JSON follows the following schema:
+
+```json
+{
+    "id": "01a0fd78-2c5c-72f4-b913-672a802a71aa",
+    "restaurant_id": "01a0fd78-2c5c-72f4-b913-672a802a7116",
+    "name": "Item Name",
+    "price": 10.99,
+    "description": "Item Description",
+    "available": true
 }
 ```
 
