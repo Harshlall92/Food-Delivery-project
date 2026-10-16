@@ -63,16 +63,14 @@ def test_add_menu_item_to_unknown_restaurant_gives_404(tmp_path, monkeypatch):
         json={"name": "Margherita", "price": 12.5},
     )
 
-    # 404 means "not found"
     assert response.status_code == 404
 
-    # Nothing should have been saved
     saved_items = json.loads(menu_items_file.read_text())
     assert len(saved_items) == 0
 
 
 def test_add_menu_item_with_zero_price_gives_422(tmp_path, monkeypatch):
-    setup_test_files(tmp_path, monkeypatch)
+    menu_items_file = setup_test_files(tmp_path, monkeypatch)
     client = TestClient(app)
     restaurant_id = create_test_restaurant(client)
 
@@ -84,9 +82,12 @@ def test_add_menu_item_with_zero_price_gives_422(tmp_path, monkeypatch):
     # 422 means "the data you sent is invalid"
     assert response.status_code == 422
 
+    saved_items = json.loads(menu_items_file.read_text())
+    assert len(saved_items) == 0
+
 
 def test_add_menu_item_with_negative_price_gives_422(tmp_path, monkeypatch):
-    setup_test_files(tmp_path, monkeypatch)
+    menu_items_file = setup_test_files(tmp_path, monkeypatch)
     client = TestClient(app)
     restaurant_id = create_test_restaurant(client)
 
@@ -94,3 +95,8 @@ def test_add_menu_item_with_negative_price_gives_422(tmp_path, monkeypatch):
         f"/restaurants/{restaurant_id}/menu-items",
         json={"name": "Margherita", "price": -5},
     )
+
+    assert response.status_code == 422
+
+    saved_items = json.loads(menu_items_file.read_text())
+    assert len(saved_items) == 0
