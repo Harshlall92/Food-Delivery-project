@@ -163,4 +163,17 @@ async def test_get_full_restaurant_info(tmp_path):
     assert result.address == restaurant_data["address"]
     assert result.cuisine == restaurant_data["cuisine"]
     assert len(result.menu_items) == 2
+
+@pytest.mark.anyio
+async def test_get_full_restaurant_info_not_found(tmp_path):
+    restaurant_file = create_restaurant_file(tmp_path)
+    restaurant_repository = create_restaurant_repository(restaurant_file)
+
+    menu_items_file = create_menu_item_file(tmp_path)
+    menu_item_repository = create_menu_item_repository(menu_items_file)
+
+    non_existent_id = "non-existent-id"
+
+    with pytest.raises(mService.RestaurantNotFoundError):
+        await get_full_restaurant_info(restaurant_repository, menu_item_repository, non_existent_id)
         

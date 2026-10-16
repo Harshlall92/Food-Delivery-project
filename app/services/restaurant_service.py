@@ -25,7 +25,7 @@ async def get_full_restaurant_info(restaurant_repository: RestaurantRepository, 
     restaurant = await restaurant_repository.get_by_id(restaurant_id)
 
     if restaurant is None:
-        return None
+        raise mService.RestaurantNotFoundError(f"Restaurant with ID {restaurant_id} not found.")
 
     menu_items = await mService.get_menu_items_by_restaurant_id(menu_item_repository, restaurant_id)
 
