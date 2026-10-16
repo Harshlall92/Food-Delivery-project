@@ -8,17 +8,17 @@ class MenuItem(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid7()), frozen=True)
     restaurant_id: str
     name: str = Field(min_length=1)
-    price: Decimal = Field(gt=0, decimal_places=2)
+    price: float = Field(gt=0)
     description: str = ""
     available: bool = True
 
 class MenuItemInput(BaseModel):
     name: str = Field(min_length=1)
-    price: Decimal = Field(gt=0, decimal_places=2)
+    price: float = Field(gt=0)
     description: str = ""
 
 class MenuItemOutput(BaseModel):
     id: str
     name: str
-    price: Decimal
+    price: float
     description: str
