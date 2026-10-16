@@ -12,3 +12,12 @@ class RestaurantInput(BaseModel):
     name: str = Field(min_length=1) 
     address: str = Field(min_length=1)
     cuisine: str = Field(min_length=1)
+
+class RestaurantOutput(BaseModel):
+    id: str
+    name: str
+    address: str
+    cuisine: str
+
+class FullRestaurantOutput(RestaurantOutput):
+    menu_items: list = []
