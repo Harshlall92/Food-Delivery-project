@@ -30,11 +30,11 @@ async def get_full_restaurant_info(restaurant_id: str):
     except mService.RestaurantNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 @router.patch("/{restaurant_id}",
-    response_model=FullRestaurantOutput,
+    response_model = RestaurantOutput,
     responses ={404: {"description": "Restaurant not found"}},
     description = "Partially update's details of a restaurant, including up to its name, address and cuisine" 
     )
-async def part_update_restaurant(restaurant_id: str, payload: RestaurantUpdate):
+async def update_restaurant(restaurant_id: str, payload: RestaurantUpdate):
     try:
         return await rService.update_restaurant(
             RestaurantRepository(), restaurant_id, payload

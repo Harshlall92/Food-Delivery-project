@@ -22,3 +22,10 @@ class MenuItemOutput(BaseModel):
     name: str
     price: float
     description: str
+
+class MenuItemUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1)
+    price: float | None = Field(default=None, gt = 0)
+    description: str | None = Field(default=None, min_length=1)
+    available: bool | None = None
+        
