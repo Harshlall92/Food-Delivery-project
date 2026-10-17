@@ -17,9 +17,13 @@ document.getElementById('create-restaurant-form').addEventListener('submit', asy
         });
 
         if (response.ok){
-
+            const restaurant = await response.json();
+            result.textContent = `Restaurant ${restaurant.name} was created`;
+            result.className = 'success';
+            form.reset();
         }
     } catch (error) {
         console.error('Error creating restaurant:', error);
+        result.textContent = `Error creating restaurant`;
     }
 });

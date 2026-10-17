@@ -25,7 +25,13 @@ async function fetchRestaurant(restaurantId) {
         const menuItemsContainer = document.createElement("div");
         menuItemsContainer.id = "menu-items-container";
         restaurantDetailsContainer.appendChild(menuItemsContainer);
-
+        if(!document.getElementById('update-restaurant-form')){
+            const updateButton = document.createElement("a");
+            updateButton.href = `/update-restaurant/${restaurantId}`;
+            updateButton.textContent = "Update";
+            updateButton.className = "button";
+            restaurantDetailsContainer.appendChild(updateButton);
+        }
         for (const menuItem of restaurant.menu_items) {
             const menuItemCard = document.createElement("div");
             menuItemCard.className = "menu-item-card";
@@ -55,4 +61,4 @@ async function fetchRestaurant(restaurantId) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', fetchRestaurant(restaurantId));
+document.addEventListener('DOMContentLoaded', () => fetchRestaurant(restaurantId));

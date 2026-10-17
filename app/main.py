@@ -33,3 +33,7 @@ def new_restaurant_page():
 @app.get("/restaurants/{restaurant_id}")
 def restaurant_detail_page(restaurant_id: str):
     return FileResponse(FRONTEND_PATH / "restaurant-detail.html", media_type="text/html")
+
+@app.get("/update-restaurant/{restaurant_id}")
+def update_restaurant_page(restaurant_id: str):
+    return FileResponse(FRONTEND_PATH / "update-restaurant.html", media_type="text/html")
