@@ -2,7 +2,6 @@ const menuItemEditor = document.getElementById('menu-item-editor');
 const createMenuItemForm = document.getElementById('create-menu-item-form');
 const menuItemResult = document.getElementById('menu-item-result');
 
-// Turns a FastAPI error response into readable text
 async function readError(response) {
     const error = await response.json();
     return Array.isArray(error.detail)
