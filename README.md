@@ -85,14 +85,21 @@ The application can then be opened in your web browser at [http://127.0.0.1:8000
 
 ### API Endpoint Paths
 
-- `GET /` - Returns a welcome message.
+- `GET /` - Returns the home page for UI 
 - `GET /health` - Returns a health check message.
   
 - `GET /api/restaurants` - Returns a list of all restaurants.
+- `GET /api/restaurants/search` - Retrieves restaurants that contain the given name
+- `GET /api/restaurants/filter` - Retrieves restaurants that serve the given cuisine
 - `GET /api/restaurants/{restaurant_id}` - Returns the full details of a restaurant, including its name, address, cuisine, and menu items.
+- `GET /restaurants` - Return the restaurant page
+- `GET /restaurants/new` - Return the create new restaurant page
+- `GET /restaurants/{restaurant_id}` - Return the detail to a specfic restaurant
+- `GET /update-restaurants/{restaurant_id}` - Returns the update new restaurant page
 - `POST /api/restaurants` - Creates a new restaurant.
 - `POST /api/restaurants/{restaurant_id}/menu_items` - Creates a new menu item for a specific restaurant.
-
+- `PATCH /api/restaurants/{restaurant_id}` - Changes the one or multiple fields of a existing restaurants(id not included)
+- `PATCH /api/restaurants/{restaurant_id}/menu_items/{menu_item_id}` - Changes the one or multiple fields of a existing restaurant's menus items
 API documentation can be found at: `/docs`
 
 
@@ -100,32 +107,7 @@ API documentation can be found at: `/docs`
 
 **Restaurants**: [Food-Delivery-project/data/restaurants.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/restaurants.json)
 
-Restaurant JSON follows the following schema:
-
-```json
-{
-    "id": "01a0fd78-2c5c-72f4-b913-672a802a7116",
-    "name": "Restaurant Name",
-    "address": "Restaurant Address",
-    "category": "Restauant Category",
-    "is_open": true
-}
-```
-
-**Menu Items**: [Food-Delivery-project/data/menu_items.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/menu_items.json)
-
-Menu Item JSON follows the following schema:
-
-```json
-{
-    "id": "01a0fd78-2c5c-72f4-b913-672a802a71aa",
-    "restaurant_id": "01a0fd78-2c5c-72f4-b913-672a802a7116",
-    "name": "Item Name",
-    "price": 10.99,
-    "description": "Item Description",
-    "available": true
-}
-```
+**Menu Items**: [Food-Delivery-project/data/menu_items.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/menu-items.json)
 
 ## Tests
 
@@ -139,6 +121,15 @@ pytest -v
 
 ```
 Food-Delivery-project/
+├── .github
+│   ├── ISSUE_TEMPLATE
+│   │   ├── epic.md
+│   │   ├── sub_task.md
+│   │   ├── task.md
+│   │   └── user_story.md
+│   └── workflows
+│   │   └── python-app.yml
+│   └── pull_request_template.md
 ├── app/
 │   ├── api/
 │   │   └── routes/
@@ -147,9 +138,14 @@ Food-Delivery-project/
 │   ├── services/
 │   └── main.py
 ├── data/
-│   └── restaurants.json
+│   ├── restaurants.json
+│   └── menu-items.json
 ├── docs/
-│   └── milestone0-requirements.md
+│   ├── Software-Architecture.md
+│   └── Software-Requirements-Specification.md
+├── frontend
+│   ├── css
+│   └── js
 ├── scrum/
 │   └── team-agreement.md
 ├── tests/
