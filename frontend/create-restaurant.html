@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Restaurant</title>
+    <link rel="stylesheet" href="/static/css/styles.css" >
+</head>
+<body>
+    <header>
+        <h1>Create a New Restaurant</h1>
+        <nav>
+            <a href="/">Home</a> |
+            <a href="/restaurants">Restaurants</a> |
+            <a href="/restaurants/new">Create New Restaurant</a> |        </nav>
+    </header>
+    <main>
+        <form id="create-restaurant-form">
+            <label for="name">Restaurant Name:</label>
+            <input type="text" id="name" name="name" required>
+            <label for="address">Address:</label>
+            <input type="text" id="address" name="address" required>
+            <label for="cuisine">Cuisine:</label>
+            <input type="text" id="cuisine" name="cuisine" required>
+            <button id="submit">Create</button>
+        </form>
+        <div id="result"></div>
+    </main>
+
+</body>
+<script src="/static/js/create-restaurant.js"></script>
