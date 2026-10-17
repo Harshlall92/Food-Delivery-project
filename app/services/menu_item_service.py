@@ -34,10 +34,10 @@ async def update_menu_item(
     menu_item_id: str,
     payload: MenuItemUpdate) -> MenuItem:
     if await restaurant_repository.get_by_id(restaurant_id) is None:
-        return RestaurantNotFoundError(f"Restaurant with id:{restaurant_id} not found")
+        raise RestaurantNotFoundError(f"Restaurant with id:{restaurant_id} not found")
     item = await menu_item_repository.get_by_id(menu_item_id)
     if item is None or item["restaurant_id"] != restaurant_id:
-        return MenuItemNotFoundError(f"Menu item with id:{menu_item_id} not found")
+        raise MenuItemNotFoundError(f"Menu item with id:{menu_item_id} not found")
     changes = payload.model_dump(exclude_unset=True, exclude_none=True)
     updated = MenuItem(**{**item, **changes})
     results = await menu_item_repository.update_record(menu_item_id, updated)

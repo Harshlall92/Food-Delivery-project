@@ -98,3 +98,58 @@ def test_add_menu_item_with_negative_price_gives_422(tmp_path, monkeypatch):
 
     saved_items = json.loads(menu_items_file.read_text())
     assert len(saved_items) == 0
+
+def create_test_menu_item(client, restaurant_id):
+    response = client.post(
+        f"/api/restaurants/{restaurant_id}/menu-items",
+        json={"name": "Margherita", "description": "Classic pizza", "price": 12.5},
+    )
+    return response.json()
+ 
+def test_update_menu_item_only_changes_that_item(tmp_path, monkeypatch):
+    menu_items_file = setup_test_files(tmp_path, monkeypatch)
+    client = TestClient(app)
+    restaurant_id = create_test_restaurant(client)
+    first = create_test_menu_item(client, restaurant_id)
+    second = create_test_menu_item(client, restaurant_id)
+
+    client.patch(
+        f"/api/restaurants/{restaurant_id}/menu-items/{first['id']}",
+        json={"price": 20.0},
+    )
+    saved_item = json.loads(menu_items_file.read_text())
+    by_id = {i["id"]:i for i in saved_item}
+    assert by_id[first["id"]]["price"] == 20.0
+    assert by_id[second["id"]]["price"] == 12.5
+
+def test_update_unknown_menu_item_gives_404(tmp_path, monkeypatch):
+    menu_items_file = setup_test_files(tmp_path, monkeypatch)
+    client = TestClient(app)
+    restaurant_id = create_test_restaurant(client)
+ 
+    response = client.patch(
+        f"/api/restaurants/{restaurant_id}/menu-items/fake-item",
+        json={"price": 15.0},
+    )
+ 
+    assert response.status_code == 404
+ 
+    saved_items = json.loads(menu_items_file.read_text())
+    assert len(saved_items) == 0
+
+def test_update_menu_item_with_negative_price_gives_422(tmp_path, monkeypatch):
+    menu_items_file = setup_test_files(tmp_path, monkeypatch)
+    client = TestClient(app)
+    restaurant_id = create_test_restaurant(client)
+    item = create_test_menu_item(client, restaurant_id)
+ 
+    response = client.patch(
+        f"/api/restaurants/{restaurant_id}/menu-items/{item['id']}",
+        json={"price": -5},
+    )
+ 
+    assert response.status_code == 422
+ 
+    saved_items = json.loads(menu_items_file.read_text())
+    assert saved_items[0]["price"] == 12.5
+  
