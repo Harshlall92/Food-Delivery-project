@@ -33,6 +33,14 @@ class BaseRepository[T: BaseModel]:
                 return item
         return None
 
+    async def update_record(self, record_id: str, record: T) -> dict | None:
+        data = await self._read_file()
+        for i, item in enumerate(data):
+            if item.get("id") == record_id:
+                data[i] = record.model_dump()
+                await self._write_file(data)
+                return data[i]
+        return None
     """
     Data Persistence Methods
     """

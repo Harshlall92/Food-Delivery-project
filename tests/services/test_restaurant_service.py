@@ -176,4 +176,45 @@ async def test_get_full_restaurant_info_not_found(tmp_path):
 
     with pytest.raises(mService.RestaurantNotFoundError):
         await get_full_restaurant_info(restaurant_repository, menu_item_repository, non_existent_id)
-        
+
+RESTAURANTS_DATA = [
+    {"id": "01a0fd78-2c5c-72f4-b913-672a802a7116", "name": "Restaurant A", "address": "123 Main St",
+     "cuisine": "Italian", "active": True},
+    {"id": "01a0fd78-2c5d-735a-b1f3-b8c18b0d708a", "name": "Another Test", "address": "456 Oak Ave",
+     "cuisine": "Mexican", "active": True},
+]
+RESTAURANT_ID = RESTAURANTS_DATA[0]["id"]
+ 
+
+def setup_update_test(tmp_path):
+    restaurant_file = create_restaurant_file(tmp_path)
+    restaurant_file.write_text(json.dumps(RESTAURANTS_DATA))
+    return create_restaurant_repository(restaurant_file), restaurant_file
+
+@pytest.mark.anyio
+async def test_update_restaurant(tmp_path):
+    repository, restaurant_file = setup_update_test(tmp_path)
+ 
+    result = await update_restaurant(repository, RESTAURANT_ID, RestaurantUpdate(address="newAddress"))
+ 
+    assert isinstance(result, Restaurant)
+    assert result.id == RESTAURANT_ID
+    assert result.address == "newAddress"
+    # Fields that were not sent stay the same
+    assert result.name == "Restaurant A"
+    assert result.cuisine == "Italian"
+ 
+    contents = json.loads(restaurant_file.read_text())
+    assert len(contents) == 2
+    assert contents[0]["address"] == "newAddress"
+    assert contents[0]["name"] == "Restaurant A"
+ 
+@pytest.mark.anyio
+async def test_update_restaurant_not_found(tmp_path):
+    repository, restaurant_file = setup_update_test(tmp_path)
+ 
+    with pytest.raises(mService.RestaurantNotFoundError):
+        await update_restaurant(repository, "non-existent-id", RestaurantUpdate(name="X"))
+ 
+    # Nothing was written
+    assert json.loads(restaurant_file.read_text()) == RESTAURANTS_DATA

@@ -3,6 +3,7 @@ from app.repositories.menu_item_repository import MenuItemRepository
 from app.services import menu_item_service as mService
 from app.schemas.restaurant import *
 
+
 async def get_restaurants(repository: RestaurantRepository) -> list[Restaurant]:
 
     query = await repository.get_all()
@@ -11,6 +12,39 @@ async def get_restaurants(repository: RestaurantRepository) -> list[Restaurant]:
         validate_restaurant(restaurant)
         for restaurant in query
     ]
+
+
+async def get_restaurants_by_name(repository: RestaurantRepository, name: str|None = None) -> list[Restaurant]:
+
+    if(name is not None):
+        query = await repository.get_by_name(name)
+
+    if not query:
+        raise mService.RestaurantNotFoundError(f"No restaurants found matching {name}.")
+    
+    return [
+        validate_restaurant(restaurant)
+        for restaurant in query
+    ]
+
+
+async def get_restaurants_by_cuisine(repository: RestaurantRepository, cuisine: str|None = None) -> list[Restaurant]:
+    
+    if(cuisine is not None):
+        query = await repository.get_by_cuisine(cuisine)
+
+    if not query:
+        raise mService.RestaurantNotFoundError(f"Restaurant with cuisine {cuisine} not found.")
+        
+    return [
+        validate_restaurant(restaurant)
+        for restaurant in query
+    ]
+
+
+async def get_all_cuisines(repository: RestaurantRepository) -> list:
+    return None
+
 
 async def create_restaurants(repository: RestaurantRepository, data: RestaurantInput) -> Restaurant:
     record = Restaurant(**data.model_dump())
@@ -33,6 +67,14 @@ async def get_full_restaurant_info(restaurant_repository: RestaurantRepository, 
         **restaurant,
         menu_items=menu_items
     )
+async def update_restaurant(restaurant_repository: RestaurantRepository, restaurant_id: str, payload: RestaurantUpdate) -> Restaurant:
+    restaurant = await restaurant_repository.get_by_id(restaurant_id)
+    if restaurant is None:
+        raise mService.RestaurantNotFoundError(restaurant_id)
+    changes = payload.model_dump(exclude_unset=True)
+    updated = Restaurant(**{**restaurant, **changes})
+    result = await restaurant_repository.update_record(restaurant_id, updated)
+    return validate_restaurant(result)
 
 def validate_restaurant(restaurant: dict) -> Restaurant:
     return Restaurant(**restaurant)
