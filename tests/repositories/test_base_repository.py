@@ -149,3 +149,4 @@ async def test_repository_returns_none_if_item_not_found(tmp_path):
     item = await repository.get_by_id("2")
 
     assert item is None
+

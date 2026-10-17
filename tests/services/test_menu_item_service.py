@@ -4,7 +4,7 @@ import pytest
 from unittest.mock import patch
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.menu_item_repository import MenuItemRepository
-from app.schemas.menu_item import MenuItemInput, MenuItem
+from app.schemas.menu_item import MenuItemInput, MenuItem, MenuItemUpdate
 from app.services.menu_item_service import *
 from tests.util.helpers import *
 
@@ -124,5 +124,55 @@ def test_validate_menu_item_with_missing_fields():
     with pytest.raises(ValidationError):
         validate_menu_item(menu_item_dict)
 
+RESTAURANT_ID = "01a0fd78-2c5c-72f4-b913-672a802a7116"
+ 
+RESTAURANT_DATA = [
+    {"id": RESTAURANT_ID, "name": "Restaurant A", "address": "123 Main St", "cuisine": "Italian"}
+]
+ 
+MENU_ITEMS_DATA = [
+    {"id": "1", "restaurant_id": RESTAURANT_ID, "name": "Item 1", "price": 10.0, "description": "Desc 1", "available": True},
+    {"id": "2", "restaurant_id": RESTAURANT_ID, "name": "Item 2", "price": 15.0, "description": "Desc 2", "available": True},
+    {"id": "3", "restaurant_id": "other_restaurant", "name": "Item 3", "price": 20.0, "description": "Desc 3", "available": True},
+]
 
+def setup_update_test(tmp_path):
+    restaurant_file = create_restaurant_file(tmp_path)
+    menu_items_file = create_menu_item_file(tmp_path)
+ 
+    restaurant_file.write_text(json.dumps(RESTAURANT_DATA))
+    menu_items_file.write_text(json.dumps(MENU_ITEMS_DATA))
+ 
+    restaurant_repository = create_restaurant_repository(restaurant_file)
+    menu_item_repository = create_menu_item_repository(menu_items_file)
+    return restaurant_repository, menu_item_repository, menu_items_file
 
+@pytest.mark.anyio
+async def test_update_menu_item(tmp_path):
+    restaurant_repository, menu_item_repository, menu_items_file = setup_update_test(tmp_path)
+ 
+    result = await update_menu_item(
+        restaurant_repository, menu_item_repository, RESTAURANT_ID, "1", MenuItemUpdate(price=14.5)
+    )
+ 
+    assert result.id == "1"
+    assert result.restaurant_id == RESTAURANT_ID
+    assert result.price == 14.5
+    # Fields that were not sent stay the same
+    assert result.name == "Item 1"
+    assert result.description == "Desc 1"
+ 
+    contents = json.loads(menu_items_file.read_text())
+    assert len(contents) == 3
+    assert contents[0]["price"] == 14.5
+
+@pytest.mark.anyio
+async def test_update_menu_item_not_found(tmp_path):
+    restaurant_repository, menu_item_repository, menu_items_file = setup_update_test(tmp_path)
+ 
+    with pytest.raises(MenuItemNotFoundError):
+        await update_menu_item(
+            restaurant_repository, menu_item_repository, RESTAURANT_ID, "unknown-item", MenuItemUpdate(price=5)
+        )
+ 
+    assert json.loads(menu_items_file.read_text()) == MENU_ITEMS_DATA
