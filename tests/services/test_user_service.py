@@ -9,10 +9,12 @@ from tests.util.helpers import create_user_file, create_user_repository, create_
 def anyio_backend():
     return "asyncio"
 
-@pytest.mark.anyio
-async def test_create_customer_account(tmp_path):
-    mock_repository = create_user_repository(create_user_file(tmp_path))
+@pytest.fixture
+def repository(tmp_path):
+    return create_user_repository(create_user_file(tmp_path))
 
+@pytest.mark.anyio
+async def test_create_customer_account(repository):
     data = UserCreate(
         email="test@example.com",
         password="password123",
@@ -21,22 +23,21 @@ async def test_create_customer_account(tmp_path):
         last_name="Doe"
     )
 
-    result = await create_customer(mock_repository, data)
+    result = await create_customer(repository, data)
 
     assert isinstance(result, Customer)
     assert result.email == data.email
     assert result.first_name == data.first_name
     assert result.last_name == data.last_name
 
-    contents = await mock_repository._read_file()
+    contents = await repository._read_file()
 
     assert len(contents) == 1
 
 @pytest.mark.anyio
-async def test_create_customer_raises_duplicate_error(tmp_path):
-    mock_repository = create_user_repository(create_user_file(tmp_path))
+async def test_create_customer_raises_duplicate_error(repository):
     existing_customer = create_test_customer()
-    await mock_repository.add_record(existing_customer)
+    await repository.add_record(existing_customer)
 
     data = UserCreate(
         email=existing_customer.email,
@@ -47,13 +48,12 @@ async def test_create_customer_raises_duplicate_error(tmp_path):
     )
 
     with pytest.raises(DuplicateItemError, match=f"Customer with email {existing_customer.email} already exists."):
-        await create_customer(mock_repository, data)
+        await create_customer(repository, data)
 
 @pytest.mark.anyio
-async def test_update_user_account(tmp_path):
-    mock_repository = create_user_repository(create_user_file(tmp_path))
+async def test_update_user_account(repository):
     customer = create_test_customer()
-    await mock_repository.add_record(customer)
+    await repository.add_record(customer)
 
     customer_id = customer.id
 
@@ -66,7 +66,7 @@ async def test_update_user_account(tmp_path):
         active=False
     )
 
-    result = await update_customer(mock_repository, customer_id, update_data)
+    result = await update_customer(repository, customer_id, update_data)
 
     assert isinstance(result, Customer)
     assert result.email == update_data.email
@@ -74,7 +74,7 @@ async def test_update_user_account(tmp_path):
     assert result.last_name == update_data.last_name
     assert result.active == update_data.active
 
-    updated = await mock_repository.get_by_id(customer_id)
+    updated = await repository.get_by_id(customer_id)
 
     assert updated is not None
     assert updated["email"] == update_data.email
@@ -84,8 +84,7 @@ async def test_update_user_account(tmp_path):
     assert updated["active"] == update_data.active
 
 @pytest.mark.anyio
-async def test_update_raises_user_not_found_error_on_nonexistent_user(tmp_path):
-    mock_repository = create_user_repository(create_user_file(tmp_path))
+async def test_update_raises_user_not_found_error_on_nonexistent_user(repository):
 
     non_existent_id = "non-existent-id"
 
@@ -99,17 +98,15 @@ async def test_update_raises_user_not_found_error_on_nonexistent_user(tmp_path):
     )
 
     with pytest.raises(UserNotFoundError, match=f"Customer with ID {non_existent_id} not found."):
-        await update_customer(mock_repository, non_existent_id, update_data)
+        await update_customer(repository, non_existent_id, update_data)
 
 @pytest.mark.anyio
-async def test_update_raises_duplicate_error_on_email_conflict(tmp_path):
-    mock_repository = create_user_repository(create_user_file(tmp_path))
-
+async def test_update_raises_duplicate_error_on_email_conflict(repository):
     customer = create_test_customer()
     other_customer = create_test_customer(email="other@example.com")
 
-    await mock_repository.add_record(customer)
-    await mock_repository.add_record(other_customer)
+    await repository.add_record(customer)
+    await repository.add_record(other_customer)
 
     with pytest.raises(DuplicateItemError, match=f"Customer with email {other_customer.email} already exists."):
-        await update_customer(mock_repository, customer.id, UserUpdate(email=other_customer.email))
+        await update_customer(repository, customer.id, UserUpdate(email=other_customer.email))
