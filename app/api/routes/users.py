@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 
+from app.services.exceptions import DuplicateItemError
 from app.repositories.user_repository import UserRepository
 from app.schemas.user import Customer, UserCreate
 import app.services.user_service as uService
@@ -13,3 +14,5 @@ async def create_customer(user: UserCreate):
         return customer
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except DuplicateItemError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
