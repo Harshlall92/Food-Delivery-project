@@ -17,6 +17,9 @@ async def update_customer(repository: UserRepository, customer_id: str, data: Us
     changes = data.model_dump(exclude_unset=True)
     updated = Customer(**{**customer, **changes})
 
+    if await repository.contains_email(updated.email) and updated.email != customer["email"]:
+        raise DuplicateItemError(f"Customer with email {updated.email} already exists.")
+
     await repository.update_record(customer_id, updated)
 
     return updated
