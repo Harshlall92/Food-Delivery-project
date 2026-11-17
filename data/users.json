@@ -1,0 +1,33 @@
+[
+    {
+        "id": "01a1e9a2-8f21-7f83-a917-1af763265639",
+        "email": "admin@pilates.com",
+        "password": "$2b$12$5gomMPMDcwyXJtXGLsk5/.sYBGW9lwCGXVmHartVAxKpXmk1YKC7u",
+        "first_name": "Server",
+        "last_name": "Admin",
+        "active": true,
+        "role": "admin",
+        "permissions": []
+    },
+    {
+        "id": "01a1e9a4-021a-7f27-8546-c524b7f1ae7b",
+        "email": "test@example.com",
+        "password": "$2b$12$h1a8YgvqKshKk5uUGyHN9e2HjbUPA6jXmqgafug.33466aNxUDd1O",
+        "first_name": "Test",
+        "last_name": "User",
+        "active": true,
+        "role": "customer",
+        "addresses": [],
+        "payment_method": null
+    },
+    {
+        "id": "01a1e9a5-f414-7737-92c7-2ad43ff87b1c",
+        "email": "owner@kinfolk.com",
+        "password": "$2b$12$1AnEOazHE2X3.UKDXMFv2u1lvYAJaM5EQh7I5i41LXflwquYSoe.C",
+        "first_name": "Restaurant",
+        "last_name": "Owner",
+        "active": true,
+        "role": "restaurant_owner",
+        "restaurant_id": "01a0fd78-2c5c-72f4-b913-672a802a7116"
+    }
+]
