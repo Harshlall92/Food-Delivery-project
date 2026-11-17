@@ -53,7 +53,7 @@ class Customer(User):
 
 class RestaurantOwner(User):
     role: Literal["restaurant_owner"] = "restaurant_owner"
-    restaurant_id: str = Field(min_length=1)
+    restaurant_id: str | None = Field(default=None) # Account is created before restaurant is created, so this field is optional
 
 class Admin(User):
     role: Literal["admin"] = "admin"
