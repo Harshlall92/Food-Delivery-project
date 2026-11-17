@@ -1,5 +1,5 @@
-from FoodDeliveryProject.app.repositories.base_repository import BaseRepository
-from FoodDeliveryProject.app.schemas.user import AnyUser
+from app.repositories.base_repository import BaseRepository
+from app.schemas.user import AnyUser
 
 
 FILE_PATH = "data/users.json"
