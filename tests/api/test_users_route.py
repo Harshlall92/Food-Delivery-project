@@ -23,3 +23,19 @@ def test_create_customer_account(tmp_path, monkeypatch):
     response = client.post("/api/users/customers", json=payload)
 
     assert response.status_code == 201
+
+def test_create_customer_account_duplicate_email(tmp_path, monkeypatch):
+    create_test_file(tmp_path, monkeypatch)
+    payload = {
+        "email": "test@example.com",
+        "password": "testpw",
+        "confirm_password": "testpw",
+        "first_name": "Test",
+        "last_name": "User"
+    }
+
+    client.post("/api/users/customers", json=payload)
+
+    response = client.post("/api/users/customers", json=payload)
+
+    assert response.status_code == 409
