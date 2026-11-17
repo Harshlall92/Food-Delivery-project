@@ -1,15 +1,9 @@
 from fastapi.testclient import TestClient
 import pytest
 from app.main import app
+from tests.util.fixtures import mocked_user_repository, mocked_restaurant_repository
 
 client = TestClient(app)
-
-@pytest.fixture
-def setup(tmp_path, monkeypatch):
-    test_file = tmp_path / "users.json"
-    test_file.write_text("[]")
-    monkeypatch.setattr("app.repositories.user_repository.FILE_PATH", str(test_file))
-
 
 def create_test_user_create_dict(
         email = "test@example.com",
@@ -28,7 +22,7 @@ def create_test_user_create_dict(
 
 class TestCustomerRoutes:
 
-    def test_create_customer_account(self, setup):
+    def test_create_customer_account(self, mocked_user_repository):
         payload = create_test_user_create_dict()
 
         response = client.post("/api/users/c", json=payload)
@@ -36,7 +30,7 @@ class TestCustomerRoutes:
         assert response.status_code == 201
         assert response.json()["email"] == payload["email"]
 
-    def test_create_customer_account_duplicate_email(self, setup):
+    def test_create_customer_account_duplicate_email(self, mocked_user_repository):
         payload = create_test_user_create_dict()
 
         client.post("/api/users/c", json=payload)
@@ -46,7 +40,7 @@ class TestCustomerRoutes:
         assert response.status_code == 409
         assert response.json()["detail"] == f"Customer with email {payload['email']} already exists."
 
-    def test_update_customer_account(self, setup):
+    def test_update_customer_account(self, mocked_user_repository):
         customer_id = client.post("/api/users/c", json=create_test_user_create_dict()).json()["id"]
 
         payload = {
@@ -63,7 +57,7 @@ class TestCustomerRoutes:
         assert response.status_code == 200
         assert response.json()["email"] == payload["email"]
 
-    def test_update_customer_account_nonexistent_customer(self, setup):
+    def test_update_customer_account_nonexistent_customer(self, mocked_user_repository):
 
         client.post("/api/users/c", json=create_test_user_create_dict())
 
@@ -76,7 +70,7 @@ class TestCustomerRoutes:
         assert response.status_code == 404
         assert response.json()["detail"] == "Customer with ID nonexistent-id not found."
 
-    def test_update_customer_account_duplicate_email(self, setup):
+    def test_update_customer_account_duplicate_email(self, mocked_user_repository):
         customer = client.post("/api/users/c", json=create_test_user_create_dict())
         client.post("/api/users/c", json=create_test_user_create_dict(email="other@example.com"))
 
@@ -89,9 +83,22 @@ class TestCustomerRoutes:
         assert response.status_code == 409
         assert response.json()["detail"] == f"Customer with email {payload['email']} already exists."
 
+    def test_update_customer_account_invalid_input(self, mocked_user_repository):
+        customer = client.post("/api/users/c", json=create_test_user_create_dict())
+
+        payload = {
+            "password": "newpassword",
+            "confirm_password": "differentpassword"
+        }
+
+        response = client.patch(f"/api/users/c/{customer.json()['id']}", json=payload)
+
+        assert response.status_code == 422
+        assert "Passwords do not match" in response.json()["detail"][0]["msg"]
+
 class TestRestaurantOwnerRoutes:
 
-    def test_create_restaurant_owner_account(self, setup):
+    def test_create_restaurant_owner_account(self, mocked_user_repository):
         payload = create_test_user_create_dict()
 
         response = client.post("/api/users/r", json=payload)
@@ -99,7 +106,7 @@ class TestRestaurantOwnerRoutes:
         assert response.status_code == 201
         assert response.json()["email"] == payload["email"]
 
-    def test_create_restaurant_owner_account_duplicate_email(self, setup):
+    def test_create_restaurant_owner_account_duplicate_email(self, mocked_user_repository):
         payload = create_test_user_create_dict()
 
         client.post("/api/users/r", json=payload)
@@ -109,12 +116,81 @@ class TestRestaurantOwnerRoutes:
         assert response.status_code == 409
         assert response.json()["detail"] == f"Restaurant owner with email {payload['email']} already exists."
 
-    def test_create_restaurant_owner_account_invalid_input(self, setup):
+    def test_create_restaurant_owner_account_invalid_input(self, mocked_user_repository):
         payload = create_test_user_create_dict(confirm_password="differentpw")
 
         response = client.post("/api/users/r", json=payload)
 
         assert response.status_code == 422
-        assert "Passwords do not match." in response.json()["detail"][0]["msg"] 
+        assert "Passwords do not match" in response.json()["detail"][0]["msg"] 
 
-    
+    def test_update_restaurant_owner(self, mocked_user_repository, mocked_restaurant_repository):
+        customer_id = client.post("/api/users/r", json=create_test_user_create_dict()).json()["id"]
+        restaurant_data = {
+            "name": "Test Restaurant",
+            "address": "123 Test St",
+            "cuisine": "Test Cuisine"
+        }
+        restaurant_response = client.post("/api/restaurants", json=restaurant_data)
+
+        assert restaurant_response.status_code == 201
+
+        restaurant_id = restaurant_response.json()["id"]
+
+        update_payload = {
+            "restaurant_id": restaurant_id
+        }
+
+        response = client.patch(f"/api/users/r/{customer_id}", json=update_payload)
+
+        assert response.status_code == 200
+        assert response.json()["restaurant_id"] == restaurant_id
+
+    def test_update_restaurant_owner_nonexistent_restaurant(self, mocked_user_repository, mocked_restaurant_repository):
+        owner_id = client.post("/api/users/r", json=create_test_user_create_dict()).json()["id"]
+
+        update_payload = {
+            "restaurant_id": "nonexistent-restaurant-id"
+        }
+
+        response = client.patch(f"/api/users/r/{owner_id}", json=update_payload)
+
+        assert response.status_code == 404
+        assert "Restaurant with ID nonexistent-restaurant-id does not exist." in response.json()["detail"]
+
+    def test_update_restaurant_owner_nonexistent_user(self, mocked_user_repository, mocked_restaurant_repository):
+        update_payload = {
+            "restaurant_id": "some-restaurant-id"
+        }
+
+        response = client.patch("/api/users/r/nonexistent-user-id", json=update_payload)
+
+        assert response.status_code == 404
+        assert "Restaurant owner with ID nonexistent-user-id not found." in response.json()["detail"]
+
+    def test_update_restaurant_owner_duplicate_email(self, mocked_user_repository, mocked_restaurant_repository):
+        restaurant_owner = client.post("/api/users/r", json=create_test_user_create_dict()).json()["id"]
+        update_email = "other@example.com"
+        client.post("/api/users/r", json=create_test_user_create_dict(email=update_email))
+
+        update_payload = {
+            "email": update_email
+        }
+
+        response = client.patch(f"/api/users/r/{restaurant_owner}", json=update_payload)
+
+        assert response.status_code == 409
+        assert response.json()["detail"] == f"Restaurant owner with email {update_email} already exists."
+
+    def test_update_restaurant_owner_invalid_input(self, mocked_user_repository, mocked_restaurant_repository):
+        restaurant_owner = client.post("/api/users/r", json=create_test_user_create_dict()).json()["id"]
+
+        update_payload = {
+            "password": "newpassword",
+            "confirm_password": "differentpassword"
+        }
+
+        response = client.patch(f"/api/users/r/{restaurant_owner}", json=update_payload)
+
+        assert response.status_code == 422
+        assert "Passwords do not match" in response.json()["detail"][0]["msg"]
