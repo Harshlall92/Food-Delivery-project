@@ -1,8 +1,10 @@
 from fastapi import APIRouter, HTTPException, status
 
+from app.services.menu_item_service import RestaurantNotFoundError
+from app.repositories.restaurant_repository import RestaurantRepository
 from app.services.exceptions import DuplicateItemError, UserNotFoundError
 from app.repositories.user_repository import UserRepository
-from app.schemas.user import Customer, RestaurantOwner, UserCreate, UserUpdate
+from app.schemas.user import Customer, RestaurantOwner, RestaurantOwnerUpdate, UserCreate, UserUpdate
 import app.services.user_service as uService
 
 router = APIRouter(prefix="/api/users", tags=["users"])
@@ -71,3 +73,27 @@ async def create_restaurant_owner(user: UserCreate):
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
     except DuplicateItemError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+@restaurant_owner_router.patch(
+    "/{owner_id}",
+    description="Update an existing restaurant owner account",
+    responses={
+        404: {"description": "Restaurant owner not found, or associated restaurant does not exist"},
+        409: {"description": "Restaurant owner with this email already exists"},
+        422: {"description": "Invalid input data"},
+        200: {"description": "Restaurant owner updated successfully"},
+    },
+    response_model=RestaurantOwner
+)
+async def update_restaurant_owner(owner_id: str, user: RestaurantOwnerUpdate):
+    try:
+        updated_owner = await uService.update_restaurant_owner(UserRepository(), RestaurantRepository(), owner_id, user)
+        return updated_owner
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except DuplicateItemError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    except RestaurantNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
