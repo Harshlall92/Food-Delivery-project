@@ -1,6 +1,6 @@
 import pytest
 
-from app.schemas.user import User
+from app.schemas.user import User, UserUpdate
 
 class TestUserModel:
 
@@ -84,3 +84,18 @@ class TestUserModel:
             last_name="Doe"
         )
         assert user.password != "password123"
+
+class TestUserUpdateModel:
+
+    def test_user_update_passwords_must_match(self):
+        with pytest.raises(ValueError):
+            UserUpdate(
+                password="password123",
+                confirm_password="differentpassword"
+            )
+
+    def test_user_update_passwords_did_not_confirm(self):
+        with pytest.raises(ValueError):
+            UserUpdate(
+                password="password123"
+            )
