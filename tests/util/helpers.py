@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from app.schemas.user import Customer
+from app.schemas.user import Customer, RestaurantOwner
 from app.repositories.user_repository import UserRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.menu_item_repository import MenuItemRepository
@@ -46,4 +46,19 @@ def create_test_customer(
         last_name=last_name,
         addresses=addresses,
         payment_method=payment_method
+    )
+
+def create_test_restaurant_owner(
+        email: str = "test@example.com",
+        password: str = "testpw",
+        first_name: str = "Test",
+        last_name: str = "User",
+        restaurant_id: str | None = None
+        ) -> RestaurantOwner:
+    return RestaurantOwner(
+        email=email,
+        password=password,
+        first_name=first_name,
+        last_name=last_name,
+        restaurant_id=restaurant_id
     )
