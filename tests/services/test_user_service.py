@@ -1,21 +1,14 @@
 import pytest
 
 from app.schemas.restaurant import Restaurant
-from app.services.exceptions import UserNotFoundError, DuplicateItemError
+from app.services.exceptions import UserNotFoundError, DuplicateItemError, RestaurantNotFoundError
 from app.schemas.user import Customer, UserCreate, UserUpdate
 from app.services.user_service import *
-from tests.util.helpers import create_restaurant_file, create_restaurant_repository, create_user_file, create_user_repository, create_test_customer, create_test_restaurant_owner
-
-@pytest.fixture
-def anyio_backend():
-    return "asyncio"
-
-@pytest.fixture
-def repository(tmp_path):
-    return create_user_repository(create_user_file(tmp_path))
+from tests.util.helpers import create_test_customer, create_test_restaurant_owner
+from tests.util.fixtures import *
 
 @pytest.mark.anyio
-async def test_create_customer_account(repository):
+async def test_create_customer_account(user_repository):
     data = UserCreate(
         email="test@example.com",
         password="password123",
@@ -24,21 +17,21 @@ async def test_create_customer_account(repository):
         last_name="Doe"
     )
 
-    result = await create_customer(repository, data)
+    result = await create_customer(user_repository, data)
 
     assert isinstance(result, Customer)
     assert result.email == data.email
     assert result.first_name == data.first_name
     assert result.last_name == data.last_name
 
-    contents = await repository._read_file()
+    contents = await user_repository._read_file()
 
     assert len(contents) == 1
 
 @pytest.mark.anyio
-async def test_create_customer_raises_duplicate_error(repository):
+async def test_create_customer_raises_duplicate_error(user_repository):
     existing_customer = create_test_customer()
-    await repository.add_record(existing_customer)
+    await user_repository.add_record(existing_customer)
 
     data = UserCreate(
         email=existing_customer.email,
@@ -49,12 +42,12 @@ async def test_create_customer_raises_duplicate_error(repository):
     )
 
     with pytest.raises(DuplicateItemError, match=f"Customer with email {existing_customer.email} already exists."):
-        await create_customer(repository, data)
+        await create_customer(user_repository, data)
 
 @pytest.mark.anyio
-async def test_update_customer_account(repository):
+async def test_update_customer_account(user_repository):
     customer = create_test_customer()
-    await repository.add_record(customer)
+    await user_repository.add_record(customer)
 
     customer_id = customer.id
 
@@ -67,7 +60,7 @@ async def test_update_customer_account(repository):
         active=False
     )
 
-    result = await update_customer(repository, customer_id, update_data)
+    result = await update_customer(user_repository, customer_id, update_data)
 
     assert isinstance(result, Customer)
     assert result.email == update_data.email
@@ -75,7 +68,7 @@ async def test_update_customer_account(repository):
     assert result.last_name == update_data.last_name
     assert result.active == update_data.active
 
-    updated = await repository.get_by_id(customer_id)
+    updated = await user_repository.get_by_id(customer_id)
 
     assert updated is not None
     assert updated["email"] == update_data.email
@@ -85,7 +78,7 @@ async def test_update_customer_account(repository):
     assert updated["active"] == update_data.active
 
 @pytest.mark.anyio
-async def test_update_customer_raises_user_not_found_error_on_nonexistent_user(repository):
+async def test_update_customer_raises_user_not_found_error_on_nonexistent_user(user_repository):
 
     non_existent_id = "non-existent-id"
 
@@ -99,21 +92,21 @@ async def test_update_customer_raises_user_not_found_error_on_nonexistent_user(r
     )
 
     with pytest.raises(UserNotFoundError, match=f"Customer with ID {non_existent_id} not found."):
-        await update_customer(repository, non_existent_id, update_data)
+        await update_customer(user_repository, non_existent_id, update_data)
 
 @pytest.mark.anyio
-async def test_update_raises_duplicate_error_on_email_conflict(repository):
+async def test_update_raises_duplicate_error_on_email_conflict(user_repository):
     customer = create_test_customer()
     other_customer = create_test_customer(email="other@example.com")
 
-    await repository.add_record(customer)
-    await repository.add_record(other_customer)
+    await user_repository.add_record(customer)
+    await user_repository.add_record(other_customer)
 
     with pytest.raises(DuplicateItemError, match=f"Customer with email {other_customer.email} already exists."):
-        await update_customer(repository, customer.id, UserUpdate(email=other_customer.email))
+        await update_customer(user_repository, customer.id, UserUpdate(email=other_customer.email))
 
 @pytest.mark.anyio
-async def test_create_restaurant_owner_account(repository):
+async def test_create_restaurant_owner_account(user_repository):
     data = UserCreate(
         email="restaurant_owner@example.com",
         password="password123",
@@ -122,7 +115,7 @@ async def test_create_restaurant_owner_account(repository):
         last_name="Smith"
     )
 
-    result = await create_restaurant_owner(repository, data)
+    result = await create_restaurant_owner(user_repository, data)
 
     assert isinstance(result, RestaurantOwner)
     assert result.email == data.email
@@ -130,14 +123,14 @@ async def test_create_restaurant_owner_account(repository):
     assert result.last_name == data.last_name
     assert result.restaurant_id is None  # Since restaurant_id is optional and not provided
 
-    contents = await repository._read_file()
+    contents = await user_repository._read_file()
 
     assert len(contents) == 1
 
 @pytest.mark.anyio
-async def test_create_restaurant_owner_raises_duplicate_error(repository):
+async def test_create_restaurant_owner_raises_duplicate_error(user_repository):
     existing_owner = create_test_restaurant_owner() 
-    await repository.add_record(existing_owner)
+    await user_repository.add_record(existing_owner)
 
     data = UserCreate(
         email=existing_owner.email,
@@ -148,14 +141,13 @@ async def test_create_restaurant_owner_raises_duplicate_error(repository):
     )
 
     with pytest.raises(DuplicateItemError, match=f"Restaurant owner with email {existing_owner.email} already exists."):
-        await create_restaurant_owner(repository, data)
+        await create_restaurant_owner(user_repository, data)
 
 @pytest.mark.anyio
-async def test_update_restaurant_owner_account(repository, tmp_path):
-    restaurant_repository = create_restaurant_repository(create_restaurant_file(tmp_path))
+async def test_update_restaurant_owner_account(user_repository, restaurant_repository):
 
     owner = create_test_restaurant_owner()
-    await repository.add_record(owner)
+    await user_repository.add_record(owner)
 
     restaurant = Restaurant(
         name="Test Restaurant",
@@ -168,12 +160,39 @@ async def test_update_restaurant_owner_account(repository, tmp_path):
         restaurant_id=restaurant.id,
     )
 
-    result = await update_restaurant_owner(repository, restaurant_repository, owner.id, update_data)
+    result = await update_restaurant_owner(user_repository, restaurant_repository, owner.id, update_data)
 
     assert isinstance(result, RestaurantOwner)
     assert result.email == owner.email
     assert result.restaurant_id == restaurant.id
 
-    contents = await repository._read_file()
+    contents = await user_repository._read_file()
 
     assert contents[0]["restaurant_id"] == restaurant.id
+
+@pytest.mark.anyio
+async def test_update_restaurant_owner_raises_user_not_found_error_on_nonexistent_user(user_repository, restaurant_repository):
+
+    non_existent_id = "non-existent-id"
+
+    update_data = RestaurantOwnerUpdate(
+        restaurant_id="some-restaurant-id"
+    )
+
+    with pytest.raises(UserNotFoundError, match=f"Restaurant owner with ID {non_existent_id} not found."):
+        await update_restaurant_owner(user_repository, restaurant_repository, non_existent_id, update_data)
+
+@pytest.mark.anyio
+async def test_update_restaurant_owner_raises_restaurant_not_found_error_on_nonexistent_restaurant(user_repository, restaurant_repository):
+
+    owner = create_test_restaurant_owner()
+    await user_repository.add_record(owner)
+
+    non_existent_restaurant_id = "nonexistent-restaurant-id"
+
+    update_data = RestaurantOwnerUpdate(
+        restaurant_id=non_existent_restaurant_id
+    )
+
+    with pytest.raises(RestaurantNotFoundError, match=f"Restaurant with ID {non_existent_restaurant_id} does not exist."):
+        await update_restaurant_owner(user_repository, restaurant_repository, owner.id, update_data)    
