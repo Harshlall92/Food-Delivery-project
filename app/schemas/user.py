@@ -77,3 +77,16 @@ class UserUpdate(BaseModel):
             if self.password != self.confirm_password:
                 raise ValueError("password and confirm_password do not match")
         return self
+
+class UserCreate(BaseModel):
+    email: str = Field(min_length=1)
+    password: str = Field(min_length=1)
+    confirm_password: str = Field(min_length=1)
+    first_name: str = Field(min_length=1)
+    last_name: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_passwords_match(self) -> Self:
+        if self.password != self.confirm_password:
+            raise ValueError("Passwords do not match.")
+        return self
