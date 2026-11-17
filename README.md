@@ -112,6 +112,8 @@ Endpoints for user-related operations are available under the `/api/users/` path
 
 - `POST /c` - Creates a new customer account.
 - `PATCH /c/{user_id}` - Updates an existing customer account.
+- `POST /r` - Creates a new restaurant owner account.
+- `PATCH /r/{user_id}` - Updates an existing restaurant owner account.
 
 ## Representative Data
 
