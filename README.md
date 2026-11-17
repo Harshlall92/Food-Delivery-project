@@ -121,6 +121,8 @@ Endpoints for user-related operations are available under the `/api/users/` path
 
 **Menu Items**: [Food-Delivery-project/data/menu_items.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/menu-items.json)
 
+**Users**: [Food-Delivery-project/data/users.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/users.json)
+
 ## Tests
 
 Tests can be run with the following command in your terminal:
@@ -151,7 +153,8 @@ Food-Delivery-project/
 │   └── main.py
 ├── data/
 │   ├── restaurants.json
-│   └── menu-items.json
+│   ├── menu-items.json
+│   └── users.json
 ├── docs/
 │   ├── Software-Architecture.md
 │   └── Software-Requirements-Specification.md
