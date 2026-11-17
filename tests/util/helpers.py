@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from app.repositories.user_repository import UserRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.menu_item_repository import MenuItemRepository
 
@@ -19,3 +20,12 @@ def create_menu_item_file(tmp_path):
 def create_menu_item_repository(menu_items_file):
     with patch("app.repositories.menu_item_repository.FILE_PATH", str(menu_items_file)):
         return MenuItemRepository()
+
+def create_user_file(tmp_path):
+    user_file = tmp_path / "users.json"
+    user_file.write_text("[]")
+    return user_file
+
+def create_user_repository(user_file):
+    with patch("app.repositories.user_repository.FILE_PATH", str(user_file)):
+        return UserRepository()
