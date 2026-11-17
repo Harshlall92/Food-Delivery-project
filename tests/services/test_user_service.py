@@ -1,6 +1,6 @@
 import pytest
 
-from app.services.exceptions import UserNotFoundError
+from app.services.exceptions import UserNotFoundError, DuplicateItemError
 from app.schemas.user import Customer, UserCreate, UserUpdate
 from app.services.user_service import create_customer, update_customer
 from tests.util.helpers import create_user_file, create_user_repository, create_test_customer
@@ -31,6 +31,23 @@ async def test_create_customer_account(tmp_path):
     contents = await mock_repository._read_file()
 
     assert len(contents) == 1
+
+@pytest.mark.anyio
+async def test_create_customer_raises_duplicate_error(tmp_path):
+    mock_repository = create_user_repository(create_user_file(tmp_path))
+    existing_customer = create_test_customer()
+    await mock_repository.add_record(existing_customer)
+
+    data = UserCreate(
+        email=existing_customer.email,
+        password="password123",
+        confirm_password="password123",
+        first_name="Jane",
+        last_name="Smith"
+    )
+
+    with pytest.raises(DuplicateItemError, match=f"Customer with email {existing_customer.email} already exists."):
+        await create_customer(mock_repository, data)
 
 @pytest.mark.anyio
 async def test_update_user_account(tmp_path):
