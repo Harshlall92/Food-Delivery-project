@@ -3,6 +3,7 @@ import re
 from uuid6 import uuid7
 from typing_extensions import Annotated, Literal, Union, Self
 from pydantic import BaseModel, Field, field_validator, model_validator
+from app.schemas.common import BaseAddress
 
 class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid7()), frozen=True)
@@ -39,16 +40,12 @@ class User(BaseModel):
         
         return bcrypt.hashpw(value.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-class Address(BaseModel):
-    street_address: str = Field(min_length=1)
-    city: str = Field(min_length=1)
-    province: str = Field(min_length=1)
-    postal_code: str = Field(min_length=1)
-    label: str = Field(min_length=1) 
+class CustomerAddress(BaseAddress):
+    label: str = Field(default="Home", min_length=1, max_length=50)
 
 class Customer(User):
     role: Literal["customer"] = "customer"
-    addresses: list[Address] = Field(default_factory=list)
+    addresses: list[CustomerAddress] = Field(default_factory=list)
     payment_method: str | None = Field(default=None, min_length=1)  # Unused for now
 
 class RestaurantOwner(User):
