@@ -1,9 +1,10 @@
 import pytest
 
+from app.schemas.restaurant import Restaurant
 from app.services.exceptions import UserNotFoundError, DuplicateItemError
 from app.schemas.user import Customer, UserCreate, UserUpdate
 from app.services.user_service import *
-from tests.util.helpers import create_user_file, create_user_repository, create_test_customer, create_test_restaurant_owner
+from tests.util.helpers import create_restaurant_file, create_restaurant_repository, create_user_file, create_user_repository, create_test_customer, create_test_restaurant_owner
 
 @pytest.fixture
 def anyio_backend():
@@ -148,3 +149,31 @@ async def test_create_restaurant_owner_raises_duplicate_error(repository):
 
     with pytest.raises(DuplicateItemError, match=f"Restaurant owner with email {existing_owner.email} already exists."):
         await create_restaurant_owner(repository, data)
+
+@pytest.mark.anyio
+async def test_update_restaurant_owner_account(repository, tmp_path):
+    restaurant_repository = create_restaurant_repository(create_restaurant_file(tmp_path))
+
+    owner = create_test_restaurant_owner()
+    await repository.add_record(owner)
+
+    restaurant = Restaurant(
+        name="Test Restaurant",
+        address="123 Test St",
+        cuisine="test",
+    )
+    await restaurant_repository.add_record(restaurant)
+
+    update_data = RestaurantOwnerUpdate(
+        restaurant_id=restaurant.id,
+    )
+
+    result = await update_restaurant_owner(repository, restaurant_repository, owner.id, update_data)
+
+    assert isinstance(result, RestaurantOwner)
+    assert result.email == owner.email
+    assert result.restaurant_id == restaurant.id
+
+    contents = await repository._read_file()
+
+    assert contents[0]["restaurant_id"] == restaurant.id
