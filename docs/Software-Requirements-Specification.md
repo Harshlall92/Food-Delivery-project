@@ -28,23 +28,41 @@
   - [3.1 Database](#31-database)
     - [3.1.1 Restaurants Database](#311-restaurants-database)
     - [3.1.2 Menu Items Database](#312-menu-items-database)
+    - [3.1.3 Users Database](#313-users-database)
   - [3.2 Pydantic Models](#32-pydantic-models)
-    - [3.2.1 Restaurant Model](#321-restaurant-model)
-    - [3.2.2 Menu Item Model](#322-menu-item-model)
-    - [3.2.3 Restaurant Input Model](#323-restaurant-input-model)
-    - [3.2.4 Restaurant Output Model](#324-restaurant-output-model)
-    - [3.2.4 Menu Item Input Model](#324-menu-item-input-model)
-    - [3.2.5 Menu Item Output Model](#325-menu-item-output-model)
+    - [3.2.1 Shared Models](#321-shared-models)
+      - [3.2.1.1 BaseAddress Model](#3211-baseaddress-model)
+    - [3.2.2 Restaurant Model](#322-restaurant-model)
+      - [3.2.2.1 Restaurant Input Model](#3221-restaurant-input-model)
+      - [3.2.2.2 Restaurant Output Model](#3222-restaurant-output-model)
+    - [3.2.3 Menu Item Model](#323-menu-item-model)
+      - [3.2.3.1 Menu Item Input Model](#3231-menu-item-input-model)
+      - [3.2.3.2 Menu Item Output Model](#3232-menu-item-output-model)
+    - [3.2.4 User Model](#324-user-model)
+      - [3.2.4.1 AnyUser Type](#3241-anyuser-type)
+      - [3.2.4.2 UserCreate Model](#3242-usercreate-model)
+      - [3.2.4.3 UserUpdate Model](#3243-userupdate-model)
+    - [3.2.5 Customer Model](#325-customer-model)
+      - [3.2.5.1 CustomerAddress Model](#3251-customeraddress-model)
+    - [3.2.6 Restaurant Owner Model](#326-restaurant-owner-model)
+      - [3.2.6.1 RestaurantOwnerUpdate Model](#3261-restaurantownerupdate-model)
+    - [3.2.7 Admin Model](#327-admin-model)
   - [3.3 Repository](#33-repository)
     - [3.3.1 Restaurant Repository](#331-restaurant-repository)
     - [3.3.2 Menu Item Repository](#332-menu-item-repository)
+    - [3.3.3 User Repository](#333-user-repository)
   - [3.4 API Routes](#34-api-routes)
     - [3.4.1 Customer Restaurants API Route](#341-customer-restaurants-api-route)
     - [3.4.2 Restaurant Owner Restaurant API](#342-restaurant-owner-restaurant-api)
     - [3.4.3 Restaurant Owner Menu Item API](#343-restaurant-owner-menu-item-api)
+    - [3.4.4 Customer Account API](#344-customer-account-api)
+    - [3.4.5 Restaurant Owner Account API](#345-restaurant-owner-account-api)
+      - [3.4.5.1 Create Restaurant Owner Endpoint](#3451-create-restaurant-owner-endpoint)
+      - [3.4.5.2 Update Restaurant Owner Endpoint](#3452-update-restaurant-owner-endpoint)
   - [3.5 Services](#35-services)
     - [3.5.1 Restaurant Services](#351-restaurant-services)
     - [3.5.2 Menu Item Services](#352-menu-item-services)
+    - [3.5.3 User Services](#353-user-services)
 - [4. External Interface Requirements](#4-external-interface-requirements)
   - [4.1 User Interfaces](#41-user-interfaces)
     - [4.1.1 Customer User Interface](#411-customer-user-interface)
@@ -220,11 +238,51 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 - **DATA-MUI-006:** A Menu Item SHALL have a price
 - **DATA-MUI-007:** A Menu Item SHALL have an `active` flag
 
+#### 3.1.3 Users Database
+
+- **DATA-USR-001:** Users SHALL be stored in `data/users.json`
+- **DATA-USR-002:** A user SHALL have a unique id
+- **DATA-USR-003:** A user SHALL have an email address
+  - **DATA-USR-003.1:** The email address SHALL be unique
+  - **DATA-USR-003.2:** The email address SHALL be normalized to lowercase
+- **DATA-USR-004:** A user SHALL have a hashed password
+- **DATA-USR-005:** A user SHALL have a first name
+- **DATA-USR-006:** A user SHALL have a last name
+- **DATA-USR-007:** A user SHALL have an `active` flag
+- **DATA-USR-008:** A user SHALL have a role
+
 ---
 
 ### 3.2 Pydantic Models
 
-#### 3.2.1 Restaurant Model
+#### 3.2.1 Shared Models
+
+##### 3.2.1.1 BaseAddress Model
+
+- **DATA-PYD-057:** The `BaseAddress` model SHALL have an address line 1
+  - **DATA-PYD-057.1:** The address line 1 SHALL be a non-empty string
+  - **DATA-PYD-057.2:** The address line 1 SHALL have a maximum length of 120 characters
+  - **DATA-PYD-057.3:** Surrounding whitespace SHALL be removed from the address line 1
+- **DATA-PYD-058:** The `BaseAddress` model SHALL have an address line 2
+  - **DATA-PYD-058.1:** The address line 2 SHALL be optional and default to `None`
+  - **DATA-PYD-058.2:** The address line 2 SHALL be a non-empty string when it is provided
+  - **DATA-PYD-058.3:** The address line 2 SHALL have a maximum length of 120 characters
+  - **DATA-PYD-058.4:** Surrounding whitespace SHALL be removed from the address line 2
+- **DATA-PYD-059:** The `BaseAddress` model SHALL have a city
+  - **DATA-PYD-059.1:** The city SHALL be a non-empty string
+  - **DATA-PYD-059.2:** The city SHALL have a maximum length of 50 characters
+  - **DATA-PYD-059.3:** Surrounding whitespace SHALL be removed from the city
+- **DATA-PYD-060:** The `BaseAddress` model SHALL have a province
+  - **DATA-PYD-060.1:** The province SHALL be a two-letter Canadian province or territory code
+  - **DATA-PYD-060.2:** The province SHALL accept only `AB`, `BC`, `MB`, `NB`, `NL`, `NS`, `NT`, `NU`, `ON`, `PE`, `QC`, `SK`, or `YT`
+- **DATA-PYD-061:** The `BaseAddress` model SHALL have a country
+  - **DATA-PYD-061.1:** The country SHALL be a string
+  - **DATA-PYD-061.2:** The country SHALL always be set to `Canada`
+- **DATA-PYD-062:** The `BaseAddress` model SHALL have a postal code
+  - **DATA-PYD-062.1:** The postal code SHALL match the Canadian postal-code format `A1A 1A1`
+  - **DATA-PYD-062.2:** The postal-code letters SHALL be uppercase
+
+#### 3.2.2 Restaurant Model
 
 - **DATA-PYD-001:** The `Restaurant` model SHALL have an id
   - **DATA-PYD-001.1:** The `Restaurant` model id SHALL be a UUID
@@ -240,7 +298,33 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 - **DATA-PYD-005:** The `Restaurant` model SHALL have an `active` flag
   - **DATA-PYD-005.1:** The `active` flag SHALL be a boolean
 
-#### 3.2.2 Menu Item Model
+##### 3.2.2.1 Restaurant Input Model
+
+- **DATA-PYD-011:** The `RestaurantInput` model SHALL have a name
+  - **DATA-PYD-011.1:** The name SHALL be a non-empty string
+- **DATA-PYD-012:** The `RestaurantInput` model SHALL have an address
+  - **DATA-PYD-012.1:** The address SHALL be a non-empty string
+- **DATA-PYD-013:** The `RestaurantInput` model SHALL have a cuisine
+  - **DATA-PYD-013.1:** The cuisine SHALL be a non-empty string
+
+##### 3.2.2.2 Restaurant Output Model
+
+- **DATA-PYD-014:** The `RestauantOutput` model SHALL have an id
+  - **DATA-PYD-014.1:** The `RestaurantOutput` model id SHALL be a UUID
+  - **DATA-PYD-014.2:** The `RestaurantOutput` model id SHALL be [unique]
+- **DATA-PYD-015:** The `RestaurantOutput` model SHALL have a name
+  - **DATA-PYD-015.1:** The name SHALL be a non-empty string
+- **DATA-PYD-016:** The `RestaurantOutput` model SHALL have an address
+  - **DATA-PYD-016.1:** The address SHALL be a non-empty string
+- **DATA-PYD-017:** The `RestaurantOutput` model SHALL have a cuisine
+  - **DATA-PYD-017.1:** The cuisine SHALL be a non-empty string
+- **DATA-PYD-018:** The `RestaurantOutput` model SHALL have an `active` flag
+  - **DATA-PYD-018.1:** The `active` flag SHALL be a boolean
+- **DATA-PYD-019:** The `RestaurantOutput` model SHALL have a list of menu items
+  - **DATA-PYD-019.1:** The list of menu items SHALL be a list of `MenuItem` models
+  - **DATA-PYD-019.2:** The list of menu items SHALL be empty if the restaurant has no menu items
+
+#### 3.2.3 Menu Item Model
 
 - **DATA-PYD-006:** The `MenuItem` model SHALL have an id
   - **DATA-PYD-006.1:** The `MenuItem` model id SHALL be a UUID
@@ -261,33 +345,7 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
   - **DATA-PYD-010.2:** The price SHALL be greater than or equal to 0.0
   - **DATA-PYD-010.3:** The price SHALL have at most 2 decimal places
 
-#### 3.2.3 Restaurant Input Model
-
-- **DATA-PYD-011:** The `RestaurantInput` model SHALL have a name
-  - **DATA-PYD-011.1:** The name SHALL be a non-empty string
-- **DATA-PYD-012:** The `RestaurantInput` model SHALL have an address
-  - **DATA-PYD-012.1:** The address SHALL be a non-empty string
-- **DATA-PYD-013:** The `RestaurantInput` model SHALL have a cuisine
-  - **DATA-PYD-013.1:** The cuisine SHALL be a non-empty string
-
-#### 3.2.4 Restaurant Output Model
-
-- **DATA-PYD-014:** The `RestauantOutput` model SHALL have an id
-  - **DATA-PYD-014.1:** The `RestaurantOutput` model id SHALL be a UUID
-  - **DATA-PYD-014.2:** The `RestaurantOutput` model id SHALL be [unique]
-- **DATA-PYD-015:** The `RestaurantOutput` model SHALL have a name
-  - **DATA-PYD-015.1:** The name SHALL be a non-empty string
-- **DATA-PYD-016:** The `RestaurantOutput` model SHALL have an address
-  - **DATA-PYD-016.1:** The address SHALL be a non-empty string
-- **DATA-PYD-017:** The `RestaurantOutput` model SHALL have a cuisine
-  - **DATA-PYD-017.1:** The cuisine SHALL be a non-empty string
-- **DATA-PYD-018:** The `RestaurantOutput` model SHALL have an `active` flag
-  - **DATA-PYD-018.1:** The `active` flag SHALL be a boolean
-- **DATA-PYD-019:** The `RestaurantOutput` model SHALL have a list of menu items
-  - **DATA-PYD-019.1:** The list of menu items SHALL be a list of `MenuItem` models
-  - **DATA-PYD-019.2:** The list of menu items SHALL be empty if the restaurant has no menu items
-
-#### 3.2.4 Menu Item Input Model
+##### 3.2.3.1 Menu Item Input Model
 
 - **DATA-PYD-020:** The `MenuItemInput` model SHALL have a name
   - **DATA-PYD-020.1:** The name SHALL be a non-empty string
@@ -299,7 +357,7 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
   - **DATA-PYD-022.2:** The price SHALL be greater than or equal to 0.0
   - **DATA-PYD-022.3:** The price SHALL have at most 2 decimal places
 
-#### 3.2.5 Menu Item Output Model
+##### 3.2.3.2 Menu Item Output Model
 
 - **DATA-PYD-023:** The `MenuItemOutput` model SHALL have an id
   - **DATA-PYD-023.1:** The `MenuItemOutput` model id SHALL be a UUID
@@ -314,6 +372,111 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
   - **DATA-PYD-026.2:** The price SHALL be greater than or equal to 0.0
   - **DATA-PYD-026.3:** The price SHALL have at most 2 decimal places
 - **DATA-PYD-027:** The `MenuItemOutput` model SHALL have an `active` flag
+
+#### 3.2.4 User Model
+
+- **DATA-PYD-028:** The `User` model SHALL have an id
+  - **DATA-PYD-028.1:** The `User` model id SHALL be a UUID
+  - **DATA-PYD-028.2:** The `User` model id SHALL be unique
+  - **DATA-PYD-028.3:** The `User` model id SHALL be generated automatically upon creation
+  - **DATA-PYD-028.4:** The `User` model id SHALL be immutable once set
+- **DATA-PYD-029:** The `User` model SHALL have an email
+  - **DATA-PYD-029.1:** The email SHALL be a valid email address
+  - **DATA-PYD-029.2:** The email SHALL be unique
+  - **DATA-PYD-029.3:** The email SHALL be normalized to lowercase
+- **DATA-PYD-030:** The `User` model SHALL have a password
+  - **DATA-PYD-030.1:** The password SHALL be a non-empty string
+  - **DATA-PYD-030.2:** The password SHALL not contain whitespace
+  - **DATA-PYD-030.3:** The password SHALL be hashed before being stored
+- **DATA-PYD-031:** The `User` model SHALL have a first name
+  - **DATA-PYD-031.1:** The first name SHALL be a non-empty string
+  - **DATA-PYD-031.2:** The first name SHALL be stripped and converted to title case
+- **DATA-PYD-032:** The `User` model SHALL have a last name
+  - **DATA-PYD-032.1:** The last name SHALL be a non-empty string
+  - **DATA-PYD-032.2:** The last name SHALL be stripped and converted to title case
+- **DATA-PYD-033:** The `User` model SHALL have an `active` flag
+  - **DATA-PYD-033.1:** The `active` flag SHALL be a boolean
+  - **DATA-PYD-033.2:** The `active` flag SHALL default to `True`
+
+##### 3.2.4.1 AnyUser Type
+
+- **DATA-PYD-034:** The `AnyUser` type SHALL be a union of the `Customer`, `RestaurantOwner`, and `Admin` models determined by the `role` attribute
+
+##### 3.2.4.2 UserCreate Model
+
+- **DATA-PYD-035:** The `UserCreate` model SHALL have an email
+  - **DATA-PYD-035.1:** The email SHALL be a valid email address
+- **DATA-PYD-036:** The `UserCreate` model SHALL have a password
+  - **DATA-PYD-036.1:** The password SHALL be a non-empty string
+- **DATA-PYD-037:** The `UserCreate` model SHALL have a confirm password
+  - **DATA-PYD-037.1:** The confirm password SHALL be a non-empty string
+  - **DATA-PYD-037.2:** The confirm password SHALL match the password
+- **DATA-PYD-038:** The `UserCreate` model SHALL have a first name
+  - **DATA-PYD-038.1:** The first name SHALL be a non-empty string
+- **DATA-PYD-039:** The `UserCreate` model SHALL have a last name
+  - **DATA-PYD-039.1:** The last name SHALL be a non-empty string
+
+##### 3.2.4.3 UserUpdate Model
+
+- **DATA-PYD-040:** The `UserUpdate` model SHALL have an email
+  - **DATA-PYD-040.1:** The email SHALL be a valid email address
+  - **DATA-PYD-040.2:** The email SHALL be optional and default to `None`
+- **DATA-PYD-041:** The `UserUpdate` model SHALL have a password
+  - **DATA-PYD-041.1:** The password SHALL be a non-empty string
+  - **DATA-PYD-041.2:** The password SHALL be optional and default to `None`
+- **DATA-PYD-042:** The `UserUpdate` model SHALL have a confirm password
+  - **DATA-PYD-042.1:** The confirm password SHALL be optional and default to `None`
+  - **DATA-PYD-042.2:** The confirm password SHALL match the password when a password is provided
+- **DATA-PYD-043:** The `UserUpdate` model SHALL have a first name
+  - **DATA-PYD-043.1:** The first name SHALL be optional and default to `None`
+- **DATA-PYD-044:** The `UserUpdate` model SHALL have a last name
+  - **DATA-PYD-044.1:** The last name SHALL be optional and default to `None`
+- **DATA-PYD-053:** The `UserUpdate` model SHALL have an `active` flag
+  - **DATA-PYD-053.1:** The `active` flag SHALL be a boolean
+  - **DATA-PYD-053.2:** The `active` flag SHALL be optional and default to `None`
+
+#### 3.2.5 Customer Model
+
+- **DATA-PYD-045:** The `Customer` model SHALL extend the `User` model
+- **DATA-PYD-046:** The `Customer` model SHALL have a role
+  - **DATA-PYD-046.1:** The role SHALL be a string that is always set to `customer`
+- **DATA-PYD-047:** The `Customer` model SHALL have a list of `CustomerAddress` models
+  - **DATA-PYD-047.1:** The list of addresses SHALL default to an empty list
+- **DATA-PYD-048:** The `Customer` model SHOULD have a payment method
+  - **DATA-PYD-048.1:** The payment method SHALL be a string
+  - **DATA-PYD-048.2:** The payment method SHALL be optional and default to `None`
+
+##### 3.2.5.1 CustomerAddress Model
+
+- **DATA-PYD-049:** The `CustomerAddress` model SHALL extend the `BaseAddress` model
+- **DATA-PYD-054:** The `CustomerAddress` model SHALL have a label
+  - **DATA-PYD-054.1:** The label SHALL be a non-empty string
+  - **DATA-PYD-054.2:** The label SHALL have a maximum length of 50 characters
+  - **DATA-PYD-054.3:** The label SHALL default to `Home`
+
+#### 3.2.6 Restaurant Owner Model
+
+- **DATA-PYD-050:** The `RestaurantOwner` model SHALL extend the `User` model
+- **DATA-PYD-051:** The `RestaurantOwner` model SHALL have a role
+  - **DATA-PYD-051.1:** The role SHALL be a string that is always set to `restaurant_owner`
+- **DATA-PYD-052:** The `RestaurantOwner` model SHALL have a `restaurant_id`
+  - **DATA-PYD-052.1:** The `restaurant_id` SHALL be optional and default to `None`
+  - **DATA-PYD-052.2:** The `restaurant_id` SHALL reference an existing restaurant when it is not `None`
+
+##### 3.2.6.1 RestaurantOwnerUpdate Model
+
+- **DATA-PYD-055:** The `RestaurantOwnerUpdate` model SHALL extend the `UserUpdate` model
+- **DATA-PYD-056:** The `RestaurantOwnerUpdate` model SHALL have a `restaurant_id`
+  - **DATA-PYD-056.1:** The `restaurant_id` SHALL be optional and default to `None`
+  - **DATA-PYD-056.2:** The `restaurant_id` SHALL reference an existing restaurant when it is not `None`
+
+#### 3.2.7 Admin Model
+
+- **DATA-PYD-063:** The `Admin` model SHALL extend the `User` model
+- **DATA-PYD-063:** The `Admin` model SHALL have a role
+  - **DATA-PYD-063.1:** The role SHALL be a string that is always set to `admin`
+- **DATA-PYD-064:** The `Admin` model SHALL have a list of permissions
+  - **DATA-PYD-064.1:** The list of permissions SHALL default to an empty list
 
 ---
 
@@ -351,6 +514,14 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 - **FR-REPO-016:** The menu item repository SHALL be able to retrieve all menu items for a specific restaurant
   - **FR-REPO-016.1:** The repository SHALL return an empty list if no menu items are found for the restaurant
 - **FR-REPO-017:** The menu item repository SHALL use the `MenuItem` model as its type parameter
+
+#### 3.3.3 User Repository
+
+- **FR-REPO-018:** The user repository SHALL have a file path of `data/users.json`
+- **FR-REPO-019:** The user repository SHALL use the `AnyUser` type as its type parameter
+- **FR-REPO-020:** The user repository SHALL determine whether an email address already exists
+  - **FR-REPO-020.1:** The repository SHALL return `True` when the email address exists
+  - **FR-REPO-020.2:** The repository SHALL return `False` when the email address does not exist
 
 ---
 
@@ -449,6 +620,45 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
   - **FR-API-015.4:** The endpoint SHALL return a `MenuItemOutput` object
   - **FR-API-015.5:** The endpoint SHALL return `HTTP 404` if the restaurant or menu item is not found
 
+#### 3.4.4 Customer Account API
+
+##### 3.4.4.1 Create Customer Endpoint <!-- omit from toc -->
+
+- **FR-API-016:** The system SHALL expose `POST /api/users/c` to create a customer account
+  - **FR-API-016.1:** The endpoint SHALL accept a `UserCreate` object
+  - **FR-API-016.2:** The endpoint SHALL return `HTTP 201` and the created `Customer` if creation succeeds
+  - **FR-API-016.3:** The endpoint SHALL return `HTTP 409` if the email address already exists
+  - **FR-API-016.4:** The endpoint SHALL return `HTTP 422` if the input data is invalid
+
+##### 3.4.4.2 Update Customer Endpoint <!-- omit from toc -->
+
+- **FR-API-017:** The system SHALL expose `PATCH /api/users/c/{customer_id}` to update a customer account
+  - **FR-API-017.1:** The endpoint SHALL accept a `UserUpdate` object
+  - **FR-API-017.2:** The endpoint SHALL return `HTTP 200` and the updated `Customer` if updating succeeds
+  - **FR-API-017.3:** The endpoint SHALL return `HTTP 404` if the customer does not exist
+  - **FR-API-017.4:** The endpoint SHALL return `HTTP 409` if the updated email address already exists
+  - **FR-API-017.5:** The endpoint SHALL return `HTTP 422` if the input data is invalid
+
+#### 3.4.5 Restaurant Owner Account API
+
+##### 3.4.5.1 Create Restaurant Owner Endpoint
+
+- **FR-API-018:** The system SHALL expose `POST /api/users/r` to create a restaurant owner account
+  - **FR-API-018.1:** The endpoint SHALL accept a `UserCreate` object
+  - **FR-API-018.2:** The endpoint SHALL return `HTTP 201` and the created `RestaurantOwner` if creation succeeds
+  - **FR-API-018.3:** The endpoint SHALL return `HTTP 409` if the email address already exists
+  - **FR-API-018.4:** The endpoint SHALL return `HTTP 422` if the input data is invalid
+
+##### 3.4.5.2 Update Restaurant Owner Endpoint
+
+- **FR-API-019:** The system SHALL expose `PATCH /api/users/r/{owner_id}` to update a restaurant owner account
+  - **FR-API-019.1:** The endpoint SHALL accept a `RestaurantOwnerUpdate` object
+  - **FR-API-019.2:** The endpoint SHALL return `HTTP 200` and the updated `RestaurantOwner` if updating succeeds
+  - **FR-API-019.3:** The endpoint SHALL return `HTTP 404` if the restaurant owner does not exist
+  - **FR-API-019.4:** The endpoint SHALL return `HTTP 404` if the provided restaurant does not exist
+  - **FR-API-019.5:** The endpoint SHALL return `HTTP 409` if the updated email address already exists
+  - **FR-API-019.6:** The endpoint SHALL return `HTTP 422` if the input data is invalid
+
 ---
 
 ### 3.5 Services
@@ -536,6 +746,27 @@ Note, not all services have diagrams, but the diagrams that are present should p
 - **FR-SERV-027:** The service SHALL provide a function to handle a request to retrieve a specific menu item by its unique id from the menu item repository
 - **FR-SERV-028:** The service SHALL provide a function to handle a request to update an existing menu item in the menu item repository
 
+#### 3.5.3 User Services
+
+- **FR-SERV-029:** The service SHALL create a `Customer` from a `UserCreate` object
+  - **FR-SERV-029.1:** The service SHALL raise `DuplicateItemError` if the email address already exists
+  - **FR-SERV-029.2:** The service SHALL persist the customer in the user repository
+- **FR-SERV-030:** The service SHALL update an existing customer using a `UserUpdate` object
+  - **FR-SERV-030.1:** The service SHALL raise `UserNotFoundError` if the customer does not exist
+  - **FR-SERV-030.2:** The service SHALL apply only fields explicitly included in the update
+  - **FR-SERV-030.3:** The service SHALL raise `DuplicateItemError` if the updated email address belongs to another user
+  - **FR-SERV-030.4:** The service SHALL persist and return the updated customer
+- **FR-SERV-031:** The service SHALL create a `RestaurantOwner` from a `UserCreate` object
+  - **FR-SERV-031.1:** The service SHALL raise `DuplicateItemError` if the email address already exists
+  - **FR-SERV-031.2:** The service SHALL persist the restaurant owner in the user repository
+- **FR-SERV-032:** The service SHALL update an existing restaurant owner using a `RestaurantOwnerUpdate` object
+  - **FR-SERV-032.1:** The service SHALL raise `UserNotFoundError` if the restaurant owner does not exist
+  - **FR-SERV-032.2:** The service SHALL verify that a provided `restaurant_id` references an existing restaurant
+  - **FR-SERV-032.3:** The service SHALL raise `RestaurantNotFoundError` if the provided restaurant does not exist
+  - **FR-SERV-032.4:** The service SHALL apply only fields explicitly included in the update
+  - **FR-SERV-032.5:** The service SHALL raise `DuplicateItemError` if the updated email address belongs to another user
+  - **FR-SERV-032.6:** The service SHALL persist and return the updated restaurant owner
+  
 ---
 
 ## 4. External Interface Requirements
@@ -628,6 +859,8 @@ subgraph "Food Delivery Application"
   C(Search for restaurants by name)
   D(View details of a single restaurant)
   E(View menu of a single restaurant)
+  F(Create a customer account)
+  G(Update existing account information)
 end
 
 Customer@{shape: person, label: "Customer"}
@@ -637,6 +870,8 @@ Customer --> B
 Customer --> C
 Customer --> D
 Customer --> E
+Customer --> F
+Customer --> G
 ```
 
 **i.a Restaurant Owner**
@@ -651,16 +886,20 @@ subgraph "Food Delivery Application"
   H(Add a menu item)
   I(Update a menu item)
   J(View details of a single menu item)
+  K(Create a restaurant owner account)
+  L(Update a restaurant owner account information)
 end
 
 
-RestaurantManager@{shape: person, label: "Restaurant Mangager"}
+RestaurantOwner@{shape: person, label: "Restaurant Mangager"}
 
-RestaurantManager --> F
-RestaurantManager --> G
-RestaurantManager --> H
-RestaurantManager --> I
-RestaurantManager --> J
+RestaurantOwner --> F
+RestaurantOwner --> G
+RestaurantOwner --> H
+RestaurantOwner --> I
+RestaurantOwner --> J
+RestaurantOwner --> K
+RestaurantOwner --> L
 ```
 
 ### ii. Context Diagram
@@ -835,34 +1074,47 @@ erDiagram
         decimal price
         boolean active
     }
+    USER {
+        UUID id PK
+        string email
+        string password
+        string first_name
+        string last_name
+        boolean active
+        string role
+    }
+    CUSTOMER {
+        UUID id PK
+        string role
+        list addresses
+        string payment_method
+    }
+    RESTAURANT_OWNER {
+        UUID id PK
+        string role
+        UUID restaurant_id FK
+    }
+    ADMIN {
+        UUID id PK
+        string role
+        list permissions
+    }
+    CUSTOMER_ADDRESS {
+        string address_line_1
+        string address_line_2
+        string city
+        string province
+        string postal_code
+        string country
+        string label
+    }
+
+    USER ||--o| CUSTOMER : specializes
+    USER ||--o| RESTAURANT_OWNER : specializes
+    USER ||--o| ADMIN : specializes
+    CUSTOMER ||--o{ CUSTOMER_ADDRESS : has
+    RESTAURANT_OWNER ||--o| RESTAURANT : manages
     RESTAURANT ||--o{ MENU_ITEM : has
-```
-
-**Equivalent Pydantic Models**
-
-```mermaid
-classDiagram
-
-class BaseModel{
-  <<from pydantic>>
-}
-
-class Restaurant {
-    +UUID id
-    +string name
-    +string address
-    +string cuisine
-    +boolean active
-}
-
-class MenuItem {
-    +UUID id
-    +UUID restaurant_id
-    +string name
-    +string description
-    +decimal price
-    +boolean active
-}
 ```
 
 **Data Validation**
@@ -881,6 +1133,39 @@ class MenuItem {
   - `description`: Must be a non-empty string.
   - `price`: Must be a Decimal greater than or equal to 0.0.
   - `active`: Must be a boolean.
+
+- **User**
+  - `id`: Must be a valid, unique UUID that is generated automatically and is immutable once set.
+  - `email`: Must be a valid, unique email address normalized to lowercase.
+  - `password`: Must be non-empty, must not contain whitespace, and must be hashed before storage.
+  - `first_name`: Must be a non-empty string.
+  - `last_name`: Must be a non-empty string.
+  - `active`: Must be a boolean.
+  - `role`: Must be `customer`, `restaurant_owner`, or `admin`.
+
+- **Customer**
+  - `role`: Must always be `customer`.
+  - `addresses`: Must contain `CustomerAddress` models and must default to an empty list.
+  - `payment_method`: Must be a string when provided and must default to `None`.
+
+- **RestaurantOwner**
+  - `role`: Must always be `restaurant_owner`.
+  - `restaurant_id`: Must reference an existing restaurant when provided.
+
+- **Admin**
+  - `role`: Must always be `admin`.
+  - `permissions`: Must be a list of strings and must default to an empty list.
+
+- **BaseAddress**
+  - `address_line_1`: Must be a non-empty string no longer than 120 characters.
+  - `address_line_2`: Must be `None` or a non-empty string no longer than 120 characters.
+  - `city`: Must be a non-empty string no longer than 50 characters.
+  - `province`: Must be a supported Canadian province or territory code.
+  - `postal_code`: Must use the `A1A 1A1` format.
+  - `country`: Must be `Canada`.
+
+- **CustomerAddress**
+  - `label`: Must be a non-empty string no longer than 50 characters and must default to `Home`.
 
 ### v. Data Models
 
