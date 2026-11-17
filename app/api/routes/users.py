@@ -14,6 +14,7 @@ router = APIRouter(prefix="/api/users", tags=["users"])
             409: {"description": "Customer with this email already exists"},
             201: {"description": "Customer created successfully"},
         },
+        status_code=status.HTTP_201_CREATED,
         response_model=Customer
 )
 async def create_customer(user: UserCreate):
