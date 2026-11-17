@@ -75,7 +75,7 @@ class UserUpdate(BaseModel):
             raise ValueError("confirm_password is required when password is provided")
         if self.password is not None and self.confirm_password is not None:
             if self.password != self.confirm_password:
-                raise ValueError("password and confirm_password do not match")
+                raise ValueError("Passwords do not match")
         return self
 
 class RestaurantOwnerUpdate(UserUpdate):
@@ -91,5 +91,5 @@ class UserCreate(BaseModel):
     @model_validator(mode="after")
     def validate_passwords_match(self) -> Self:
         if self.password != self.confirm_password:
-            raise ValueError("Passwords do not match.")
+            raise ValueError("Passwords do not match")
         return self
