@@ -2,6 +2,10 @@ class ItemNotFoundError(RuntimeError):
     """Raised when an item is not found in the database."""
     pass
 
+class RestaurantNotFoundError(ItemNotFoundError):
+    """Raised when a restaurant is not found in the database."""
+    pass
+
 class UserNotFoundError(ItemNotFoundError):
     """Raised when a user is not found in the database."""
     pass
