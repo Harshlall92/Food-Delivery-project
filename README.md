@@ -108,6 +108,9 @@ API documentation can be found at: `/docs`
 
 **Root:** `/api/users`
 
+- `POST /c` - Creates a new customer account.
+- `PATCH /c/{user_id}` - Updates an existing customer account.
+
 ## Representative Data
 
 **Restaurants**: [Food-Delivery-project/data/restaurants.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/restaurants.json)
