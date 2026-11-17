@@ -1,5 +1,5 @@
-from FoodDeliveryProject.app.repositories.restaurant_repository import RestaurantRepository
-from FoodDeliveryProject.app.services.menu_item_service import RestaurantNotFoundError
+from app.repositories.restaurant_repository import RestaurantRepository
+from app.services.menu_item_service import RestaurantNotFoundError
 from app.services.exceptions import UserNotFoundError, DuplicateItemError
 from app.repositories.user_repository import UserRepository
 from app.schemas.user import Customer, RestaurantOwner, RestaurantOwnerUpdate, UserCreate, UserUpdate
