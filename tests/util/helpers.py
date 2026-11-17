@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from app.schemas.user import Customer
 from app.repositories.user_repository import UserRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.menu_item_repository import MenuItemRepository
@@ -29,3 +30,20 @@ def create_user_file(tmp_path):
 def create_user_repository(user_file):
     with patch("app.repositories.user_repository.FILE_PATH", str(user_file)):
         return UserRepository()
+
+def create_test_customer(
+        email = "test@example.com",
+        password = "testpw",
+        first_name = "Test",
+        last_name = "User",
+        addresses = [],
+        payment_method = None
+        ) -> Customer:
+    return Customer(
+        email=email,
+        password=password,
+        first_name=first_name,
+        last_name=last_name,
+        addresses=addresses,
+        payment_method=payment_method
+    )
