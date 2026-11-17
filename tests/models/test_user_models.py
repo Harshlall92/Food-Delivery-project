@@ -1,6 +1,6 @@
 import pytest
 
-from FoodDeliveryProject.app.schemas.user import User
+from app.schemas.user import User
 
 class TestUserModel:
 
