@@ -1,10 +1,6 @@
 import pytest
 
-<<<<<<< HEAD
-from app.schemas.user import User, UserUpdate
-=======
-from app.schemas.user import User, UserCreate
->>>>>>> f19e216 (Add unit tests for user creation model validation)
+from app.schemas.user import User, UserUpdate, UserCreate
 
 class TestUserModel:
 
@@ -89,7 +85,6 @@ class TestUserModel:
         )
         assert user.password != "password123"
 
-<<<<<<< HEAD
 class TestUserUpdateModel:
 
     def test_user_update_passwords_must_match(self):
@@ -104,7 +99,6 @@ class TestUserUpdateModel:
             UserUpdate(
                 password="password123"
             )
-=======
 class TestUserCreateModel:
 
     def test_user_create_passwords_must_match(self):
@@ -117,4 +111,3 @@ class TestUserCreateModel:
                 last_name="Doe"
             )
         
->>>>>>> f19e216 (Add unit tests for user creation model validation)
