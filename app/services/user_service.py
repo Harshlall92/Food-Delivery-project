@@ -1,6 +1,5 @@
 from app.repositories.restaurant_repository import RestaurantRepository
-from app.services.menu_item_service import RestaurantNotFoundError
-from app.services.exceptions import UserNotFoundError, DuplicateItemError
+from app.services.exceptions import UserNotFoundError, DuplicateItemError, RestaurantNotFoundError
 from app.repositories.user_repository import UserRepository
 from app.schemas.user import Customer, RestaurantOwner, RestaurantOwnerUpdate, UserCreate, UserUpdate
 
