@@ -1,8 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 
-from app.services.menu_item_service import RestaurantNotFoundError
 from app.repositories.restaurant_repository import RestaurantRepository
-from app.services.exceptions import DuplicateItemError, UserNotFoundError
+from app.services.exceptions import DuplicateItemError, ItemNotFoundError, UserNotFoundError
 from app.repositories.user_repository import UserRepository
 from app.schemas.user import Customer, RestaurantOwner, RestaurantOwnerUpdate, UserCreate, UserUpdate
 import app.services.user_service as uService
@@ -91,9 +90,7 @@ async def update_restaurant_owner(owner_id: str, user: RestaurantOwnerUpdate):
         return updated_owner
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
-    except UserNotFoundError as e:
+    except ItemNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except DuplicateItemError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-    except RestaurantNotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
