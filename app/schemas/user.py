@@ -78,6 +78,9 @@ class UserUpdate(BaseModel):
                 raise ValueError("password and confirm_password do not match")
         return self
 
+class RestaurantOwnerUpdate(UserUpdate):
+    restaurant_id: str | None = Field(default=None)
+
 class UserCreate(BaseModel):
     email: str = Field(min_length=1)
     password: str = Field(min_length=1)
