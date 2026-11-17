@@ -2,7 +2,7 @@ import pytest
 
 from app.services.exceptions import UserNotFoundError, DuplicateItemError
 from app.schemas.user import Customer, UserCreate, UserUpdate
-from app.services.user_service import create_customer, update_customer
+from app.services.user_service import *
 from tests.util.helpers import create_user_file, create_user_repository, create_test_customer
 
 @pytest.fixture
@@ -100,3 +100,16 @@ async def test_update_raises_user_not_found_error_on_nonexistent_user(tmp_path):
 
     with pytest.raises(UserNotFoundError, match=f"Customer with ID {non_existent_id} not found."):
         await update_customer(mock_repository, non_existent_id, update_data)
+
+@pytest.mark.anyio
+async def test_update_raises_duplicate_error_on_email_conflict(tmp_path):
+    mock_repository = create_user_repository(create_user_file(tmp_path))
+
+    customer = create_test_customer()
+    other_customer = create_test_customer(email="other@example.com")
+
+    await mock_repository.add_record(customer)
+    await mock_repository.add_record(other_customer)
+
+    with pytest.raises(DuplicateItemError, match=f"Customer with email {other_customer.email} already exists."):
+        await update_customer(mock_repository, customer.id, UserUpdate(email=other_customer.email))
