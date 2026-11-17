@@ -1,8 +1,10 @@
-from app.services.exceptions import UserNotFoundError
+from app.services.exceptions import UserNotFoundError, DuplicateItemError
 from app.repositories.user_repository import UserRepository
 from app.schemas.user import Customer, UserCreate, UserUpdate
 
 async def create_customer(repository: UserRepository, data: UserCreate) -> Customer:
+    if await repository.contains_email(data.email):
+        raise DuplicateItemError(f"Customer with email {data.email} already exists.")
     customer = Customer(**data.model_dump())
     await repository.add_record(customer)
     return customer
