@@ -76,10 +76,10 @@ async def add_address(customer_id: str, address: CustomerAddress):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 @customer_router.patch(
-        "/{customer_id}/addresses/{address_label}",
+        "/{customer_id}/{address_label}",
         description="Update an existing address for a customer",
         responses={
-            404: {"description": "Customer or address not found"},
+            404: {"description": "Customer or address label not found"},
             422: {"description": "Invalid input data"},
             200: {"description": "Address updated successfully"},
         },
