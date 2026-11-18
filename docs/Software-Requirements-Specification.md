@@ -29,9 +29,11 @@
     - [3.1.1 Restaurants Database](#311-restaurants-database)
     - [3.1.2 Menu Items Database](#312-menu-items-database)
     - [3.1.3 Users Database](#313-users-database)
+- [3.1.4 Carts Database](#314-carts-database)
   - [3.2 Pydantic Models](#32-pydantic-models)
     - [3.2.1 Shared Models](#321-shared-models)
       - [3.2.1.1 BaseAddress Model](#3211-baseaddress-model)
+    - [3.2.1.2 Price Type](#3212-price-type)
     - [3.2.2 Restaurant Model](#322-restaurant-model)
       - [3.2.2.1 Restaurant Input Model](#3221-restaurant-input-model)
       - [3.2.2.2 Restaurant Output Model](#3222-restaurant-output-model)
@@ -47,10 +49,19 @@
     - [3.2.6 Restaurant Owner Model](#326-restaurant-owner-model)
       - [3.2.6.1 RestaurantOwnerUpdate Model](#3261-restaurantownerupdate-model)
     - [3.2.7 Admin Model](#327-admin-model)
+- [3.2.8 Cart Models](#328-cart-models)
+  - [3.2.8.1 CartQuantity Type](#3281-cartquantity-type)
+  - [3.2.8.2 CartItem Model](#3282-cartitem-model)
+  - [3.2.8.3 CartAddItem Model](#3283-cartadditem-model)
+  - [3.2.8.4 CartCreate Model](#3284-cartcreate-model)
+  - [3.2.8.5 Cart Model](#3285-cart-model)
+  - [3.2.8.6 CartItemResponse Model](#3286-cartitemresponse-model)
+  - [3.2.8.7 CartResponse Model](#3287-cartresponse-model)
   - [3.3 Repository](#33-repository)
     - [3.3.1 Restaurant Repository](#331-restaurant-repository)
     - [3.3.2 Menu Item Repository](#332-menu-item-repository)
     - [3.3.3 User Repository](#333-user-repository)
+  - [3.3.4 Cart Repository](#334-cart-repository)
   - [3.4 API Routes](#34-api-routes)
     - [3.4.1 Customer Restaurants API Route](#341-customer-restaurants-api-route)
     - [3.4.2 Restaurant Owner Restaurant API](#342-restaurant-owner-restaurant-api)
@@ -59,10 +70,28 @@
     - [3.4.5 Restaurant Owner Account API](#345-restaurant-owner-account-api)
       - [3.4.5.1 Create Restaurant Owner Endpoint](#3451-create-restaurant-owner-endpoint)
       - [3.4.5.2 Update Restaurant Owner Endpoint](#3452-update-restaurant-owner-endpoint)
+    - [3.4.6 Customer Cart API](#346-customer-cart-api)
+      - [3.4.6.1 Create Cart Endpoint](#3461-create-cart-endpoint)
+      - [3.4.6.2 Retrieve Cart Endpoint](#3462-retrieve-cart-endpoint)
+      - [3.4.6.3 Add Item to Cart Endpoint](#3463-add-item-to-cart-endpoint)
+      - [3.4.6.4 Delete Cart Endpoint](#3464-delete-cart-endpoint)
+      - [3.4.6.5 Update Cart Item Quantity Endpoint](#3465-update-cart-item-quantity-endpoint)
   - [3.5 Services](#35-services)
     - [3.5.1 Restaurant Services](#351-restaurant-services)
     - [3.5.2 Menu Item Services](#352-menu-item-services)
     - [3.5.3 User Services](#353-user-services)
+      - [3.5.3.1 Create Customer](#3531-create-customer)
+      - [3.5.3.2 Update Customer](#3532-update-customer)
+      - [3.5.3.3 Create Restaurant Owner](#3533-create-restaurant-owner)
+      - [3.5.3.4 Update Restaurant Owner](#3534-update-restaurant-owner)
+      - [3.5.3.6 Add New Customer Address](#3536-add-new-customer-address)
+      - [3.5.3.7 Update Customer Address](#3537-update-customer-address)
+    - [3.5.4 Cart Services](#354-cart-services)
+      - [3.5.4.1 Create Cart](#3541-create-cart)
+      - [3.5.4.2 Retrieve Cart](#3542-retrieve-cart)
+      - [3.5.4.3 Add Item to Cart](#3543-add-item-to-cart)
+      - [3.5.4.4 Delete Cart](#3544-delete-cart)
+      - [3.5.4.5 Update Cart Item Quantity](#3545-update-cart-item-quantity)
 - [4. External Interface Requirements](#4-external-interface-requirements)
   - [4.1 User Interfaces](#41-user-interfaces)
     - [4.1.1 Customer User Interface](#411-customer-user-interface)
@@ -251,6 +280,18 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 - **DATA-USR-007:** A user SHALL have an `active` flag
 - **DATA-USR-008:** A user SHALL have a role
 
+## 3.1.4 Carts Database
+
+- **DATA-CART-001:** Carts SHALL be stored in `data/carts.json`
+- **DATA-CART-002:** A Cart SHALL be associated with a customer
+- **DATA-CART-003:** A customer SHALL have no more than one active cart
+- **DATA-CART-004:** A Cart SHALL have a restaurant identifier
+- **DATA-CART-005:** A Cart SHALL have a list of cart items
+- **DATA-CART-006:** A Cart SHALL have a subtotal
+- **DATA-CART-007:** A Cart Item SHALL reference a menu item
+- **DATA-CART-008:** A Cart Item SHALL have a quantity
+- **DATA-CART-009:** A Cart Item SHALL have the menu item's price at the time it was added
+
 ---
 
 ### 3.2 Pydantic Models
@@ -282,6 +323,12 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
   - **DATA-PYD-062.1:** The postal code SHALL match the Canadian postal-code format `A1A 1A1`
   - **DATA-PYD-062.2:** The postal-code letters SHALL be uppercase
 
+#### 3.2.1.2 Price Type
+
+- **DATA-PYD-065:** The `Price` model SHALL have an `amount`
+  - **DATA-PYD-065.1:** The amount SHALL be a Decimal
+  - **DATA-PYD-065.2:** The amount SHALL be greater than or equal to `0.0`
+  
 #### 3.2.2 Restaurant Model
 
 - **DATA-PYD-001:** The `Restaurant` model SHALL have an id
@@ -478,6 +525,55 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 - **DATA-PYD-064:** The `Admin` model SHALL have a list of permissions
   - **DATA-PYD-064.1:** The list of permissions SHALL default to an empty list
 
+## 3.2.8 Cart Models
+
+### 3.2.8.1 CartQuantity Type
+
+- **DATA-PYD-066:** The `CartQuantity` model SHALL have a `quantity`
+  - **DATA-PYD-066.1:** The quantity SHALL be an integer
+  - **DATA-PYD-066.2:** The quantity SHALL be a positive integer
+  - **DATA-PYD-066.3:** The quantity SHALL default to `1`
+
+### 3.2.8.2 CartItem Model
+
+- **DATA-PYD-067:** The `CartItem` model SHALL have a `menu_item_id`
+  - **DATA-PYD-067.1:** The menu item identifier SHALL reference a menu item
+- **DATA-PYD-068:** The `CartItem` model SHALL have a `quantity` represented by `CartQuantity`
+- **DATA-PYD-069:** The `CartItem` model SHALL have a `price_per_item` represented by `Price`
+
+### 3.2.8.3 CartAddItem Model
+
+- **DATA-PYD-070:** The `CartAddItem` model SHALL have a `menu_item_id`
+  - **DATA-PYD-070.1:** The menu item identifier SHALL reference a menu item
+- **DATA-PYD-071:** The `CartAddItem` model SHALL have a `quantity` represented by `CartQuantity`
+
+### 3.2.8.4 CartCreate Model
+
+- **DATA-PYD-072:** The `CartCreate` model SHALL extend the `CartAddItem` model
+- **DATA-PYD-073:** The `CartCreate` model SHALL have a `customer_id`
+  - **DATA-PYD-073.1:** The customer identifier SHALL reference a customer
+
+### 3.2.8.5 Cart Model
+
+- **DATA-PYD-074:** The `Cart` model SHALL have an `id` referencing its customer
+- **DATA-PYD-075:** The `Cart` model SHALL have a `restaurant_id`
+  - **DATA-PYD-075.1:** The restaurant identifier SHALL reference a restaurant
+- **DATA-PYD-076:** The `Cart` model SHALL have a list of `CartItem` models
+- **DATA-PYD-077:** The `Cart` model SHALL have a `sub_total` represented by `Price`
+
+### 3.2.8.6 CartItemResponse Model
+
+- **DATA-PYD-078:** The `CartItemResponse` model SHALL have a `menu_item_name`
+- **DATA-PYD-079:** The `CartItemResponse` model SHALL have a `quantity` represented by `CartQuantity`
+- **DATA-PYD-080:** The `CartItemResponse` model SHALL have a `price_per_item` represented by `Price`
+
+### 3.2.8.7 CartResponse Model
+
+- **DATA-PYD-081:** The `CartResponse` model SHALL have a `restaurant_name`
+- **DATA-PYD-082:** The `CartResponse` model SHALL have a list of `CartItemResponse` models
+- **DATA-PYD-083:** The `CartResponse` model SHALL have a `total_quantity`
+- **DATA-PYD-084:** The `CartResponse` model SHALL have a `sub_total` represented by `Price`
+
 ---
 
 ### 3.3 Repository
@@ -494,7 +590,9 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
   - **FR-REPO-007.1:** The repository SHALL return `None` if the item is not found
 - **FR-REPO-008:** A repository SHALL be able to add a new item to the file
 - **FR-REPO-009:** A repository SHALL be able to update an existing item in the file
-- **FR-REPO-010:** A repository SHOULD be able to delete an existing item from the file
+- **FR-REPO-010:** A repository SHALL be able to delete an existing item from the file
+  - **FR-REPO-010.1:** The repository SHALL return `True` if the item was deleted successfully
+  - **FR-REPO-010.2:** The repository SHALL return `False` if the item was not found
 
 #### 3.3.1 Restaurant Repository
 
@@ -522,6 +620,15 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 - **FR-REPO-020:** The user repository SHALL determine whether an email address already exists
   - **FR-REPO-020.1:** The repository SHALL return `True` when the email address exists
   - **FR-REPO-020.2:** The repository SHALL return `False` when the email address does not exist
+
+### 3.3.4 Cart Repository
+
+- **FR-REPO-021:** The cart repository SHALL use the `Cart` model as its type parameter
+- **FR-REPO-022:** The cart repository SHALL have a file path of `data/carts.json`
+- **FR-REPO-023:** The cart repository SHALL determine whether a customer has a cart
+  - **FR-REPO-023.1:** The repository SHALL return `True` when the customer has a cart
+  - **FR-REPO-023.2:** The repository SHALL return `False` when the customer does not have a cart
+
 
 ---
 
@@ -659,6 +766,50 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
   - **FR-API-019.5:** The endpoint SHALL return `HTTP 409` if the updated email address already exists
   - **FR-API-019.6:** The endpoint SHALL return `HTTP 422` if the input data is invalid
 
+#### 3.4.6 Customer Cart API
+
+##### 3.4.6.1 Create Cart Endpoint
+
+- **FR-API-020:** The system SHALL expose `POST /cart` to create a cart
+  - **FR-API-020.1:** The endpoint SHALL accept a `CartCreate` object
+  - **FR-API-020.2:** The endpoint SHALL return `HTTP 201` and the created `Cart`
+  - **FR-API-020.3:** The endpoint SHALL return `HTTP 401` when the user is not an active customer
+  - **FR-API-020.4:** The endpoint SHALL return `HTTP 404` when the menu item does not exist
+  - **FR-API-020.5:** The endpoint SHALL return `HTTP 409` when the customer already has an active cart
+  - **FR-API-020.6:** The endpoint SHALL return `HTTP 422` when the request is invalid
+
+##### 3.4.6.2 Retrieve Cart Endpoint
+
+- **FR-API-021:** The system SHALL expose `GET /cart/{customer_id}` to retrieve a cart
+  - **FR-API-021.1:** The endpoint SHALL return `HTTP 200` and a `CartResponse`
+  - **FR-API-021.2:** The endpoint SHALL return `HTTP 404` when the customer has no active cart
+  - **FR-API-021.3:** The endpoint SHALL return `HTTP 422` when the customer id is invalid
+
+##### 3.4.6.3 Add Item to Cart Endpoint
+
+- **FR-API-022:** The system SHALL expose `POST /cart/{customer_id}/items` to add an item to a cart
+  - **FR-API-022.1:** The endpoint SHALL accept a `CartAddItem` object
+  - **FR-API-022.2:** The endpoint SHALL return `HTTP 200` and the updated `Cart`
+  - **FR-API-022.3:** The endpoint SHALL return `HTTP 404` when the cart or menu item does not exist
+  - **FR-API-022.4:** The endpoint SHALL return `HTTP 422` when the request is invalid or the menu item belongs to another restaurant
+
+##### 3.4.6.4 Delete Cart Endpoint
+
+- **FR-API-023:** The system SHALL expose `DELETE /cart/{customer_id}` to delete a cart
+  - **FR-API-023.1:** The endpoint SHALL return `HTTP 204` with no response body when deletion succeeds
+  - **FR-API-023.2:** The endpoint SHALL return `HTTP 404` when the customer has no active cart
+  - **FR-API-023.3:** The endpoint SHALL return `HTTP 422` when the customer id is invalid
+
+##### 3.4.6.5 Update Cart Item Quantity Endpoint
+
+- **FR-API-024:** The system SHALL expose `PUT /cart/{customer_id}/{menu_item_id}` to update an item's quantity
+  - **FR-API-024.1:** The endpoint SHALL accept an integer representing the new quantity
+  - **FR-API-024.2:** The endpoint SHALL return `HTTP 200` and the updated `Cart`
+  - **FR-API-024.3:** The endpoint SHALL return `HTTP 400` when the new quantity is negative
+  - **FR-API-024.4:** The endpoint SHALL return `HTTP 404` when the cart or cart item does not exist
+  - **FR-API-024.5:** The endpoint SHALL return `HTTP 422` when the request is invalid
+- **FR-API-025:** The cart router SHALL be registered with the main FastAPI application at the `/cart` root path
+
 ---
 
 ### 3.5 Services
@@ -748,17 +899,28 @@ Note, not all services have diagrams, but the diagrams that are present should p
 
 #### 3.5.3 User Services
 
+##### 3.5.3.1 Create Customer
+
 - **FR-SERV-029:** The service SHALL create a `Customer` from a `UserCreate` object
   - **FR-SERV-029.1:** The service SHALL raise `DuplicateItemError` if the email address already exists
   - **FR-SERV-029.2:** The service SHALL persist the customer in the user repository
+
+##### 3.5.3.2 Update Customer
+
 - **FR-SERV-030:** The service SHALL update an existing customer using a `UserUpdate` object
   - **FR-SERV-030.1:** The service SHALL raise `UserNotFoundError` if the customer does not exist
   - **FR-SERV-030.2:** The service SHALL apply only fields explicitly included in the update
   - **FR-SERV-030.3:** The service SHALL raise `DuplicateItemError` if the updated email address belongs to another user
   - **FR-SERV-030.4:** The service SHALL persist and return the updated customer
+
+##### 3.5.3.3 Create Restaurant Owner
+
 - **FR-SERV-031:** The service SHALL create a `RestaurantOwner` from a `UserCreate` object
   - **FR-SERV-031.1:** The service SHALL raise `DuplicateItemError` if the email address already exists
   - **FR-SERV-031.2:** The service SHALL persist the restaurant owner in the user repository
+
+##### 3.5.3.4 Update Restaurant Owner
+
 - **FR-SERV-032:** The service SHALL update an existing restaurant owner using a `RestaurantOwnerUpdate` object
   - **FR-SERV-032.1:** The service SHALL raise `UserNotFoundError` if the restaurant owner does not exist
   - **FR-SERV-032.2:** The service SHALL verify that a provided `restaurant_id` references an existing restaurant
@@ -766,6 +928,69 @@ Note, not all services have diagrams, but the diagrams that are present should p
   - **FR-SERV-032.4:** The service SHALL apply only fields explicitly included in the update
   - **FR-SERV-032.5:** The service SHALL raise `DuplicateItemError` if the updated email address belongs to another user
   - **FR-SERV-032.6:** The service SHALL persist and return the updated restaurant owner
+  
+##### 3.5.3.6 Add New Customer Address
+
+- **FR-SERV-033:** The service SHALL add a new address to an existing customer
+  - **FR-SERV-033.1:** The service SHALL raise `UserNotFoundError` if the customer does not exist
+  - **FR-SERV-034:** The service SHALL raise `DuplicateItemError` if the address already exists for the customer
+  - **FR-SERV-035:** The service SHALL persist and return the updated customer with the new address
+
+##### 3.5.3.7 Update Customer Address
+
+- **FR-SERV-034:** The service SHALL update an existing address for a customer
+  - **FR-SERV-034.1:** The service SHALL raise `UserNotFoundError` if the customer does not exist
+  - **FR-SERV-034.2:** The service SHALL raise `AddressNotFoundError` if the address does not exist for the customer
+  - **FR-SERV-034.3:** The service SHALL persist and return the updated customer with the modified address
+
+#### 3.5.4 Cart Services
+
+##### 3.5.4.1 Create Cart
+
+- **FR-SERV-036:** The cart service SHALL create a cart for an active customer with the `customer` role
+  - **FR-SERV-036.1:** The service SHALL raise `CustomerNotFoundError` when the customer does not exist
+  - **FR-SERV-036.2:** The service SHALL raise `InvalidRoleError` when the user is not a customer
+  - **FR-SERV-036.3:** The service SHALL raise `InactiveUserError` when the customer is inactive
+  - **FR-SERV-036.4:** The service SHALL raise `DuplicateCartError` when the customer already has an active cart
+  - **FR-SERV-036.5:** The service SHALL raise `MenuItemNotFoundError` when the menu item does not exist
+  - **FR-SERV-036.6:** The service SHALL raise `InactiveMenuItemError` when the menu item is inactive
+  - **FR-SERV-036.7:** The service SHALL persist and return the created cart
+
+##### 3.5.4.2 Retrieve Cart
+
+- **FR-SERV-037:** The cart service SHALL retrieve a customer's cart as a `CartResponse`
+  - **FR-SERV-037.1:** The response SHALL include the restaurant name
+  - **FR-SERV-037.2:** The response SHALL include each menu item name
+  - **FR-SERV-037.3:** The response SHALL include the total quantity and subtotal
+  - **FR-SERV-037.4:** The service SHALL raise `CartNotFoundError` when no cart exists
+
+##### 3.5.4.3 Add Item to Cart
+
+- **FR-SERV-038:** The cart service SHALL add an item to an existing cart
+  - **FR-SERV-038.1:** The service SHALL raise `CartNotFoundError` when no cart exists
+  - **FR-SERV-038.2:** The service SHALL raise `MenuItemNotFoundError` when the menu item does not exist
+  - **FR-SERV-038.3:** The service SHALL raise `InactiveMenuItemError` when the menu item is inactive
+  - **FR-SERV-038.4:** The service SHALL raise `InvalidMenuItemError` when the menu item belongs to another restaurant
+  - **FR-SERV-038.5:** The service SHALL increase the existing item's quantity when the item is already in the cart
+  - **FR-SERV-038.6:** The service SHALL add a new cart item when the item is not already in the cart
+  - **FR-SERV-038.7:** The service SHALL persist and return the updated cart
+
+##### 3.5.4.4 Delete Cart
+
+- **FR-SERV-039:** The cart service SHALL delete a customer's cart
+  - **FR-SERV-039.1:** The service SHALL raise `CartNotFoundError` when no cart exists
+  - **FR-SERV-039.2:** The service SHALL remove the cart from `data/carts.json`
+  - **FR-SERV-039.3:** The service SHALL return `True` when deletion succeeds
+
+##### 3.5.4.5 Update Cart Item Quantity
+
+- **FR-SERV-040:** The cart service SHALL update a cart item's quantity
+  - **FR-SERV-040.1:** The service SHALL raise `InvalidQuantityError` when the quantity is negative
+  - **FR-SERV-040.2:** The service SHALL raise `CartNotFoundError` when no cart exists
+  - **FR-SERV-040.3:** The service SHALL raise `CartItemNotFoundError` when the item is not in the cart
+  - **FR-SERV-040.4:** The service SHALL update the item when the new quantity is positive
+  - **FR-SERV-040.5:** The service SHALL remove the item when the new quantity is zero
+  - **FR-SERV-040.6:** The service SHALL persist and return the updated cart
   
 ---
 
