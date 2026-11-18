@@ -85,9 +85,12 @@ The application can then be opened in your web browser at [http://127.0.0.1:8000
 
 ### API Endpoint Paths
 
+API documentation can be found at: `/docs`
+
 - `GET /` - Returns the home page for UI 
 - `GET /health` - Returns a health check message.
   
+
 - `GET /api/restaurants` - Returns a list of all restaurants.
 - `GET /api/restaurants/search` - Retrieves restaurants that contain the given name
 - `GET /api/restaurants/filter` - Retrieves restaurants that serve the given cuisine
@@ -100,14 +103,25 @@ The application can then be opened in your web browser at [http://127.0.0.1:8000
 - `POST /api/restaurants/{restaurant_id}/menu_items` - Creates a new menu item for a specific restaurant.
 - `PATCH /api/restaurants/{restaurant_id}` - Changes the one or multiple fields of a existing restaurants(id not included)
 - `PATCH /api/restaurants/{restaurant_id}/menu_items/{menu_item_id}` - Changes the one or multiple fields of a existing restaurant's menus items
-API documentation can be found at: `/docs`
 
+#### User API Endpoints
+
+Endpoints for user-related operations are available under the `/api/users/` path.
+
+**Root:** `/api/users`
+
+- `POST /c` - Creates a new customer account.
+- `PATCH /c/{user_id}` - Updates an existing customer account.
+- `POST /r` - Creates a new restaurant owner account.
+- `PATCH /r/{user_id}` - Updates an existing restaurant owner account.
 
 ## Representative Data
 
 **Restaurants**: [Food-Delivery-project/data/restaurants.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/restaurants.json)
 
 **Menu Items**: [Food-Delivery-project/data/menu_items.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/menu-items.json)
+
+**Users**: [Food-Delivery-project/data/users.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/users.json)
 
 ## Tests
 
@@ -139,7 +153,8 @@ Food-Delivery-project/
 │   └── main.py
 ├── data/
 │   ├── restaurants.json
-│   └── menu-items.json
+│   ├── menu-items.json
+│   └── users.json
 ├── docs/
 │   ├── Software-Architecture.md
 │   └── Software-Requirements-Specification.md
