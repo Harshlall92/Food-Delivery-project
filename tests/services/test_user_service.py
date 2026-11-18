@@ -144,6 +144,87 @@ async def test_create_restaurant_owner_raises_duplicate_error(user_repository):
         await create_restaurant_owner(user_repository, data)
 
 @pytest.mark.anyio
+async def test_add_customer_address(user_repository):
+    customer = create_test_customer()
+    await user_repository.add_record(customer)
+
+    address = CustomerAddress(
+        label="Home",
+        address_line_1="123 Main St",
+        city="Anytown",
+        province="BC",
+        postal_code="A1B 2C3",
+    )
+
+    result = await add_customer_address(user_repository, customer.id, address)
+
+    assert isinstance(result, Customer)
+    assert len(result.addresses) == 1
+    assert result.addresses[0].label == address.label
+
+    contents = await user_repository._read_file()
+
+    assert len(contents[0]["addresses"]) == 1
+    assert contents[0]["addresses"][0]["label"] == address.label
+
+@pytest.mark.anyio
+async def test_add_customer_address_raises_user_not_found_error_on_nonexistent_user(user_repository):
+    non_existent_id = "non-existent-id"
+
+    address = CustomerAddress(
+        label="Home",
+        address_line_1="123 Main St",
+        city="Anytown",
+        province="BC",
+        postal_code="A1B 2C3",
+    )
+
+    with pytest.raises(UserNotFoundError, match=f"Customer with ID {non_existent_id} not found."):
+        await add_customer_address(user_repository, non_existent_id, address)
+
+@pytest.mark.anyio
+async def test_add_customer_address_raises_value_error_on_non_customer(user_repository):
+    non_customer = create_test_restaurant_owner()
+    await user_repository.add_record(non_customer)
+
+    address = CustomerAddress(
+        label="Home",
+        address_line_1="123 Main St",
+        city="Anytown",
+        province="BC",
+        postal_code="A1B 2C3",
+    )
+
+    with pytest.raises(ValueError, match=f"User with ID {non_customer.id} is not a customer."):
+        await add_customer_address(user_repository, non_customer.id, address)
+
+@pytest.mark.anyio
+async def test_add_customer_address_raises_duplicate_error_on_duplicate_label(user_repository):
+    customer = create_test_customer()
+    await user_repository.add_record(customer)
+
+    address1 = CustomerAddress(
+        label="Home",
+        address_line_1="123 Main St",
+        city="Anytown",
+        province="BC",
+        postal_code="A1B 2C3",
+    )
+
+    await add_customer_address(user_repository, customer.id, address1)
+
+    address2 = CustomerAddress(
+        label="Home",  # Same label as address1
+        address_line_1="456 Elm St",
+        city="Othertown",
+        province="BC",
+        postal_code="D4E 5F6",
+    )
+
+    with pytest.raises(DuplicateItemError, match=f"Address with label {address2.label} already exists for this customer."):
+        await add_customer_address(user_repository, customer.id, address2)
+
+@pytest.mark.anyio
 async def test_update_restaurant_owner_account(user_repository, restaurant_repository):
 
     owner = create_test_restaurant_owner()
