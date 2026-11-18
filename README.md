@@ -117,6 +117,10 @@ Endpoints for user-related operations are available under the `/api/users/` path
 - `POST /r` - Creates a new restaurant owner account.
 - `PATCH /r/{user_id}` - Updates an existing restaurant owner account.
 
+#### Cart API Endpoints
+
+**Root:** `/api/cart`
+
 ## Representative Data
 
 **Restaurants**: [Food-Delivery-project/data/restaurants.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/restaurants.json)
