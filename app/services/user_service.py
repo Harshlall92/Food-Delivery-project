@@ -1,7 +1,7 @@
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.services.exceptions import UserNotFoundError, DuplicateItemError, RestaurantNotFoundError
 from app.repositories.user_repository import UserRepository
-from app.schemas.user import Customer, RestaurantOwner, RestaurantOwnerUpdate, UserCreate, UserUpdate
+from app.schemas.user import Customer, CustomerAddress, RestaurantOwner, RestaurantOwnerUpdate, UserCreate, UserUpdate
 
 async def create_customer(repository: UserRepository, data: UserCreate) -> Customer:
     if await repository.contains_email(data.email):
@@ -24,6 +24,26 @@ async def update_customer(repository: UserRepository, customer_id: str, data: Us
     await repository.update_record(customer_id, updated)
 
     return updated
+
+async def add_customer_address(repository: UserRepository, customer_id: str, address: CustomerAddress) -> Customer:
+    customer = await repository.get_by_id(customer_id)
+    if customer is None:
+        raise UserNotFoundError(f"Customer with ID {customer_id} not found.")
+
+    if customer["role"] != "customer":
+        raise ValueError(f"User with ID {customer_id} is not a customer.")
+
+    for addr in customer["addresses"]:
+        if addr["label"] == address.label:
+            raise DuplicateItemError(f"Address with label {address.label} already exists for this customer.")
+
+    customer["addresses"].append(address)
+
+    updated_customer = Customer(**customer)
+
+    await repository.update_record(customer_id, updated_customer)
+
+    return updated_customer
 
 async def create_restaurant_owner(repository: UserRepository, data: UserCreate) -> RestaurantOwner:
     if await repository.contains_email(data.email):
