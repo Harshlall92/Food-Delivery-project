@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, status
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.services.exceptions import DuplicateItemError, ItemNotFoundError, UserNotFoundError
 from app.repositories.user_repository import UserRepository
-from app.schemas.user import Customer, RestaurantOwner, RestaurantOwnerUpdate, UserCreate, UserUpdate
+from app.schemas.user import Customer, CustomerAddress, RestaurantOwner, RestaurantOwnerUpdate, UserCreate, UserUpdate
 import app.services.user_service as uService
 
 router = APIRouter(prefix="/api/users", tags=["users"])
@@ -16,6 +16,7 @@ router.include_router(restaurant_owner_router)
 
 @customer_router.post(
         "",
+        description="Create a new customer account",
         responses={
             409: {"description": "Customer with this email already exists"},
             422: {"description": "Invalid input data"},
@@ -35,6 +36,7 @@ async def create_customer(user: UserCreate):
 
 @customer_router.patch(
         "/{customer_id}", 
+        description="Update customer account information excluding addresses",
         responses={
             404: {"description": "Customer not found"},
             409: {"description": "Customer with this email already exists"},
@@ -52,6 +54,26 @@ async def update_customer(customer_id: str, user: UserUpdate):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except DuplicateItemError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+@customer_router.post(
+        "/{customer_id}",
+        responses={
+            404: {"description": "Customer not found"},
+            409: {"description": "Address with this label already exists for this customer"},
+            422: {"description": "Invalid input data"},
+            201: {"description": "Address added successfully"},
+        }
+    )
+async def add_address(customer_id: str, address: CustomerAddress):
+    try:
+        updated_customer = await uService.add_customer_address(UserRepository(), customer_id, address)
+        return updated_customer
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
+    except DuplicateItemError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 @restaurant_owner_router.post(
     "",
