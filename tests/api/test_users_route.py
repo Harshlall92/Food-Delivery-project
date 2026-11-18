@@ -95,6 +95,70 @@ class TestCustomerRoutes:
 
         assert response.status_code == 422
         assert "Passwords do not match" in response.json()["detail"][0]["msg"]
+    
+    def test_add_address_to_customer(self, mocked_user_repository):
+        customer_id = client.post("/api/users/c", json=create_test_user_create_dict()).json()["id"]
+
+        address_payload = {
+            "label": "Home",
+            "address_line_1": "123 Main St",
+            "city": "Testville",
+            "province": "BC",
+            "postal_code": "A1A 1A1"
+        }
+
+        response = client.post(f"/api/users/c/{customer_id}", json=address_payload)
+
+        assert response.status_code == 200
+        assert any(addr["label"] == address_payload["label"] for addr in response.json()["addresses"])
+
+    def test_add_address_to_nonexistent_customer(self, mocked_user_repository):
+        address_payload = {
+            "label": "Home",
+            "address_line_1": "123 Main St",
+            "city": "Testville",
+            "province": "BC",
+            "postal_code": "A1A 1A1"
+        }
+
+        response = client.post("/api/users/c/nonexistent-id", json=address_payload)
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Customer with ID nonexistent-id not found."
+
+    def test_add_duplicate_address_label_to_customer(self, mocked_user_repository):
+        customer_id = client.post("/api/users/c", json=create_test_user_create_dict()).json()["id"]
+
+        address_payload = {
+            "label": "Home",
+            "address_line_1": "123 Main St",
+            "city": "Testville",
+            "province": "BC",
+            "postal_code": "A1A 1A1"
+        }
+
+        client.post(f"/api/users/c/{customer_id}", json=address_payload)
+
+        response = client.post(f"/api/users/c/{customer_id}", json=address_payload)
+
+        assert response.status_code == 409
+        assert response.json()["detail"] == f"Address with label {address_payload['label']} already exists for this customer."
+
+    def test_add_address_to_non_customer(self, mocked_user_repository):
+        restaurant_owner_id = client.post("/api/users/r", json=create_test_user_create_dict()).json()["id"]
+
+        address_payload = {
+            "label": "Home",
+            "address_line_1": "123 Main St",
+            "city": "Testville",
+            "province": "BC",
+            "postal_code": "A1A 1A1"
+        }
+
+        response = client.post(f"/api/users/c/{restaurant_owner_id}", json=address_payload)
+
+        assert response.status_code == 422
+        assert f"User with ID {restaurant_owner_id} is not a customer." in response.json()["detail"]
 
 class TestRestaurantOwnerRoutes:
 
