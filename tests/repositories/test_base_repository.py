@@ -126,10 +126,9 @@ class TestDataOperations:
 
             duplicate_item = create_test_model()
 
-            with pytest.raises(DuplicateRecordError) as e:
+            with pytest.raises(DuplicateRecordError, match=f"Model with id {duplicate_item.id} already exists."):
                 await repository.add_record(duplicate_item)
 
-            assert str(e.value) == f"Record with id {duplicate_item.id} already exists."
 
     class TestRetrieveOperations:
 
