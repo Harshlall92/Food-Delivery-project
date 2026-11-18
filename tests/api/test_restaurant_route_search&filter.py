@@ -35,7 +35,7 @@ def test_search_not_found():
     with patch(
         "app.api.routes.restaurants.rService.get_restaurants_by_name",
         new_callable=AsyncMock,
-        side_effect=mService.RestaurantNotFoundError("No restaurants found matching zzz."),
+        side_effect=ItemNotFoundError("No restaurants found matching zzz."),
     ):
         response = client.get("/api/restaurants/search", params={"name": "zzz"})
 
