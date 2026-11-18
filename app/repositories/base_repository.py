@@ -76,7 +76,7 @@ class BaseRepository[T: BaseModel]:
 
     async def add_record(self, record: T) -> dict:
         data = await self._read_file()
-        record_dict = record.model_dump()
+        record_dict = record.model_dump(by_alias=True)
 
         if any(item.get("id") == record_dict.get("id") for item in data):
             raise DuplicateRecordError(self._get_concrete_model(), record_dict.get("id")) # type: ignore
@@ -96,7 +96,7 @@ class BaseRepository[T: BaseModel]:
         data = await self._read_file()
         for i, item in enumerate(data):
             if item.get("id") == record_id:
-                data[i] = record.model_dump()
+                data[i] = record.model_dump(by_alias=True)
                 await self._write_file(data)
                 return data[i]
         raise RecordNotFoundError(self._get_concrete_model(), record_id)
