@@ -43,7 +43,7 @@ class TestCreateCustomerAccount:
             last_name="Smith"
         )
 
-        with pytest.raises(DuplicateItemError, match=f"Customer with email {existing_customer.email} already exists."):
+        with pytest.raises(DuplicateItemError, match=f"User with email {existing_customer.email} already exists."):
             await create_customer(user_repository, data)
 
 class TestUpdateCustomerAccount:
@@ -106,7 +106,7 @@ class TestUpdateCustomerAccount:
         await user_repository.add_record(customer)
         await user_repository.add_record(other_customer)
 
-        with pytest.raises(DuplicateItemError, match=f"Customer with email {other_customer.email} already exists."):
+        with pytest.raises(DuplicateItemError, match=f"User with email {other_customer.email} already exists."):
             await update_customer(user_repository, customer.id, UserUpdate(email=other_customer.email))
 
 class TestCreateRestaurantOwnerAccount:
@@ -146,7 +146,7 @@ class TestCreateRestaurantOwnerAccount:
             last_name="Johnson"
         )
 
-        with pytest.raises(DuplicateItemError, match=f"Restaurant owner with email {existing_owner.email} already exists."):
+        with pytest.raises(DuplicateItemError, match=f"User with email {existing_owner.email} already exists."):
             await create_restaurant_owner(user_repository, data)
 
 class TestUpdateRestaurantOwnerAccount:
