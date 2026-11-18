@@ -2,7 +2,7 @@ import json
 from pydantic_core import ValidationError
 import pytest
 from unittest.mock import patch
-from FoodDeliveryProject.app.services.exceptions import ItemNotFoundError
+from app.services.exceptions import ItemNotFoundError
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.menu_item_repository import MenuItemRepository
 from app.schemas.menu_item import MenuItemInput, MenuItem, MenuItemUpdate

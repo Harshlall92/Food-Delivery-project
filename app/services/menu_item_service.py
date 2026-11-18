@@ -5,11 +5,6 @@ from app.services.exceptions import ItemNotFoundError, ServiceError
 from app.schemas.menu_item import MenuItem, MenuItemInput, MenuItemOutput, MenuItemUpdate
 
 
-class RestaurantNotFoundError(Exception):
-    """Raised when a menu item is added to a restaurant that doesn't exist."""
-class MenuItemNotFoundError(Exception):
-    """Raised when a menu item searched not found"""
-
 async def create_menu_item(
     restaurant_repository: RestaurantRepository,
     menu_item_repository: MenuItemRepository,
@@ -54,7 +49,7 @@ async def update_menu_item(
     try:
         results = await menu_item_repository.update_record(menu_item_id, updated)
     except RecordNotFoundError as e:
-        raise MenuItemNotFoundError(e.message)
+        raise ItemNotFoundError(e.message)
 
     return MenuItem(**results)
 

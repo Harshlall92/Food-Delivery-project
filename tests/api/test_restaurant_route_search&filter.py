@@ -2,6 +2,7 @@ from unittest.mock import AsyncMock, patch
 
 from fastapi.testclient import TestClient
 
+from app.services.exceptions import ItemNotFoundError
 from app.main import app
 from app.schemas.restaurant import Restaurant
 from app.services import menu_item_service as mService
@@ -22,7 +23,7 @@ def test_search_success():
     with patch(
         "app.api.routes.restaurants.rService.get_restaurants_by_name",
         new_callable=AsyncMock,
-        return_value=[TEST_RESTAURANT],
+       return_value=[TEST_RESTAURANT],
     ):
         response = client.get("/api/restaurants/search", params={"name": "kin"})
 
@@ -57,7 +58,7 @@ def test_filter_not_found():
     with patch(
         "app.api.routes.restaurants.rService.get_restaurants_by_cuisine",
         new_callable=AsyncMock,
-        side_effect=mService.RestaurantNotFoundError("Restaurant with cuisine mexican not found."),
+        side_effect=ItemNotFoundError("Restaurant with cuisine mexican not found."),
     ):
         response = client.get("/api/restaurants/filter", params={"cuisine": "mexican"})
 
