@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, PlainSerializer, field_validator
 from typing_extensions import Annotated, Literal
 
 CanadianProvinceCode = Literal[
@@ -25,4 +25,8 @@ class BaseAddress(BaseModel):
                 raise ValueError("Field cannot be empty")
         return value
 
-Price = Annotated[Decimal, Field(ge=0, decimal_places=2, max_digits=10)]
+Price = Annotated[
+            Decimal, 
+            Field(ge=0, decimal_places=2, max_digits=10),
+            PlainSerializer(lambda x: str(x))
+        ]
