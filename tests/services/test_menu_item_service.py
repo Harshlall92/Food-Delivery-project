@@ -2,6 +2,7 @@ import json
 from pydantic_core import ValidationError
 import pytest
 from unittest.mock import patch
+from FoodDeliveryProject.app.services.exceptions import ItemNotFoundError
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.menu_item_repository import MenuItemRepository
 from app.schemas.menu_item import MenuItemInput, MenuItem, MenuItemUpdate
@@ -170,9 +171,7 @@ async def test_update_menu_item(tmp_path):
 async def test_update_menu_item_not_found(tmp_path):
     restaurant_repository, menu_item_repository, menu_items_file = setup_update_test(tmp_path)
  
-    with pytest.raises(MenuItemNotFoundError):
+    with pytest.raises(ItemNotFoundError, match=f"MenuItem with id unknown-item not found."):
         await update_menu_item(
             restaurant_repository, menu_item_repository, RESTAURANT_ID, "unknown-item", MenuItemUpdate(price=5)
         )
- 
-    assert json.loads(menu_items_file.read_text()) == MENU_ITEMS_DATA

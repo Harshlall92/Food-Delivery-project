@@ -102,7 +102,7 @@ class TestFileInteraction:
 class TestDataOperations:
 
     class TestCreateOperations:
-        
+
         @pytest.mark.anyio
         async def test_add_record(self, tmp_path):
             test_file = tmp_path / "test.json"
@@ -129,7 +129,7 @@ class TestDataOperations:
             with pytest.raises(DuplicateRecordError) as e:
                 await repository.add_record(duplicate_item)
 
-            assert str(e.value) == f"Item with id {duplicate_item.id} already exists."
+            assert str(e.value) == f"Record with id {duplicate_item.id} already exists."
 
     class TestRetrieveOperations:
 
@@ -178,7 +178,7 @@ class TestDataOperations:
             with pytest.raises(RecordNotFoundError) as e:
                 await repository.get_by_id("2")
 
-            assert str(e.value) == "Item with id 2 not found."
+            assert str(e.value) == "Model with id 2 not found."
 
     class TestUpdateOperations:
 
@@ -209,7 +209,7 @@ class TestDataOperations:
             with pytest.raises(RecordNotFoundError) as e:
                 await repository.update_record("2", updated_model)
             
-            assert str(e.value) == "Item with id 2 not found."
+            assert str(e.value) == "Model with id 2 not found."
     
     class TestDeleteOperations:
 

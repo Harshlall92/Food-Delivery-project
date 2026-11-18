@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import AsyncMock, patch
 
 from app.schemas.restaurant import Restaurant
-from app.services import menu_item_service as mService
+from app.services.exceptions import ItemNotFoundError
 from app.services.restaurant_service import get_restaurants_by_name, get_restaurants_by_cuisine
 from tests.util.helpers import create_restaurant_file, create_restaurant_repository
 
@@ -35,7 +35,7 @@ async def test_get_restaurants_by_name_success(repository):
 @pytest.mark.anyio
 async def test_get_restaurants_by_name_not_found(repository):
     with patch.object(repository, "get_by_name", new_callable=AsyncMock, return_value=[]):
-        with pytest.raises(mService.RestaurantNotFoundError):
+        with pytest.raises(ItemNotFoundError):
             await get_restaurants_by_name(repository, "asdasdasdasdasd")
 
 
@@ -52,5 +52,5 @@ async def test_get_restaurants_by_cuisine_success(repository):
 @pytest.mark.anyio
 async def test_get_restaurants_by_cuisine_not_found(repository):
     with patch.object(repository, "get_by_cuisine", new_callable=AsyncMock, return_value=[]):
-        with pytest.raises(mService.RestaurantNotFoundError):
+        with pytest.raises(ItemNotFoundError):
             await get_restaurants_by_cuisine(repository, "mexican")

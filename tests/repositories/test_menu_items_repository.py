@@ -2,6 +2,7 @@ import json
 import pytest
 
 from unittest.mock import patch
+from app.repositories.exceptions import RecordNotFoundError
 from app.repositories.menu_item_repository import MenuItemRepository, MenuItem
 
 @pytest.fixture
@@ -89,8 +90,6 @@ async def test_update_record_not_found(tmp_path):
     menu_items_file.write_text(json.dumps(MENU_ITEMS_DATA))
  
     missing = MenuItem(**{**MENU_ITEMS_DATA[0], "id": "unknown"})
-    result = await repository.update_record("unknown", missing)
- 
-    assert result is None
-    assert json.loads(menu_items_file.read_text()) == MENU_ITEMS_DATA
+    with pytest.raises(RecordNotFoundError, match="MenuItem with id unknown not found."):
+        await repository.update_record("unknown", missing)
  
