@@ -1,5 +1,5 @@
 from app.repositories.restaurant_repository import RestaurantRepository
-from app.services.exceptions import UserNotFoundError, DuplicateItemError, RestaurantNotFoundError
+from app.services.exceptions import ItemNotFoundError, UserNotFoundError, DuplicateItemError, RestaurantNotFoundError
 from app.repositories.user_repository import UserRepository
 from app.schemas.user import Customer, CustomerAddress, RestaurantOwner, RestaurantOwnerUpdate, UserCreate, UserUpdate
 
@@ -38,6 +38,30 @@ async def add_customer_address(repository: UserRepository, customer_id: str, add
             raise DuplicateItemError(f"Address with label {address.label} already exists for this customer.")
 
     customer["addresses"].append(address)
+
+    updated_customer = Customer(**customer)
+
+    await repository.update_record(customer_id, updated_customer)
+
+    return updated_customer
+
+async def update_customer_address(repository: UserRepository, customer_id: str, address_label: str, new_address: CustomerAddress) -> Customer:
+    customer = await repository.get_by_id(customer_id)
+    if customer is None:
+        raise UserNotFoundError(f"Customer with ID {customer_id} not found.")
+
+    if customer["role"] != "customer":
+        raise ValueError(f"User with ID {customer_id} is not a customer.")
+
+    address_found = False
+    for i, addr in enumerate(customer["addresses"]):
+        if addr["label"] == address_label:
+            customer["addresses"][i] = new_address
+            address_found = True
+            break
+
+    if not address_found:
+        raise ItemNotFoundError(f"Address with label {address_label} not found for this customer.")
 
     updated_customer = Customer(**customer)
 
