@@ -75,6 +75,25 @@ async def add_address(customer_id: str, address: CustomerAddress):
     except UserNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
+@customer_router.patch(
+        "/{customer_id}/addresses/{address_label}",
+        description="Update an existing address for a customer",
+        responses={
+            404: {"description": "Customer or address not found"},
+            422: {"description": "Invalid input data"},
+            200: {"description": "Address updated successfully"},
+        },
+        response_model=Customer
+    )
+async def update_address(customer_id: str, address_label: str, new_address: CustomerAddress):
+    try:
+        updated_customer = await uService.update_customer_address(UserRepository(), customer_id, address_label, new_address)
+        return updated_customer
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
+    except ItemNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
 @restaurant_owner_router.post(
     "",
     description="Create a new restaurant owner account",
