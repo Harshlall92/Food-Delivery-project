@@ -1,5 +1,7 @@
+from decimal import Decimal
+
 from pydantic import BaseModel, Field, field_validator
-from typing_extensions import Literal
+from typing_extensions import Annotated, Literal
 
 CanadianProvinceCode = Literal[
     "AB", "BC", "MB", "NB", "NL", "NS", "NT",
@@ -22,3 +24,5 @@ class BaseAddress(BaseModel):
             if value == "":
                 raise ValueError("Field cannot be empty")
         return value
+
+Price = Annotated[Decimal, Field(ge=0, decimal_places=2, max_digits=10)]
