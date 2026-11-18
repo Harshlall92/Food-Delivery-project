@@ -160,6 +160,120 @@ class TestCustomerRoutes:
         assert response.status_code == 422
         assert f"User with ID {restaurant_owner_id} is not a customer." in response.json()["detail"]
 
+    def test_add_address_invalid_input(self, mocked_user_repository):
+        customer_id = client.post("/api/users/c", json=create_test_user_create_dict()).json()["id"]
+
+        address_payload = {
+            "label": "Home",
+            "address_line_1": "",
+            "city": "Testville",
+            "province": "BC",
+            "postal_code": "A1A 1A1"
+        }
+
+        response = client.post(f"/api/users/c/{customer_id}", json=address_payload)
+
+        assert response.status_code == 422
+        assert any("Field cannot be empty" in err["msg"] for err in response.json()["detail"])
+
+    def test_update_address_for_customer(self, mocked_user_repository):
+        customer_id = client.post("/api/users/c", json=create_test_user_create_dict()).json()["id"]
+
+        address_payload = {
+            "label": "Home",
+            "address_line_1": "123 Main St",
+            "city": "Testville",
+            "province": "BC",
+            "postal_code": "A1A 1A1"
+        }
+
+        client.post(f"/api/users/c/{customer_id}", json=address_payload)
+
+        updated_address_payload = {
+            "label": "Work",
+            "address_line_1": "456 Elm St",
+            "city": "Newville",
+            "province": "ON",
+            "postal_code": "B2B 2B2"
+        }
+
+        response = client.patch(f"/api/users/c/{customer_id}/addresses/{address_payload['label']}", json=updated_address_payload)
+
+        assert response.status_code == 200
+        assert any(addr["address_line_1"] == updated_address_payload["address_line_1"] for addr in response.json()["addresses"])
+
+    def test_update_address_for_nonexistent_customer(self, mocked_user_repository):
+        address_payload = {
+            "label": "Home",
+            "address_line_1": "123 Main St",
+            "city": "Testville",
+            "province": "BC",
+            "postal_code": "A1A 1A1"
+        }
+
+        response = client.patch("/api/users/c/nonexistent-id/addresses/Home", json=address_payload)
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Customer with ID nonexistent-id not found."
+
+    def test_update_nonexistent_address_for_customer(self, mocked_user_repository):
+        customer_id = client.post("/api/users/c", json=create_test_user_create_dict()).json()["id"]
+
+        address_payload = {
+            "label": "Home",
+            "address_line_1": "123 Main St",
+            "city": "Testville",
+            "province": "BC",
+            "postal_code": "A1A 1A1"
+        }
+
+        response = client.patch(f"/api/users/c/{customer_id}/addresses/NonexistentLabel", json=address_payload)
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == f"Address with label NonexistentLabel not found for this customer."
+
+    def test_update_address_for_non_customer(self, mocked_user_repository):
+        restaurant_owner_id = client.post("/api/users/r", json=create_test_user_create_dict()).json()["id"]
+
+        address_payload = {
+            "label": "Home",
+            "address_line_1": "123 Main St",
+            "city": "Testville",
+            "province": "BC",
+            "postal_code": "A1A 1A1"
+        }
+
+        response = client.patch(f"/api/users/c/{restaurant_owner_id}/addresses/Home", json=address_payload)
+
+        assert response.status_code == 422
+        assert f"User with ID {restaurant_owner_id} is not a customer." in response.json()["detail"]
+
+    def test_update_address_invalid_input(self, mocked_user_repository):
+        customer_id = client.post("/api/users/c", json=create_test_user_create_dict()).json()["id"]
+
+        address_payload = {
+            "label": "Home",
+            "address_line_1": "123 Main St",
+            "city": "Testville",
+            "province": "BC",
+            "postal_code": "A1A 1A1"
+        }
+
+        client.post(f"/api/users/c/{customer_id}", json=address_payload)
+
+        updated_address_payload = {
+            "label": "Work",
+            "address_line_1": "",
+            "city": "Newville",
+            "province": "ON",
+            "postal_code": "B2B 2B2"
+        }
+
+        response = client.patch(f"/api/users/c/{customer_id}/addresses/{address_payload['label']}", json=updated_address_payload)
+
+        assert response.status_code == 422
+        assert any("Field cannot be empty" in err["msg"] for err in response.json()["detail"])
+
 class TestRestaurantOwnerRoutes:
 
     def test_create_restaurant_owner_account(self, mocked_user_repository):
