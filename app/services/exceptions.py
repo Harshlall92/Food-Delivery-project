@@ -1,15 +1,15 @@
-class ItemNotFoundError(RuntimeError):
+class ServiceError(RuntimeError):
+    """Base class for service-related errors."""
+    pass
+
+class ItemNotFoundError(ServiceError):
     """Raised when an item is not found in the database."""
     pass
 
-class RestaurantNotFoundError(ItemNotFoundError):
-    """Raised when a restaurant is not found in the database."""
-    pass
-
-class UserNotFoundError(ItemNotFoundError):
-    """Raised when a user is not found in the database."""
-    pass
-
-class DuplicateItemError(RuntimeError):
+class DuplicateItemError(ServiceError):
     """Raised when attempting to create a duplicate item in the database."""
+    pass
+
+class InvalidCredentialsError(ServiceError):
+    """Raised when provided credentials are invalid."""
     pass
