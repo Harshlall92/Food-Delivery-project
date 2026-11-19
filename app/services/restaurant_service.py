@@ -1,6 +1,8 @@
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.menu_item_repository import MenuItemRepository
+from app.repositories.exceptions import RecordNotFoundError
 from app.services import menu_item_service as mService
+from app.services.exceptions import ItemNotFoundError
 from app.schemas.restaurant import *
 
 
@@ -20,7 +22,7 @@ async def get_restaurants_by_name(repository: RestaurantRepository, name: str|No
         query = await repository.get_by_name(name)
 
     if not query:
-        raise mService.RestaurantNotFoundError(f"No restaurants found matching {name}.")
+        raise ItemNotFoundError(f"No restaurants found matching {name}.")
     
     return [
         validate_restaurant(restaurant)
@@ -34,7 +36,7 @@ async def get_restaurants_by_cuisine(repository: RestaurantRepository, cuisine: 
         query = await repository.get_by_cuisine(cuisine)
 
     if not query:
-        raise mService.RestaurantNotFoundError(f"Restaurant with cuisine {cuisine} not found.")
+        raise ItemNotFoundError(f"Restaurant with cuisine {cuisine} not found.")
         
     return [
         validate_restaurant(restaurant)
@@ -56,10 +58,10 @@ async def create_restaurants(repository: RestaurantRepository, data: RestaurantI
 
 async def get_full_restaurant_info(restaurant_repository: RestaurantRepository, menu_item_repository: MenuItemRepository, restaurant_id: str) -> FullRestaurantOutput | None:
 
-    restaurant = await restaurant_repository.get_by_id(restaurant_id)
-
-    if restaurant is None:
-        raise mService.RestaurantNotFoundError(f"Restaurant with ID {restaurant_id} not found.")
+    try:
+        restaurant = await restaurant_repository.get_by_id(restaurant_id)
+    except RecordNotFoundError as e:
+        raise ItemNotFoundError(e.message)
 
     menu_items = await mService.get_menu_items_by_restaurant_id(menu_item_repository, restaurant_id)
 
@@ -68,9 +70,11 @@ async def get_full_restaurant_info(restaurant_repository: RestaurantRepository, 
         menu_items=menu_items
     )
 async def update_restaurant(restaurant_repository: RestaurantRepository, restaurant_id: str, payload: RestaurantUpdate) -> Restaurant:
-    restaurant = await restaurant_repository.get_by_id(restaurant_id)
-    if restaurant is None:
-        raise mService.RestaurantNotFoundError(restaurant_id)
+    try:
+        restaurant = await restaurant_repository.get_by_id(restaurant_id)
+    except RecordNotFoundError as e:
+        raise ItemNotFoundError(e.message)
+
     changes = payload.model_dump(exclude_unset=True)
     updated = Restaurant(**{**restaurant, **changes})
     result = await restaurant_repository.update_record(restaurant_id, updated)

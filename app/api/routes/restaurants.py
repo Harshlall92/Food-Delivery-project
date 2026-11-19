@@ -3,6 +3,7 @@ from pathlib import Path
 
 from fastapi import APIRouter,status, HTTPException
 from fastapi.responses import HTMLResponse
+from app.services.exceptions import ItemNotFoundError
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.menu_item_repository import MenuItemRepository
 from app.schemas.restaurant import *
@@ -23,7 +24,7 @@ async def get_restaurants():
 async def search_restaurants(name: str):
     try:
         return await rService.get_restaurants_by_name(RestaurantRepository(), name)
-    except mService.RestaurantNotFoundError as e:
+    except ItemNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 @router.get("/filter", 
@@ -33,7 +34,7 @@ async def search_restaurants(name: str):
 async def filter_restaurants(cuisine: str):
     try:
         return await rService.get_restaurants_by_cuisine(RestaurantRepository(), cuisine)
-    except mService.RestaurantNotFoundError as e:
+    except ItemNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 @router.post("", response_model=Restaurant, status_code = status.HTTP_201_CREATED)
@@ -49,8 +50,9 @@ async def create_restaurants(payload: RestaurantInput):
 async def get_full_restaurant_info(restaurant_id: str):
     try:
         return await rService.get_full_restaurant_info(RestaurantRepository(), MenuItemRepository(), restaurant_id)
-    except mService.RestaurantNotFoundError as e:
+    except ItemNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
 @router.patch("/{restaurant_id}",
     response_model = RestaurantOutput,
     responses ={404: {"description": "Restaurant not found"}},
@@ -61,5 +63,5 @@ async def update_restaurant(restaurant_id: str, payload: RestaurantUpdate):
         return await rService.update_restaurant(
             RestaurantRepository(), restaurant_id, payload
         )
-    except mService.RestaurantNotFoundError as e:
+    except ItemNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

@@ -2,7 +2,6 @@ import json
 from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
 from app.repositories.restaurant_repository import RestaurantRepository
-from app.services.menu_item_service import RestaurantNotFoundError
 from app.main import app
 from app.schemas.restaurant import *
 from tests.util.helpers import create_restaurant_file, create_restaurant_repository, create_menu_item_file, create_menu_item_repository

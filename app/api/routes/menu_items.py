@@ -3,7 +3,8 @@ from fastapi import APIRouter, HTTPException, status
 from app.repositories.menu_item_repository import MenuItemRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.schemas.menu_item import MenuItem, MenuItemInput, MenuItemUpdate
-import app.services.menu_item_service as mService
+from app.services.exceptions import ItemNotFoundError
+from app.services import menu_item_service as mService
 
 router = APIRouter(prefix="/api/restaurants/{restaurant_id}/menu-items", tags=["menu items"])
 
@@ -25,7 +26,7 @@ async def create_menu_item(restaurant_id: str, payload: MenuItemInput):
         return await mService.create_menu_item(
             RestaurantRepository(), MenuItemRepository(), restaurant_id, payload
         )
-    except mService.RestaurantNotFoundError as e:
+    except ItemNotFoundError as e:
         # Turn the service's error into an HTTP 404 response.
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
@@ -44,5 +45,5 @@ async def update_menu_item(restaurant_id: str, menu_item_id: str, payload: MenuI
         return await mService.update_menu_item(
             RestaurantRepository(), MenuItemRepository(), restaurant_id, menu_item_id, payload
         )
-    except (mService.RestaurantNotFoundError, mService.MenuItemNotFoundError) as e:
+    except (ItemNotFoundError) as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
