@@ -68,6 +68,11 @@ async def create_cart(
         )
 
     
+    if not restaurant_active:
+        raise InactiveMenuItemError(
+            f"Menu item with id {data.menu_item_id} belongs to a restaurant that is not active."
+        )
+    
     price = _to_price(menu_item["price"])
     cart = Cart(
         customer_id=data.customer_id,
