@@ -3,6 +3,7 @@ import pytest
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.user_repository import UserRepository
 from app.repositories.cart_repository import CartRepository
+from app.repositories.menu_item_repository import MenuItemRepository
 from tests.util.helpers import *
 
 @pytest.fixture
@@ -39,3 +40,7 @@ def mocked_cart_repository(tmp_path, monkeypatch):
     cart_file = create_cart_file(tmp_path)
 
     monkeypatch.setattr("app.repositories.cart_repository.FILE_PATH", str(cart_file))
+
+@pytest.fixture
+def menu_item_repository(tmp_path) -> MenuItemRepository:
+    return create_menu_item_repository(create_menu_item_file(tmp_path))

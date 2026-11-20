@@ -6,6 +6,8 @@ import pytest
 from tests.util.builders import create_test_cart_item
 from app.schemas.cart import Cart, CartItem, CartItemAdd
 
+from app.schemas.cart import CartItemResponse, CartResponse
+
 
 class TestCartItemModel:
 
@@ -134,3 +136,19 @@ class TestCartItemAddModel:
                 menu_item_id="menu_item_123",
                 quantity=quantity
             )
+
+class TestCartResponseModels:
+
+    def test_cart_item_response_valid(self):
+        item = CartItemResponse(menu_item_name="Pizza", quantity=2, price_per_item=Decimal("5.00"))
+        assert item.menu_item_name == "Pizza"
+        assert item.price_per_item == Decimal("5.00")
+
+    @pytest.mark.parametrize("quantity", [0, -1])
+    def test_cart_item_response_invalid_quantity(self, quantity):
+        with pytest.raises(ValidationError):
+            CartItemResponse(menu_item_name="Pizza", quantity=quantity, price_per_item=Decimal("5.00"))
+
+    def test_cart_response_allows_empty_cart(self):
+        cart = CartResponse(restaurant_name="R", items=[], total_quantity=0, sub_total=Decimal("0.00"))
+        assert cart.total_quantity == 0

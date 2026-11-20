@@ -2,7 +2,7 @@ from app.repositories.exceptions import RecordNotFoundError
 from app.repositories.base_repository import BaseRepository
 from app.schemas.cart import Cart
 
-FILE_PATH = "data/cart.json"
+FILE_PATH = "data/carts.json"
 
 class CartRepository(BaseRepository[Cart]):
 
@@ -15,3 +15,9 @@ class CartRepository(BaseRepository[Cart]):
             return True
         except RecordNotFoundError:
             return False
+
+    async def get_cart_by_customer_id(self, customer_id: str) -> dict | None:
+        for cart in await self.get_all():
+            if cart.get("id") == customer_id:
+                return cart
+        return None

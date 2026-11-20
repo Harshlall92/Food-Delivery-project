@@ -13,3 +13,7 @@ class DuplicateItemError(ServiceError):
 class InvalidCredentialsError(ServiceError):
     """Raised when provided credentials are invalid."""
     pass
+
+class CartNotFoundError(ServiceError):
+    """Raised when a cart is not found in the database."""
+    pass

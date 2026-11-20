@@ -30,5 +30,21 @@
         "price": 2.0,
         "description": "iced mango and water",
         "available": true
+    },
+    {
+        "id": "01a169d7-6846-71d6-a521-1cdb742b6422",
+        "restaurant_id": "01a169d7-0fe6-7a55-858f-4346b7f5a7f1",
+        "name": "taco",
+        "price": 2000.0,
+        "description": "yummy",
+        "available": true
+    },
+    {
+        "id": "01a16a22-582d-7e4d-9095-ded9e2d1e0e8",
+        "restaurant_id": "01a0fd78-2c5c-72f4-b913-672a802a7116",
+        "name": "string",
+        "price": 1.0,
+        "description": "",
+        "available": true
     }
 ]
