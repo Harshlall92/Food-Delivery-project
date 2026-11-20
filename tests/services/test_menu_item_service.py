@@ -94,7 +94,7 @@ async def test_validate_menu_item():
         "available": True
     }
 
-    result = validate_menu_item(menu_item_dict)
+    result = validate_menu_item(MenuItem(**menu_item_dict))
 
     assert isinstance(result, MenuItemOutput)
     assert result.id == "01a0fd78-2c5c-72f4-b913-672a802a71ff"
@@ -113,7 +113,7 @@ def test_validate_menu_item_with_invalid_types():
     }
 
     with pytest.raises(ValidationError):
-        validate_menu_item(menu_item_dict)
+        validate_menu_item(MenuItem(**menu_item_dict))
 
 def test_validate_menu_item_with_missing_fields():
     menu_item_dict = {
@@ -123,7 +123,7 @@ def test_validate_menu_item_with_missing_fields():
     }
 
     with pytest.raises(ValidationError):
-        validate_menu_item(menu_item_dict)
+        validate_menu_item(MenuItem(**menu_item_dict)) # type: ignore
 
 RESTAURANT_ID = "01a0fd78-2c5c-72f4-b913-672a802a7116"
  

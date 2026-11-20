@@ -7,45 +7,28 @@ from app.schemas.restaurant import *
 
 
 async def get_restaurants(repository: RestaurantRepository) -> list[Restaurant]:
+    return await repository.get_all()
 
-    query = await repository.get_all()
+async def get_restaurants_by_name(repository: RestaurantRepository, name: str) -> list[Restaurant]:
 
-    return [
-        validate_restaurant(restaurant)
-        for restaurant in query
-    ]
-
-
-async def get_restaurants_by_name(repository: RestaurantRepository, name: str|None = None) -> list[Restaurant]:
-
-    if(name is not None):
-        query = await repository.get_by_name(name)
+    query = await repository.get_by_name(name)
 
     if not query:
         raise ItemNotFoundError(f"No restaurants found matching {name}.")
     
-    return [
-        validate_restaurant(restaurant)
-        for restaurant in query
-    ]
+    return query
 
 
-async def get_restaurants_by_cuisine(repository: RestaurantRepository, cuisine: str|None = None) -> list[Restaurant]:
-    
-    if(cuisine is not None):
-        query = await repository.get_by_cuisine(cuisine)
+async def get_restaurants_by_cuisine(repository: RestaurantRepository, cuisine: str) -> list[Restaurant]:
+    query = await repository.get_by_cuisine(cuisine)
 
     if not query:
         raise ItemNotFoundError(f"Restaurant with cuisine {cuisine} not found.")
         
-    return [
-        validate_restaurant(restaurant)
-        for restaurant in query
-    ]
-
+    return query
 
 async def get_all_cuisines(repository: RestaurantRepository) -> list:
-    return None
+    return []
 
 
 async def create_restaurants(repository: RestaurantRepository, data: RestaurantInput) -> Restaurant:
@@ -66,7 +49,7 @@ async def get_full_restaurant_info(restaurant_repository: RestaurantRepository, 
     menu_items = await mService.get_menu_items_by_restaurant_id(menu_item_repository, restaurant_id)
 
     return FullRestaurantOutput(
-        **restaurant,
+        **restaurant.model_dump(),
         menu_items=menu_items
     )
 async def update_restaurant(restaurant_repository: RestaurantRepository, restaurant_id: str, payload: RestaurantUpdate) -> Restaurant:
@@ -76,9 +59,11 @@ async def update_restaurant(restaurant_repository: RestaurantRepository, restaur
         raise ItemNotFoundError(e.message)
 
     changes = payload.model_dump(exclude_unset=True)
-    updated = Restaurant(**{**restaurant, **changes})
+    updated = Restaurant(**{**restaurant.model_dump(), **changes})
     result = await restaurant_repository.update_record(restaurant_id, updated)
-    return validate_restaurant(result)
+    if result is None:
+        raise mService.RestaurantNotFoundError(restaurant_id)
+    return result
 
 def validate_restaurant(restaurant: dict) -> Restaurant:
     return Restaurant(**restaurant)

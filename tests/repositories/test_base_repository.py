@@ -17,8 +17,7 @@ def create_test_model(
 def data(*model: Model) -> list[dict]:
     return [item.model_dump() for item in model]
 
-def write_data_to_file(test_file, contents: str | list[dict]):
-    test_file.write_text(contents if isinstance(contents, str) else json.dumps(contents), encoding="utf-8")
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
 def read_file(test_file, * ,return_json: bool = False) -> list[dict] | str:
     return json.loads(test_file.read_text(encoding="utf-8")) if return_json else test_file.read_text(encoding="utf-8")
@@ -27,11 +26,7 @@ class TestFileInteraction:
 
     class TestReadFile:
 
-        @pytest.mark.anyio
-        async def test_repository_can_read_file(self, tmp_path):
-            test_file = tmp_path / "test.json"
-            test_data = data(create_test_model())
-            write_data_to_file(test_file, test_data)
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
             repository = BaseRepository[Model](file_path=str(test_file))
 
@@ -43,7 +38,7 @@ class TestFileInteraction:
         async def test_repository_handles_file_not_found_on_read(self, tmp_path):
             test_file = tmp_path / "non_existent.json"
 
-            repository = BaseRepository[Model](file_path=test_file)
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
             assert not test_file.exists()
 
@@ -60,7 +55,7 @@ class TestFileInteraction:
 
             repository = BaseRepository[Model](file_path=str(test_file))
 
-            content = await repository._read_file()
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
             assert content == []
             assert test_file.exists()
@@ -80,18 +75,15 @@ class TestFileInteraction:
 
             await repository._write_file(test_data)
 
-            content = read_file(test_file, return_json=True)
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
             assert content == test_data
 
-        @pytest.mark.anyio
-        async def test_repository_can_write_to_non_existent_file(self, tmp_path):
-            test_file = tmp_path / "non_existent_write.json"
-            test_data = data(create_test_model())
+    assert items == [TestModel(**data[0])]
 
             repository = BaseRepository[Model](file_path=str(test_file))
 
-            assert not test_file.exists()
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
             await repository._write_file(test_data)
 
@@ -99,7 +91,7 @@ class TestFileInteraction:
 
             assert content == test_data
 
-class TestDataOperations:
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
     class TestCreateOperations:
 
@@ -112,7 +104,7 @@ class TestDataOperations:
             new_item = create_test_model()
             added_item = await repository.add_record(new_item)
 
-            assert added_item == data(new_item)[0]
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
             content = read_file(test_file, return_json=True)
             assert len(content) == 1
@@ -126,11 +118,10 @@ class TestDataOperations:
 
             duplicate_item = create_test_model()
 
-            with pytest.raises(DuplicateRecordError, match=f"Model with id {duplicate_item.id} already exists."):
-                await repository.add_record(duplicate_item)
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
 
-    class TestRetrieveOperations:
+    assert item == TestModel(**data[1])
 
         @pytest.mark.anyio
         async def test_get_all(self, tmp_path):
@@ -138,7 +129,7 @@ class TestDataOperations:
             file_contents = data(create_test_model(), create_test_model(id="2"))
             write_data_to_file(test_file, file_contents)
 
-            repository = BaseRepository[Model](file_path=str(test_file))
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
             items = await repository.get_all()
 

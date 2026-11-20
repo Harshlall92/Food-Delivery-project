@@ -74,9 +74,10 @@ async def test_update_record(tmp_path):
  
     updated = MenuItem(**{**MENU_ITEMS_DATA[0], "price": 14.5})
     result = await repository.update_record("1", updated)
- 
-    assert result["id"] == "1"
-    assert result["price"] == 14.5
+
+    assert result
+    assert result.id == "1"
+    assert result.price == 14.5
  
     contents = json.loads(menu_items_file.read_text())
     assert len(contents) == 3
