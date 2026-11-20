@@ -1,6 +1,6 @@
 from app.repositories.base_repository import BaseRepository
 from app.schemas.restaurant import Restaurant
-from exceptions import RestaurantNotFoundError, RecordNotFoundError
+from app.repositories.exceptions import RestaurantNotFoundError, RecordNotFoundError
 FILE_PATH = "data/restaurants.json"
 
 class RestaurantRepository(BaseRepository[Restaurant]):
