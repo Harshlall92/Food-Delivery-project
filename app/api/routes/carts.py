@@ -45,9 +45,9 @@ async def create_cart(data: CartCreate):
             RestaurantRepository(),
             data,
         )
-    except (CustomerNotFoundError, InvalidRoleError, InactiveUserError) as e:
+    except (InvalidRoleError, InactiveUserError) as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
-    except MenuItemNotFoundError as e:
+    except (MenuItemNotFoundError, CustomerNotFoundError) as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except DuplicateCartError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

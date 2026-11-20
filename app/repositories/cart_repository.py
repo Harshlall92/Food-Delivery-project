@@ -18,10 +18,3 @@ class CartRepository(BaseRepository[Cart]):
             return False
 
     
-    async def get_active_cart_by_customer_id(self, customer_id: str) -> Optional[Cart]:
-        try:
-            record = await self.get_by_id(customer_id)
-        except RecordNotFoundError:
-            return None
-        # Carts are stored with the customer id under the "id" key
-        return Cart.model_validate({**record, "customer_id": record["id"]})

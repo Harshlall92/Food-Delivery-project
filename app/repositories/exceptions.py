@@ -25,6 +25,5 @@ class DuplicateRecordError(RepositoryError):
         super().__init__(f"{"Record" if model is BaseModel else model.__name__} with id {id} already exists.")
         self.id = id
 
-class RestaurantNotFoundError(RecordNotFoundError):
-    """Raiised when restaurant is not found"""
+
     

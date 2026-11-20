@@ -15,7 +15,7 @@ class InvalidCredentialsError(ServiceError):
 
 class CustomerNotFoundError(ItemNotFoundError):
     """Raised when customer is not found"""
-    pass
+    pass 
 
 class InvalidRoleError(ServiceError):
     """Raised when a user does not have the role required for the operation"""
@@ -35,4 +35,8 @@ class InactiveMenuItemError(ServiceError):
 
 class DuplicateCartError(DuplicateItemError):
     """Raised when a customer who already has a cart attempts to create another."""
+    pass
+
+class RestaurantNotFoundError(ItemNotFoundError):
+    """Raised when restaurant is not found"""
     pass

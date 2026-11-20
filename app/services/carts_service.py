@@ -42,7 +42,7 @@ async def create_cart(
         raise InactiveUserError(f"Customer with id {data.customer_id} is not active.")
 
    
-    if await cart_repository.get_active_cart_by_customer_id(data.customer_id) is not None:
+    if await cart_repository.get_by_id(data.customer_id) is not None:
         raise DuplicateCartError(f"Customer with id {data.customer_id} already has an active cart.")
 
     
@@ -60,8 +60,6 @@ async def create_cart(
     try:
         restaurant_active = await restaurant_repository.is_restaurant_active(restaurant_id)
     except RecordNotFoundError:
-        restaurant_active = False
-    if not restaurant_active:
         raise InactiveMenuItemError(
             f"Menu item with id {data.menu_item_id} belongs to a restaurant that is not active."
         )
