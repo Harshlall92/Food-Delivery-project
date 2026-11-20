@@ -3,7 +3,7 @@ from app.repositories.base_repository import BaseRepository
 from app.schemas.cart import Cart
 from typing import Optional
 
-FILE_PATH = "data/cart.json"
+FILE_PATH = "data/carts.json"
 
 class CartRepository(BaseRepository[Cart]):
 
