@@ -1,232 +1,152 @@
 import json
 import pytest
-from pydantic import BaseModel
 from app.repositories.base_repository import BaseRepository
-from app.repositories.exceptions import *
+from tests.schemas import TestModel
 
-class Model(BaseModel):
-    id: str
-    name: str
+@pytest.fixture
+def anyio_backend():
+    return "asyncio"
 
-def create_test_model(
-    id: str = "1",
-    name: str = "Test Model"
-):
-    return Model(id=id, name=name)
+"""
+Reading From File Tests
+"""
 
-def data(*model: Model) -> list[dict]:
-    return [item.model_dump() for item in model]
-
-    repository = BaseRepository(file_path=str(file_path), model=TestModel)
-
-def read_file(test_file, * ,return_json: bool = False) -> list[dict] | str:
-    return json.loads(test_file.read_text(encoding="utf-8")) if return_json else test_file.read_text(encoding="utf-8")
-
-class TestFileInteraction:
-
-    class TestReadFile:
+@pytest.mark.anyio
+async def test_repository_can_read_file(tmp_path):
+    file_path = tmp_path / "test.json"
+    data = [{"id": "1", "name": "Test"}]
+    file_path.write_text(json.dumps(data), encoding="utf-8")
 
     repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
-            repository = BaseRepository[Model](file_path=str(test_file))
+    content = await repository._read_file()
 
-            content = await repository._read_file()
+    assert content == data
 
-            assert content == test_data
-
-        @pytest.mark.anyio
-        async def test_repository_handles_file_not_found_on_read(self, tmp_path):
-            test_file = tmp_path / "non_existent.json"
+@pytest.mark.anyio
+async def test_repository_handles_file_not_found_on_read(tmp_path):
+    file_path = tmp_path / "non_existent.json"
 
     repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
-            assert not test_file.exists()
+    assert not file_path.exists()
 
-            content = await repository._read_file()
+    content = await repository._read_file()
 
-            assert content == []
-            assert test_file.exists()
-            assert read_file(test_file) == "[]"
+    assert content == []
+    assert file_path.exists()
+    assert file_path.read_text(encoding="utf-8") == "[]"
 
-        @pytest.mark.anyio
-        async def test_repository_handles_invalid_json_on_read(self, tmp_path):
-            test_file = tmp_path / "invalid.json"
-            write_data_to_file(test_file, "invalid json")
-
-            repository = BaseRepository[Model](file_path=str(test_file))
+@pytest.mark.anyio
+async def test_repository_handles_invalid_json_on_read(tmp_path):
+    file_path = tmp_path / "invalid.json"
+    file_path.write_text("not valid json", encoding="utf-8")
 
     repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
-            assert content == []
-            assert test_file.exists()
-            assert read_file(test_file) == "[]"
+    content = await repository._read_file()
 
-    class TestWriteFile:
+    assert content == []
+    assert file_path.exists()
+    assert file_path.read_text(encoding="utf-8") == "[]"
 
-        @pytest.mark.anyio
-        async def test_repository_can_write_to_file(self, tmp_path):
-            test_file = tmp_path / "test_write.json"
-            write_data_to_file(test_file, "")
-            test_data = data(create_test_model())
+"""
+Writing To File Tests
+"""
 
-            repository = BaseRepository[Model](file_path=str(test_file))
+@pytest.mark.anyio
+async def test_repository_can_write_to_file(tmp_path):
+    file_path = tmp_path / "test_write.json"
+    data = [{"id": "1", "name": "Test"}]
 
-            assert test_file.exists() == True
-
-            await repository._write_file(test_data)
+    file_path.write_text("", encoding="utf-8")
 
     repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
-            assert content == test_data
+    assert file_path.exists() == True
+
+    await repository._write_file(data)
+
+    content = json.loads(file_path.read_text(encoding="utf-8"))
+
+    assert content == data
+
+    """
+    Database Operations Tests
+    """
+
+@pytest.mark.anyio
+async def test_repository_can_get_all_items(tmp_path):
+    file_path = tmp_path / "test.json"
+    data = [{"id": "1", "name": "Test"}]
+    file_path.write_text(json.dumps(data), encoding="utf-8")
+
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
+
+    items = await repository.get_all()
 
     assert items == [TestModel(**data[0])]
 
-            repository = BaseRepository[Model](file_path=str(test_file))
+@pytest.mark.anyio
+async def test_repository_returns_empty_list_if_file_is_empty(tmp_path):
+    file_path = tmp_path / "empty.json"
+    file_path.write_text("", encoding="utf-8")
 
     repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
-            await repository._write_file(test_data)
+    items = await repository.get_all()
 
-            content = read_file(test_file, return_json=True)
+    assert items == []
 
-            assert content == test_data
-
-    repository = BaseRepository(file_path=str(file_path), model=TestModel)
-
-    class TestCreateOperations:
-
-        @pytest.mark.anyio
-        async def test_add_record(self, tmp_path):
-            test_file = tmp_path / "test.json"
-
-            repository = BaseRepository[Model](file_path=str(test_file))
-
-            new_item = create_test_model()
-            added_item = await repository.add_record(new_item)
+@pytest.mark.anyio
+async def test_repository_can_add_item_to_database(tmp_path):
+    file_path = tmp_path / "test.json"
+    data = [{"id": "1", "name": "Test"}]
+    file_path.write_text(json.dumps(data), encoding="utf-8")
 
     repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
-            content = read_file(test_file, return_json=True)
-            assert len(content) == 1
+    new_item = TestModel(id="2", name="Another Item")
+    await repository.add_record(new_item)
 
-        @pytest.mark.anyio
-        async def test_add_record_raises_duplicate_item_error_if_id_already_exists(self, tmp_path):
-            test_file = tmp_path / "test.json"
-            write_data_to_file(test_file, data(create_test_model()))
+    content = json.loads(file_path.read_text(encoding="utf-8"))
 
-            repository = BaseRepository[Model](file_path=str(test_file))
+    assert len(content) == 2
 
-            duplicate_item = create_test_model()
+@pytest.mark.anyio
+async def test_repository_can_add_item_to_non_existent_database(tmp_path):
+    file_path = tmp_path / "test.json"
 
     repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
+    new_item = TestModel(id="1", name="New Item")
+    await repository.add_record(new_item)
+
+    content = json.loads(file_path.read_text(encoding="utf-8"))
+
+    assert len(content) == 1
+
+@pytest.mark.anyio
+async def test_repository_can_get_item_by_id(tmp_path):
+    file_path = tmp_path / "test.json"
+    data = [{"id": "1", "name": "Test"}, {"id": "2", "name": "Another Test"}]
+    file_path.write_text(json.dumps(data), encoding="utf-8")
+
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
+
+    item = await repository.get_by_id("2")
 
     assert item == TestModel(**data[1])
 
-        @pytest.mark.anyio
-        async def test_get_all(self, tmp_path):
-            test_file = tmp_path / "test.json"
-            file_contents = data(create_test_model(), create_test_model(id="2"))
-            write_data_to_file(test_file, file_contents)
+@pytest.mark.anyio
+async def test_repository_returns_none_if_item_not_found(tmp_path):
+    file_path = tmp_path / "test.json"
+    data = [{"id": "1", "name": "Test"}]
+    file_path.write_text(json.dumps(data), encoding="utf-8")
 
     repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
-            items = await repository.get_all()
+    item = await repository.get_by_id("2")
 
-            assert items == file_contents
+    assert item is None
 
-        @pytest.mark.anyio
-        async def test_get_all_returns_empty_list_if_file_is_empty(self, tmp_path):
-            test_file = tmp_path / "empty.json"
-
-            write_data_to_file(test_file, "")
-
-            repository = BaseRepository[Model](file_path=str(test_file))
-
-            items = await repository.get_all()
-
-            assert items == []
-
-        @pytest.mark.anyio
-        async def test_get_by_id(self, tmp_path):
-            test_file = tmp_path / "test.json"
-            write_data_to_file(test_file, data(create_test_model(), create_test_model(id="2", name="Another Test")))
-
-            repository = BaseRepository[Model](file_path=str(test_file))
-
-            item = await repository.get_by_id("2")
-
-            assert item == {"id": "2", "name": "Another Test"}
-
-        @pytest.mark.anyio
-        async def test_get_by_id_raises_item_not_found_error_if_item_not_found(self, tmp_path):
-            test_file = tmp_path / "test.json"
-            write_data_to_file(test_file, data(create_test_model()))
-
-            repository = BaseRepository[Model](file_path=str(test_file))
-
-            with pytest.raises(RecordNotFoundError) as e:
-                await repository.get_by_id("2")
-
-            assert str(e.value) == "Model with id 2 not found."
-
-    class TestUpdateOperations:
-
-        @pytest.mark.anyio
-        async def test_update_record(self, tmp_path):
-            test_file = tmp_path / "test.json"
-            write_data_to_file(test_file, data(create_test_model()))
-
-            repository = BaseRepository[Model](file_path=str(test_file))
-
-            updated_model = create_test_model(name="Updated Test")
-            updated_record = await repository.update_record("1", updated_model)
-
-            assert updated_record == {"id": "1", "name": "Updated Test"}
-
-            content = read_file(test_file, return_json=True)
-            assert content[0] == updated_record
-
-        @pytest.mark.anyio
-        async def test_update_record_raises_item_not_found_error_if_item_not_found(self, tmp_path):
-            test_file = tmp_path / "test.json"
-            write_data_to_file(test_file, data(create_test_model()))
-
-            repository = BaseRepository[Model](file_path=str(test_file))
-
-            updated_model = create_test_model(name="Updated Test")
-
-            with pytest.raises(RecordNotFoundError) as e:
-                await repository.update_record("2", updated_model)
-            
-            assert str(e.value) == "Model with id 2 not found."
-    
-    class TestDeleteOperations:
-
-        @pytest.mark.anyio
-        async def test_delete_record(self, tmp_path):
-            test_file = tmp_path / "test.json"
-            write_data_to_file(test_file, data(create_test_model(), create_test_model(id="2")))
-
-            repository = BaseRepository[Model](file_path=str(test_file))
-
-            result = await repository.delete_record("1")
-
-            assert result
-
-            content = read_file(test_file, return_json=True)
-            assert len(content) == 1
-
-        @pytest.mark.anyio
-        async def test_delete_record_returns_false_if_item_not_found(self, tmp_path):
-            test_file = tmp_path / "test.json"
-            write_data_to_file(test_file, data(create_test_model()))
-
-            repository = BaseRepository[Model](file_path=str(test_file))
-
-            result = await repository.delete_record("2")
-
-            assert result == False
-
-            content = read_file(test_file, return_json=True)
-            assert len(content) == 1

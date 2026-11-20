@@ -1,5 +1,4 @@
 from app.repositories.restaurant_repository import RestaurantRepository
-from app.repositories.exceptions import RecordNotFoundError
 from app.services.exceptions import InvalidCredentialsError, ItemNotFoundError, DuplicateItemError
 from app.repositories.user_repository import UserRepository
 from app.schemas.user import Customer, CustomerAddress, RestaurantOwner, RestaurantOwnerUpdate, UserCreate, UserUpdate
@@ -12,28 +11,26 @@ async def create_customer(repository: UserRepository, data: UserCreate) -> Custo
     return customer
 
 async def update_customer(repository: UserRepository, customer_id: str, data: UserUpdate) -> Customer:
-    try:
-        customer = await repository.get_by_id(customer_id)
-    except RecordNotFoundError as e:
-        raise ItemNotFoundError(e.message) from e
+    customer = await repository.get_by_id(customer_id)
+    if customer is None:
+        raise ItemNotFoundError(f"User with id {customer_id} not found.")
 
     changes = data.model_dump(exclude_unset=True)
     updated = Customer(**{**customer.model_dump(), **changes})
 
     if await repository.contains_email(updated.email) and updated.email != customer.email:
-        raise DuplicateItemError(f"Customer with email {updated.email} already exists.")
+        raise DuplicateItemError(f"User with email {updated.email} already exists.")
 
     await repository.update_record(customer_id, updated)
 
     return updated
 
 async def add_customer_address(repository: UserRepository, customer_id: str, address: CustomerAddress) -> Customer:
-    try:
-        customer = await repository.get_by_id(customer_id)
-    except RecordNotFoundError as e:
-        raise ItemNotFoundError(e.message) from e
+    customer = await repository.get_by_id(customer_id)
+    if customer is None:
+        raise ItemNotFoundError(f"User with id {customer_id} not found.")
 
-    if customer["role"] != "customer":
+    if customer.role != "customer":
         raise InvalidCredentialsError(f"User with id {customer_id} is not a customer.")
 
     for addr in customer.addresses:
@@ -49,12 +46,11 @@ async def add_customer_address(repository: UserRepository, customer_id: str, add
     return updated_customer
 
 async def update_customer_address(repository: UserRepository, customer_id: str, address_label: str, new_address: CustomerAddress) -> Customer:
-    try:
-        customer = await repository.get_by_id(customer_id)
-    except RecordNotFoundError as e:
-        raise ItemNotFoundError(e.message) from e
+    customer = await repository.get_by_id(customer_id)
+    if customer is None:
+        raise ItemNotFoundError(f"User with id {customer_id} not found.")
 
-    if customer["role"] != "customer":
+    if customer.role != "customer":
         raise InvalidCredentialsError(f"User with id {customer_id} is not a customer.")
 
     address_found = False
@@ -81,21 +77,18 @@ async def create_restaurant_owner(repository: UserRepository, data: UserCreate) 
     return owner
 
 async def update_restaurant_owner(user_repository: UserRepository, restaurant_repository: RestaurantRepository, owner_id: str, data: RestaurantOwnerUpdate) -> RestaurantOwner:
-    try:
-        owner = await user_repository.get_by_id(owner_id)
-    except RecordNotFoundError as e:
-        raise ItemNotFoundError(e.message) from e
+    owner = await user_repository.get_by_id(owner_id)
+    if owner is None:
+        raise ItemNotFoundError(f"User with id {owner_id} not found.")
 
     if data.restaurant_id is not None:
-        try:
-            await restaurant_repository.get_by_id(data.restaurant_id)
-        except RecordNotFoundError as e:
-            raise ItemNotFoundError(e.message) from e
+        if await restaurant_repository.get_by_id(data.restaurant_id) is None:
+            raise ItemNotFoundError(f"Restaurant with id {data.restaurant_id} not found.")
 
     changes = data.model_dump(exclude_unset=True)
     updated = RestaurantOwner(**{**owner.model_dump(), **changes})
 
-    if await user_repository.contains_email(updated.email) and updated.email != owner["email"]:
+    if await user_repository.contains_email(updated.email) and updated.email != owner.email:
         raise DuplicateItemError(f"User with email {updated.email} already exists.")
 
     await user_repository.update_record(owner_id, updated)

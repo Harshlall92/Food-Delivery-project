@@ -1,5 +1,5 @@
 from decimal import Decimal
-from pydantic import BaseModel, Field, PositiveInt, AliasChoices
+from pydantic import AliasChoices, BaseModel, Field, PositiveInt
 from app.schemas.common import Price, CartQuantity
 
 
@@ -9,7 +9,11 @@ class CartItem(BaseModel):
     price_per_item: Price = Field(alias="price", frozen=True, gt=Decimal("0.00"))
 
 class Cart(BaseModel):
-    customer_id: str = Field(serialization_alias="id", frozen=True)
+    customer_id: str = Field(
+        validation_alias=AliasChoices("customer_id", "id"),
+        serialization_alias="id",
+        frozen=True,
+    )
     restaurant_id: str = Field(frozen=True)
     items: list[CartItem] = Field(default_factory=list)
     subtotal: Price = Field(default=Decimal("0.00"))

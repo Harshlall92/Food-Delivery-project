@@ -39,9 +39,7 @@ class RestaurantRepository(BaseRepository[Restaurant]):
         return cuisines
 
     async def get_restaurant_name_by_id(self, restaurant_id: str) -> str:
-        try:
-            restaurant = await self.get_by_id(restaurant_id)
-        except RecordNotFoundError:
+        restaurant = await self.get_by_id(restaurant_id)
+        if restaurant is None:
             raise RestaurantNotFoundError(Restaurant, restaurant_id)
-        return restaurant["name"]
-
+        return restaurant.name

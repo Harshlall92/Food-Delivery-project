@@ -19,15 +19,15 @@ async def retrieve_cart(
         raise CartNotFoundError(f"No active cart found for customer {customer_id}.")
 
     try:
-        restaurant_name = await restaurant_repository.get_restaurant_name_by_id(cart["restaurant_id"])
+        restaurant_name = await restaurant_repository.get_restaurant_name_by_id(cart.restaurant_id)
 
         items: list[CartItemResponse] = []
-        for item in cart.get("items", []):
-            menu_item_name = await menu_item_repository.get_menu_item_name_by_id(item["menu_item_id"])
+        for item in cart.items:
+            menu_item_name = await menu_item_repository.get_menu_item_name_by_id(item.menu_item_id)
             items.append(CartItemResponse(
                 menu_item_name=menu_item_name,
-                quantity=item["quantity"],
-                price_per_item=Decimal(str(item["price"])),
+                quantity=item.quantity,
+                price_per_item=item.price_per_item,
             ))
     except (RestaurantNotFoundError, MenuItemNotFoundError) as e:
         raise ItemNotFoundError(e.message) from e

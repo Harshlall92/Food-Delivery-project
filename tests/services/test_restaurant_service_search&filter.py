@@ -35,7 +35,7 @@ async def test_get_restaurants_by_name_success(repository):
 
 @pytest.mark.anyio
 async def test_get_restaurants_by_name_not_found(repository):
-    with pytest.raises(mService.RestaurantNotFoundError):
+    with pytest.raises(ItemNotFoundError):
         await get_restaurants_by_name(repository, "asdasdasdasdasd")
 
 
@@ -52,5 +52,5 @@ async def test_get_restaurants_by_cuisine_success(repository):
 
 @pytest.mark.anyio
 async def test_get_restaurants_by_cuisine_not_found(repository):
-    with pytest.raises(mService.RestaurantNotFoundError):
+    with pytest.raises(ItemNotFoundError):
         await get_restaurants_by_cuisine(repository, "mexican")
