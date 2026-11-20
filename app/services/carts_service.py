@@ -41,8 +41,11 @@ async def create_cart(
     if not user.get("active", False):
         raise InactiveUserError(f"Customer with id {data.customer_id} is not active.")
 
-   
-    if await cart_repository.get_by_id(data.customer_id) is not None:
+    try:
+        existing_cart = await cart_repository.get_by_id(data.customer_id)
+    except RecordNotFoundError:
+        existing_cart = None
+    if existing_cart is not None:
         raise DuplicateCartError(f"Customer with id {data.customer_id} already has an active cart.")
 
     
@@ -75,3 +78,6 @@ async def create_cart(
 
     await cart_repository.add_record(cart)
     return cart
+
+async def delete_cart(cart_repository: CartRepository, customer_id: str) -> bool:
+    return await cart_repository.delete_record(customer_id)

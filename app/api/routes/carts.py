@@ -53,3 +53,21 @@ async def create_cart(data: CartCreate):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     except InactiveMenuItemError as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
+
+
+@router.delete(
+        "/{customer_id}",
+        description="Delete a customer's active cart",
+        responses={
+            204: {"description": "Cart deleted successfully"},
+            404: {"description": "Cart not found"},
+        },
+        status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_cart(customer_id: str):
+    deleted = await cService.delete_cart(CartRepository(), customer_id)
+    if not deleted:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Cart for customer with id {customer_id} not found.",
+        )
