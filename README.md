@@ -127,6 +127,9 @@ Endpoints for user-related operations are available under the `/api/users/` path
   - **404 Not Found**: the menu item does not exist
   - **409 Conflict**: the customer already has an active cart
   - **422 Unprocessable Content**: invalid request body, or the menu item (or its restaurant) is not active
+- `DELETE /{customer_id}` - Deletes the cart for a customer.
+  - **204 No Content**: the cart was successfully deleted
+  - **404 Not Found**: the cart does not exist
 
 ## Representative Data
 
