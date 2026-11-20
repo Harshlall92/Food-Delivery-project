@@ -28,5 +28,3 @@ class DuplicateRecordError(RepositoryError):
 class RestaurantNotFoundError(RecordNotFoundError):
     """Raiised when restaurant is not found"""
     
-
-    
