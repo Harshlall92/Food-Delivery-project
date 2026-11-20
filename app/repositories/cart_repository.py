@@ -1,6 +1,7 @@
 from app.repositories.exceptions import RecordNotFoundError
 from app.repositories.base_repository import BaseRepository
 from app.schemas.cart import Cart
+from typing import Optional
 
 FILE_PATH = "data/cart.json"
 
@@ -15,3 +16,5 @@ class CartRepository(BaseRepository[Cart]):
             return True
         except RecordNotFoundError:
             return False
+
+    

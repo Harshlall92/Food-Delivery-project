@@ -17,3 +17,8 @@ class Cart(BaseModel):
 class CartItemAdd(BaseModel):
     menu_item_id: str
     quantity: PositiveInt = Field(default=1)
+
+class CartCreate(CartItemAdd):
+    customer_id: str = Field(min_length =1)
+
+    
