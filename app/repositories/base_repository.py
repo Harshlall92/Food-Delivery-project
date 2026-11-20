@@ -1,22 +1,29 @@
 import json
+from typing import Any, Generic, TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, TypeAdapter
 from pathlib import Path
 import anyio
 
-class BaseRepository[T: BaseModel]:
+T = TypeVar("T", bound=BaseModel)
 
-    file_path: Path
+class BaseRepository(Generic[T]):
 
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str, model: Any) -> None:
         self.file_path = Path(file_path)
+        self.model = model
+        self.adapter = TypeAdapter(model)
 
     """
     Database Operations
     """
 
-    async def get_all(self) -> list[dict]:
-        return await self._read_file()
+    async def get_all(self) -> list[T]:
+        data = await self._read_file()
+        return [
+            self.adapter.validate_python(item)
+            for item in data
+        ]
 
     async def add_record(self, record: T) -> dict:
         data = await self._read_file()
@@ -26,20 +33,20 @@ class BaseRepository[T: BaseModel]:
         await self._write_file(data)
         return record_dict
 
-    async def get_by_id(self, record_id: str) -> dict | None:
+    async def get_by_id(self, record_id: str) -> T | None:
         data = await self._read_file()
         for item in data:
             if item.get("id") == record_id:
-                return item
+                return self.adapter.validate_python(item)
         return None
 
-    async def update_record(self, record_id: str, record: T) -> dict | None:
+    async def update_record(self, record_id: str, record: T) -> T | None:
         data = await self._read_file()
         for i, item in enumerate(data):
             if item.get("id") == record_id:
                 data[i] = record.model_dump()
                 await self._write_file(data)
-                return data[i]
+                return self.adapter.validate_python(data[i])
         return None
     """
     Data Persistence Methods
