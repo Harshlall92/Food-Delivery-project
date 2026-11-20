@@ -131,6 +131,14 @@ Endpoints for user-related operations are available under the `/api/users/` path
   - **204 No Content**: the cart was successfully deleted
   - **404 Not Found**: the cart does not exist
 
+- `GET /{customer_id}` - Retrieves the customer's active cart, with the restaurant name, each menu item's name, quantity and price, the total quantity, and the subtotal.
+  - **Path parameter:** `customer_id` (string)
+  - **Request body:** None
+  - **Responses:**
+    - `200 OK` - Returns a `CartResponse`
+    - `404 Not Found` - The customer does not have an active cart
+    - `422 Unprocessable Entity` - The customer id is invalid
+
 ## Representative Data
 
 **Restaurants**: [Food-Delivery-project/data/restaurants.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/restaurants.json)

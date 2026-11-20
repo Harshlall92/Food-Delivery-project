@@ -29,11 +29,13 @@
     - [3.1.1 Restaurants Database](#311-restaurants-database)
     - [3.1.2 Menu Items Database](#312-menu-items-database)
     - [3.1.3 Users Database](#313-users-database)
-- [3.1.4 Carts Database](#314-carts-database)
+  - [3.1.4 Carts Database](#314-carts-database)
+  - [3.1.5 Orders Database](#315-orders-database)
+  - [3.1.5 Order Items Database](#315-order-items-database)
   - [3.2 Pydantic Models](#32-pydantic-models)
     - [3.2.1 Shared Models](#321-shared-models)
       - [3.2.1.1 BaseAddress Model](#3211-baseaddress-model)
-    - [3.2.1.2 Price Type](#3212-price-type)
+      - [3.2.1.2 Price Type](#3212-price-type)
     - [3.2.2 Restaurant Model](#322-restaurant-model)
       - [3.2.2.1 Restaurant Input Model](#3221-restaurant-input-model)
       - [3.2.2.2 Restaurant Output Model](#3222-restaurant-output-model)
@@ -49,19 +51,29 @@
     - [3.2.6 Restaurant Owner Model](#326-restaurant-owner-model)
       - [3.2.6.1 RestaurantOwnerUpdate Model](#3261-restaurantownerupdate-model)
     - [3.2.7 Admin Model](#327-admin-model)
-- [3.2.8 Cart Models](#328-cart-models)
-  - [3.2.8.1 CartQuantity Type](#3281-cartquantity-type)
-  - [3.2.8.2 CartItem Model](#3282-cartitem-model)
-  - [3.2.8.3 CartAddItem Model](#3283-cartadditem-model)
-  - [3.2.8.4 CartCreate Model](#3284-cartcreate-model)
-  - [3.2.8.5 Cart Model](#3285-cart-model)
-  - [3.2.8.6 CartItemResponse Model](#3286-cartitemresponse-model)
-  - [3.2.8.7 CartResponse Model](#3287-cartresponse-model)
+    - [3.2.8 Cart Models](#328-cart-models)
+      - [3.2.8.1 CartQuantity Type](#3281-cartquantity-type)
+      - [3.2.8.2 CartItem Model](#3282-cartitem-model)
+      - [3.2.8.3 CartAddItem Model](#3283-cartadditem-model)
+      - [3.2.8.4 CartCreate Model](#3284-cartcreate-model)
+      - [3.2.8.5 Cart Model](#3285-cart-model)
+      - [3.2.8.6 CartItemResponse Model](#3286-cartitemresponse-model)
+      - [3.2.8.7 CartResponse Model](#3287-cartresponse-model)
+    - [3.2.9 Order Models](#329-order-models)
+      - [3.2.9.1 Order Status](#3291-order-status)
+      - [3.2.9.2 Order Item Model](#3292-order-item-model)
+      - [3.2.9.3 Order Model](#3293-order-model)
+      - [3.2.9.4 Order Create Model](#3294-order-create-model)
+      - [3.2.9.5 Order Status Update Model](#3295-order-status-update-model)
+      - [3.2.9.6 Order Response Model](#3296-order-response-model)
+      - [3.2.9.7 Order Item Response Model](#3297-order-item-response-model)
   - [3.3 Repository](#33-repository)
     - [3.3.1 Restaurant Repository](#331-restaurant-repository)
     - [3.3.2 Menu Item Repository](#332-menu-item-repository)
     - [3.3.3 User Repository](#333-user-repository)
   - [3.3.4 Cart Repository](#334-cart-repository)
+  - [3.3.5 Order Repository](#335-order-repository)
+  - [3.3.6 Order Item Repository](#336-order-item-repository)
   - [3.4 API Routes](#34-api-routes)
     - [3.4.1 Customer Restaurants API Route](#341-customer-restaurants-api-route)
     - [3.4.2 Restaurant Owner Restaurant API](#342-restaurant-owner-restaurant-api)
@@ -76,6 +88,11 @@
       - [3.4.6.3 Add Item to Cart Endpoint](#3463-add-item-to-cart-endpoint)
       - [3.4.6.4 Delete Cart Endpoint](#3464-delete-cart-endpoint)
       - [3.4.6.5 Update Cart Item Quantity Endpoint](#3465-update-cart-item-quantity-endpoint)
+    - [3.4.7 Order API](#347-order-api)
+      - [3.4.7.1 Checkout Endpoint](#3471-checkout-endpoint)
+      - [3.4.7.2 Update Order Status Endpoint](#3472-update-order-status-endpoint)
+      - [3.4.7.3 Get Order Endpoint](#3473-get-order-endpoint)
+      - [3.4.7.4 List and Filter Orders Endpoint](#3474-list-and-filter-orders-endpoint)
   - [3.5 Services](#35-services)
     - [3.5.1 Restaurant Services](#351-restaurant-services)
     - [3.5.2 Menu Item Services](#352-menu-item-services)
@@ -92,6 +109,10 @@
       - [3.5.4.3 Add Item to Cart](#3543-add-item-to-cart)
       - [3.5.4.4 Delete Cart](#3544-delete-cart)
       - [3.5.4.5 Update Cart Item Quantity](#3545-update-cart-item-quantity)
+    - [3.5.5 Order Services](#355-order-services)
+      - [3.5.5.1 Checkout Cart](#3551-checkout-cart)
+      - [3.5.5.2 Update Order Status](#3552-update-order-status)
+      - [3.5.5.3 Query Orders](#3553-query-orders)
 - [4. External Interface Requirements](#4-external-interface-requirements)
   - [4.1 User Interfaces](#41-user-interfaces)
     - [4.1.1 Customer User Interface](#411-customer-user-interface)
@@ -280,7 +301,7 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 - **DATA-USR-007:** A user SHALL have an `active` flag
 - **DATA-USR-008:** A user SHALL have a role
 
-## 3.1.4 Carts Database
+### 3.1.4 Carts Database
 
 - **DATA-CART-001:** Carts SHALL be stored in `data/carts.json`
 - **DATA-CART-002:** A Cart SHALL be associated with a customer
@@ -291,6 +312,25 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 - **DATA-CART-007:** A Cart Item SHALL reference a menu item
 - **DATA-CART-008:** A Cart Item SHALL have a quantity
 - **DATA-CART-009:** A Cart Item SHALL have the menu item's price at the time it was added
+
+### 3.1.5 Orders Database
+
+- **DATA-ORDER-001:** Orders SHALL be stored in `data/orders.py`
+- **DATA-ORDER-002:** An Order SHALL have a unique identifier
+- **DATA-ORDER-003:** An Order SHALL be associated with a customer
+- **DATA-ORDER-004:** An Order SHALL reference a restaurant
+- **DATA-ORDER-005:** An Order SHALL have an order date/time
+- **DATA-ORDER-006:** An Order SHALL have an order status
+- **DATA-ORDER-007:** An Order SHALL have a non-negative total
+
+### 3.1.5 Order Items Database
+
+- **DATA-ORDER-008:** Order items SHALL be stored in `data/order-items.py`
+- **DATA-ORDER-009:** An Order Item SHALL have a unique identifier
+- **DATA-ORDER-010:** An Order Item SHALL reference an order
+- **DATA-ORDER-011:** An Order Item SHALL reference a menu item
+- **DATA-ORDER-012:** An Order Item SHALL have a positive quantity
+- **DATA-ORDER-013:** An Order Item SHALL have a price per item captured at checkout
 
 ---
 
@@ -323,7 +363,7 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
   - **DATA-PYD-062.1:** The postal code SHALL match the Canadian postal-code format `A1A 1A1`
   - **DATA-PYD-062.2:** The postal-code letters SHALL be uppercase
 
-#### 3.2.1.2 Price Type
+##### 3.2.1.2 Price Type
 
 - **DATA-PYD-065:** The `Price` model SHALL have an `amount`
   - **DATA-PYD-065.1:** The amount SHALL be a Decimal
@@ -525,35 +565,35 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 - **DATA-PYD-064:** The `Admin` model SHALL have a list of permissions
   - **DATA-PYD-064.1:** The list of permissions SHALL default to an empty list
 
-## 3.2.8 Cart Models
+#### 3.2.8 Cart Models
 
-### 3.2.8.1 CartQuantity Type
+##### 3.2.8.1 CartQuantity Type
 
 - **DATA-PYD-066:** The `CartQuantity` model SHALL have a `quantity`
   - **DATA-PYD-066.1:** The quantity SHALL be an integer
   - **DATA-PYD-066.2:** The quantity SHALL be a positive integer
   - **DATA-PYD-066.3:** The quantity SHALL default to `1`
 
-### 3.2.8.2 CartItem Model
+##### 3.2.8.2 CartItem Model
 
 - **DATA-PYD-067:** The `CartItem` model SHALL have a `menu_item_id`
   - **DATA-PYD-067.1:** The menu item identifier SHALL reference a menu item
 - **DATA-PYD-068:** The `CartItem` model SHALL have a `quantity` represented by `CartQuantity`
 - **DATA-PYD-069:** The `CartItem` model SHALL have a `price_per_item` represented by `Price`
 
-### 3.2.8.3 CartAddItem Model
+##### 3.2.8.3 CartAddItem Model
 
 - **DATA-PYD-070:** The `CartAddItem` model SHALL have a `menu_item_id`
   - **DATA-PYD-070.1:** The menu item identifier SHALL reference a menu item
 - **DATA-PYD-071:** The `CartAddItem` model SHALL have a `quantity` represented by `CartQuantity`
 
-### 3.2.8.4 CartCreate Model
+##### 3.2.8.4 CartCreate Model
 
 - **DATA-PYD-072:** The `CartCreate` model SHALL extend the `CartAddItem` model
 - **DATA-PYD-073:** The `CartCreate` model SHALL have a `customer_id`
   - **DATA-PYD-073.1:** The customer identifier SHALL reference a customer
 
-### 3.2.8.5 Cart Model
+##### 3.2.8.5 Cart Model
 
 - **DATA-PYD-074:** The `Cart` model SHALL have an `id` referencing its customer
 - **DATA-PYD-075:** The `Cart` model SHALL have a `restaurant_id`
@@ -561,18 +601,69 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 - **DATA-PYD-076:** The `Cart` model SHALL have a list of `CartItem` models
 - **DATA-PYD-077:** The `Cart` model SHALL have a `sub_total` represented by `Price`
 
-### 3.2.8.6 CartItemResponse Model
+##### 3.2.8.6 CartItemResponse Model
 
 - **DATA-PYD-078:** The `CartItemResponse` model SHALL have a `menu_item_name`
 - **DATA-PYD-079:** The `CartItemResponse` model SHALL have a `quantity` represented by `CartQuantity`
 - **DATA-PYD-080:** The `CartItemResponse` model SHALL have a `price_per_item` represented by `Price`
 
-### 3.2.8.7 CartResponse Model
+##### 3.2.8.7 CartResponse Model
 
 - **DATA-PYD-081:** The `CartResponse` model SHALL have a `restaurant_name`
 - **DATA-PYD-082:** The `CartResponse` model SHALL have a list of `CartItemResponse` models
 - **DATA-PYD-083:** The `CartResponse` model SHALL have a `total_quantity`
 - **DATA-PYD-084:** The `CartResponse` model SHALL have a `sub_total` represented by `Price`
+
+---
+
+#### 3.2.9 Order Models
+
+##### 3.2.9.1 Order Status
+
+- **DATA-PYD-085:** The `OrderStatus` type SHALL accept only `pending`, `confirmed`, `preparing`, `ready`, `picked up`, `delivered`, or `cancelled`
+- **DATA-PYD-085.1:** A newly created order SHALL default to `pending`
+
+##### 3.2.9.2 Order Item Model
+
+- **DATA-PYD-086:** The `OrderItem` model SHALL have a unique `id`
+- **DATA-PYD-087:** The `OrderItem` model SHALL have a reference to an existing `order_id`
+- **DATA-PYD-088:** The `OrderItem` model SHALL have a `menu_item_id`
+- **DATA-PYD-089:** The `OrderItem` model SHALL have a positive `quantity`
+- **DATA-PYD-090:** The `OrderItem` model SHALL have a non-negative `price_per_item` represented by `Price`
+
+##### 3.2.9.3 Order Model
+
+- **DATA-PYD-091:** The `Order` model SHALL have a unique `id`
+- **DATA-PYD-092:** The `Order` model SHALL have a `customer_id`
+- **DATA-PYD-093:** The `Order` model SHALL have a `restaurant_id`
+- **DATA-PYD-094:** The `Order` model SHALL have an `order_date`
+- **DATA-PYD-095:** The `Order` model SHALL have an `status` represented by `OrderStatus`
+- **DATA-PYD-096:** The `Order` model SHALL have a non-negative `total` represented by `Price`
+
+##### 3.2.9.4 Order Create Model
+
+- **DATA-PYD-097:** The `OrderCreate` model SHALL have a `customer_id`
+- **DATA-PYD-097.1:** The customer identifier SHALL reference an active user with the `customer` role
+
+##### 3.2.9.5 Order Status Update Model
+
+- **DATA-PYD-098:** The `OrderStatusUpdate` model SHALL have a `status` represented by `OrderStatus`
+
+##### 3.2.9.6 Order Response Model
+
+- **DATA-PYD-099:** The `OrderResponse` model SHALL have an `order_id`
+- **DATA-PYD-100:** The `OrderResponse` model SHALL have a `customer_name` represented by the customer's first and last name
+- **DATA-PYD-101:** The `OrderResponse` model SHALL have a `restaurant_name` represented by the restaurant's name
+- **DATA-PYD-102:** The `OrderResponse` model SHALL have an `order_date`
+- **DATA-PYD-103:** The `OrderResponse` model SHALL have a `status
+- **DATA-PYD-104:** THe `OrderResponse` model SHALL have a non-negative `total` represented by `Price`
+- **DATA-PYD-105:** The `OrderResponse` model SHALL have a list of `OrderItemResponse` models
+
+##### 3.2.9.7 Order Item Response Model
+
+- **DATA-PYD-106:** The `OrderItemResponse` model SHALL have a `menu_item_name`
+- **DATA-PYD-107:** The `OrderItemResponse` model SHALL have a positive `quantity`
+- **DATA-PYD-108:** The `OrderItemResponse` model SHALL have a non-negative `price_per_item` represented by `Price`
 
 ---
 
@@ -628,6 +719,20 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
 - **FR-REPO-023:** The cart repository SHALL determine whether a customer has a cart
   - **FR-REPO-023.1:** The repository SHALL return `True` when the customer has a cart
   - **FR-REPO-023.2:** The repository SHALL return `False` when the customer does not have a cart
+
+### 3.3.5 Order Repository
+
+- **FR-REPO-024:** The order repository SHALL use the `Order` model as its type parameter
+- **FR-REPO-025:** The order repository SHALL have a file path of `data/orders.py`
+- **FR-REPO-026:** The order repository SHALL retrieve orders by customer identifier
+- **FR-REPO-027:** The order repository SHALL retrieve orders by restaurant identifier
+- **FR-REPO-028:** The order repository SHALL retrieve orders by status
+
+### 3.3.6 Order Item Repository
+
+- **FR-REPO-029:** The order item repository SHALL use the `OrderItem` model as its type parameter
+- **FR-REPO-030:** The order item repository SHALL have a file path of `data/order-items.py`
+- **FR-REPO-031:** The order item repository SHALL retrieve order items by order identifier
 
 
 ---
@@ -810,6 +915,43 @@ For more information on the [Database Schema](#iv-database-schema) and [Data Mod
   - **FR-API-024.5:** The endpoint SHALL return `HTTP 422` when the request is invalid
 - **FR-API-025:** The cart router SHALL be registered with the main FastAPI application at the `/cart` root path
 
+#### 3.4.7 Order API
+
+##### 3.4.7.1 Checkout Endpoint
+
+- **FR-API-026:** The system SHALL expose `POST /api/orders` to create an order from a customer's cart
+  - **FR-API-026.1:** The endpoint SHALL accept an `OrderCreate` object
+  - **FR-API-026.2:** The endpoint SHALL return `HTTP 201` and the created `Order`
+  - **FR-API-026.3:** The endpoint SHALL return `HTTP 404` when the customer or cart does not exist
+  - **FR-API-026.4:** The endpoint SHALL return `HTTP 409` for a checkout conflict
+  - **FR-API-026.5:** The endpoint SHALL return `HTTP 422` for invalid checkout state or request data
+
+##### 3.4.7.2 Update Order Status Endpoint
+
+- **FR-API-027:** The system SHALL expose `PATCH /api/orders/{order_id}/status`
+  - **FR-API-027.1:** The endpoint SHALL accept an `OrderStatusUpdate` object
+  - **FR-API-027.2:** The endpoint SHALL return `HTTP 200` and the updated `Order`
+  - **FR-API-027.3:** The endpoint SHALL return `HTTP 404` when the order does not exist
+  - **FR-API-027.4:** The endpoint SHALL return `HTTP 422` for an invalid status or malformed request
+
+##### 3.4.7.3 Get Order Endpoint
+
+- **FR-API-028:** The system SHALL expose `GET /api/orders/{order_id}`
+  - **FR-API-028.1:** The endpoint SHALL return `HTTP 200` and an `OrderResponse`
+  - **FR-API-028.2:** The endpoint SHALL return `HTTP 404` when the order does not exist
+  - **FR-API-028.3:** The endpoint SHALL return `HTTP 422` for an invalid order identifier
+
+##### 3.4.7.4 List and Filter Orders Endpoint
+
+- **FR-API-029:** The system SHALL expose `GET /api/orders`
+  - **FR-API-029.1:** The endpoint SHALL return `HTTP 200` and a list of `OrderResponse` objects
+  - **FR-API-029.2:** The endpoint SHALL support `customer_id`, `restaurant_id`, and `status` query parameters
+  - **FR-API-029.3:** Multiple query parameters SHALL be applied cumulatively
+  - **FR-API-029.4:** The endpoint SHALL return all orders when no filters are provided
+  - **FR-API-029.5:** The endpoint SHALL return an empty list when no orders match
+  - **FR-API-029.6:** The endpoint SHALL return `HTTP 422` for invalid query parameters
+- **FR-API-030:** The order router SHALL be registered with the main FastAPI application at `/api/orders`
+
 ---
 
 ### 3.5 Services
@@ -991,6 +1133,47 @@ Note, not all services have diagrams, but the diagrams that are present should p
   - **FR-SERV-040.4:** The service SHALL update the item when the new quantity is positive
   - **FR-SERV-040.5:** The service SHALL remove the item when the new quantity is zero
   - **FR-SERV-040.6:** The service SHALL persist and return the updated cart
+
+#### 3.5.5 Order Services
+
+##### 3.5.5.1 Checkout Cart
+
+- **FR-SERV-041:** The order service SHALL create an order from a customer's active cart
+  - **FR-SERV-041.1:** The service SHALL raise `CustomerNotFoundError` when the customer does not exist
+  - **FR-SERV-041.2:** The service SHALL raise `InvalidRoleError` when the user is not a customer
+  - **FR-SERV-041.3:** The service SHALL raise `InactiveUserError` when the customer is inactive
+  - **FR-SERV-041.4:** The service SHALL raise `CartNotFoundError` when the customer has no active cart
+  - **FR-SERV-041.5:** The service SHALL raise `EmptyCartCheckoutError` when the cart contains no items
+  - **FR-SERV-041.6:** The service SHALL raise `RestaurantNotFoundError` when the cart restaurant does not exist
+  - **FR-SERV-041.7:** The service SHALL raise `InactiveRestaurantError` when the cart restaurant is inactive
+  - **FR-SERV-041.8:** The service SHALL raise `MenuItemNotFoundError` when a cart menu item does not exist
+  - **FR-SERV-041.9:** The service SHALL raise `InactiveMenuItemError` when a cart menu item is unavailable
+  - **FR-SERV-041.10:** The service SHALL raise `CartRestaurantMismatchError` when a menu item does not belong to the cart restaurant
+  - **FR-SERV-041.11:** The service SHALL revalidate the cart and all referenced repositories before checkout
+  - **FR-SERV-041.12:** The service SHALL calculate the order total from current menu item prices and cart quantities
+  - **FR-SERV-041.13:** The service SHALL persist each order item with the price captured at checkout
+  - **FR-SERV-041.14:** The service SHALL persist the order before persisting its order items
+  - **FR-SERV-041.15:** The service SHALL delete the customer's cart after order and order items are persisted
+  - **FR-SERV-041.16:** The service SHALL return the created order after successful checkout
+
+##### 3.5.5.2 Update Order Status
+
+- **FR-SERV-042:** The order service SHALL update an order's status
+  - **FR-SERV-042.1:** The service SHALL raise `OrderNotFoundError` when the order does not exist
+  - **FR-SERV-042.2:** The service SHALL raise `InvalidOrderStatusError` for an invalid status
+  - **FR-SERV-042.3:** The service SHALL persist the updated status to `data/orders.py`
+  - **FR-SERV-042.4:** The service SHALL return the updated order
+
+##### 3.5.5.3 Query Orders
+
+- **FR-SERV-043:** The order service SHALL retrieve a single order and its order items
+  - **FR-SERV-043.1:** The service SHALL raise `OrderNotFoundError` when the order does not exist
+  - **FR-SERV-043.2:** The service SHALL return an `OrderResponse` containing the order items
+- **FR-SERV-044:** The order service SHALL list orders using optional customer, restaurant, and status filters
+  - **FR-SERV-044.1:** The service SHALL apply filters cumulatively
+  - **FR-SERV-044.2:** The service SHALL attach order items to every returned order
+  - **FR-SERV-044.3:** The service SHALL return all orders when no filters are provided
+  - **FR-SERV-044.4:** The service SHALL return an empty list when no orders match
   
 ---
 

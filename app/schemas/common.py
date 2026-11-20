@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from pydantic import BaseModel, Field, PlainSerializer, field_validator
+from pydantic import BaseModel, Field, PlainSerializer, field_validator, PositiveInt
 from typing_extensions import Annotated, Literal
 
 CanadianProvinceCode = Literal[
@@ -26,7 +26,9 @@ class BaseAddress(BaseModel):
         return value
 
 Price = Annotated[
-            Decimal, 
-            Field(ge=0, decimal_places=2, max_digits=10),
-            PlainSerializer(lambda x: str(x))
+            Decimal,
+            Field(ge=0, decimal_places=2, max_digits=10, examples=["9.99"]),
+            PlainSerializer(lambda x: str(x), return_type=str)
         ]
+
+CartQuantity = PositiveInt
