@@ -78,3 +78,6 @@ async def create_cart(
 
     await cart_repository.add_record(cart)
     return cart
+
+async def delete_cart(cart_repository: CartRepository, customer_id: str) -> bool:
+    return await cart_repository.delete_record(customer_id)
