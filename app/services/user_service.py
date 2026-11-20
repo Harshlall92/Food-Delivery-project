@@ -16,9 +16,9 @@ async def update_customer(repository: UserRepository, customer_id: str, data: Us
         raise UserNotFoundError(f"Customer with ID {customer_id} not found.")
 
     changes = data.model_dump(exclude_unset=True)
-    updated = Customer(**{**customer, **changes})
+    updated = Customer(**{**customer.model_dump(), **changes})
 
-    if await repository.contains_email(updated.email) and updated.email != customer["email"]:
+    if await repository.contains_email(updated.email) and updated.email != customer.email:
         raise DuplicateItemError(f"Customer with email {updated.email} already exists.")
 
     await repository.update_record(customer_id, updated)
@@ -30,16 +30,16 @@ async def add_customer_address(repository: UserRepository, customer_id: str, add
     if customer is None:
         raise UserNotFoundError(f"Customer with ID {customer_id} not found.")
 
-    if customer["role"] != "customer":
+    if customer.role != "customer":
         raise ValueError(f"User with ID {customer_id} is not a customer.")
 
-    for addr in customer["addresses"]:
-        if addr["label"] == address.label:
+    for addr in customer.addresses:
+        if addr.label == address.label:
             raise DuplicateItemError(f"Address with label {address.label} already exists for this customer.")
 
-    customer["addresses"].append(address)
+    customer.addresses.append(address)
 
-    updated_customer = Customer(**customer)
+    updated_customer = Customer(**customer.model_dump())
 
     await repository.update_record(customer_id, updated_customer)
 
@@ -50,20 +50,20 @@ async def update_customer_address(repository: UserRepository, customer_id: str, 
     if customer is None:
         raise UserNotFoundError(f"Customer with ID {customer_id} not found.")
 
-    if customer["role"] != "customer":
+    if customer.role != "customer":
         raise ValueError(f"User with ID {customer_id} is not a customer.")
 
     address_found = False
-    for i, addr in enumerate(customer["addresses"]):
-        if addr["label"] == address_label:
-            customer["addresses"][i] = new_address
+    for i, addr in enumerate(customer.addresses):
+        if addr.label == address_label:
+            customer.addresses[i] = new_address
             address_found = True
             break
 
     if not address_found:
         raise ItemNotFoundError(f"Address with label {address_label} not found for this customer.")
 
-    updated_customer = Customer(**customer)
+    updated_customer = Customer(**customer.model_dump())
 
     await repository.update_record(customer_id, updated_customer)
 
@@ -87,9 +87,9 @@ async def update_restaurant_owner(user_repository: UserRepository, restaurant_re
             raise RestaurantNotFoundError(f"Restaurant with ID {data.restaurant_id} does not exist.")
 
     changes = data.model_dump(exclude_unset=True)
-    updated = RestaurantOwner(**{**owner, **changes})
+    updated = RestaurantOwner(**{**owner.model_dump(), **changes})
 
-    if await user_repository.contains_email(updated.email) and updated.email != owner["email"]:
+    if await user_repository.contains_email(updated.email) and updated.email != owner.email:
         raise DuplicateItemError(f"Restaurant owner with email {updated.email} already exists.")
 
     await user_repository.update_record(owner_id, updated)

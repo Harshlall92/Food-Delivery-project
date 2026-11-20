@@ -22,7 +22,7 @@ def repository(tmp_path):
 async def test_get_by_name_success(repository):
     result = await repository.get_by_name("King")
 
-    assert [r["id"] for r in result] == ["2"]
+    assert [r.id for r in result] == ["2"]
 
 
 @pytest.mark.anyio
@@ -36,7 +36,7 @@ async def test_get_by_name_no_match(repository):
 async def test_get_by_cuisine_success(repository):
     result = await repository.get_by_cuisine("korean")
 
-    assert [r["id"] for r in result] == ["1"]
+    assert [r.id for r in result] == ["1"]
 
 
 @pytest.mark.anyio

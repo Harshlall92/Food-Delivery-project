@@ -17,7 +17,7 @@ async def test_repository_can_read_file(tmp_path):
     data = [{"id": "1", "name": "Test"}]
     file_path.write_text(json.dumps(data), encoding="utf-8")
 
-    repository = BaseRepository(file_path=str(file_path))
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
     content = await repository._read_file()
 
@@ -27,7 +27,7 @@ async def test_repository_can_read_file(tmp_path):
 async def test_repository_handles_file_not_found_on_read(tmp_path):
     file_path = tmp_path / "non_existent.json"
 
-    repository = BaseRepository(file_path=str(file_path))
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
     assert not file_path.exists()
 
@@ -42,7 +42,7 @@ async def test_repository_handles_invalid_json_on_read(tmp_path):
     file_path = tmp_path / "invalid.json"
     file_path.write_text("not valid json", encoding="utf-8")
 
-    repository = BaseRepository(file_path=str(file_path))
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
     content = await repository._read_file()
 
@@ -61,7 +61,7 @@ async def test_repository_can_write_to_file(tmp_path):
 
     file_path.write_text("", encoding="utf-8")
 
-    repository = BaseRepository(file_path=str(file_path))
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
     assert file_path.exists() == True
 
@@ -81,18 +81,18 @@ async def test_repository_can_get_all_items(tmp_path):
     data = [{"id": "1", "name": "Test"}]
     file_path.write_text(json.dumps(data), encoding="utf-8")
 
-    repository = BaseRepository(file_path=str(file_path))
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
     items = await repository.get_all()
 
-    assert items == data
+    assert items == [TestModel(**data[0])]
 
 @pytest.mark.anyio
 async def test_repository_returns_empty_list_if_file_is_empty(tmp_path):
     file_path = tmp_path / "empty.json"
     file_path.write_text("", encoding="utf-8")
 
-    repository = BaseRepository(file_path=str(file_path))
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
     items = await repository.get_all()
 
@@ -104,7 +104,7 @@ async def test_repository_can_add_item_to_database(tmp_path):
     data = [{"id": "1", "name": "Test"}]
     file_path.write_text(json.dumps(data), encoding="utf-8")
 
-    repository = BaseRepository(file_path=str(file_path))
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
     new_item = TestModel(id="2", name="Another Item")
     await repository.add_record(new_item)
@@ -117,7 +117,7 @@ async def test_repository_can_add_item_to_database(tmp_path):
 async def test_repository_can_add_item_to_non_existent_database(tmp_path):
     file_path = tmp_path / "test.json"
 
-    repository = BaseRepository(file_path=str(file_path))
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
     new_item = TestModel(id="1", name="New Item")
     await repository.add_record(new_item)
@@ -132,11 +132,11 @@ async def test_repository_can_get_item_by_id(tmp_path):
     data = [{"id": "1", "name": "Test"}, {"id": "2", "name": "Another Test"}]
     file_path.write_text(json.dumps(data), encoding="utf-8")
 
-    repository = BaseRepository(file_path=str(file_path))
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
     item = await repository.get_by_id("2")
 
-    assert item == {"id": "2", "name": "Another Test"}
+    assert item == TestModel(**data[1])
 
 @pytest.mark.anyio
 async def test_repository_returns_none_if_item_not_found(tmp_path):
@@ -144,7 +144,7 @@ async def test_repository_returns_none_if_item_not_found(tmp_path):
     data = [{"id": "1", "name": "Test"}]
     file_path.write_text(json.dumps(data), encoding="utf-8")
 
-    repository = BaseRepository(file_path=str(file_path))
+    repository = BaseRepository(file_path=str(file_path), model=TestModel)
 
     item = await repository.get_by_id("2")
 
