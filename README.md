@@ -104,6 +104,8 @@ API documentation can be found at: `/docs`
 - `PATCH /api/restaurants/{restaurant_id}` - Changes the one or multiple fields of a existing restaurants(id not included)
 - `PATCH /api/restaurants/{restaurant_id}/menu_items/{menu_item_id}` - Changes the one or multiple fields of a existing restaurant's menus items
 
+
+- `POST /api/carts/{customer_id}/items` - Creates an item in the cart if it exists in the restaurant or increases quantity if already in cart
 #### User API Endpoints
 
 Endpoints for user-related operations are available under the `/api/users/` path.

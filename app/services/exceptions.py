@@ -13,3 +13,8 @@ class DuplicateItemError(ServiceError):
 class InvalidCredentialsError(ServiceError):
     """Raised when provided credentials are invalid."""
     pass
+class MenuItemNotFound(ServiceError):
+    """Raised when menu item is not found in the database """
+    pass
+class InactiveMenuItemError(ServiceError):
+    """Raised when menu item is not avaliable """
