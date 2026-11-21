@@ -1,12 +1,8 @@
 from app.repositories.menu_item_repository import MenuItemRepository
 from app.repositories.restaurant_repository import RestaurantRepository
+from app.services.exceptions import ItemNotFoundError
 from app.schemas.menu_item import MenuItem, MenuItemInput, MenuItemOutput, MenuItemUpdate
 
-
-class RestaurantNotFoundError(Exception):
-    """Raised when a menu item is added to a restaurant that doesn't exist."""
-class MenuItemNotFoundError(Exception):
-    """Raised when a menu item searched not found"""
 
 async def create_menu_item(
     restaurant_repository: RestaurantRepository,
@@ -15,9 +11,8 @@ async def create_menu_item(
     data: MenuItemInput,
 ) -> MenuItem:
     """make sure not to add menu items to restraunts that dont exist"""
-    restaurant = await restaurant_repository.get_by_id(restaurant_id)
-    if restaurant is None:
-        raise RestaurantNotFoundError(f"Restaurant {restaurant_id} not found")
+    if await restaurant_repository.get_by_id(restaurant_id) is None:
+        raise ItemNotFoundError(f"Restaurant with id {restaurant_id} not found.")
 
     record = MenuItem(restaurant_id=restaurant_id, **data.model_dump())
     await menu_item_repository.add_record(record)
@@ -34,16 +29,19 @@ async def update_menu_item(
     menu_item_id: str,
     payload: MenuItemUpdate) -> MenuItem:
     if await restaurant_repository.get_by_id(restaurant_id) is None:
-        raise RestaurantNotFoundError(f"Restaurant with id:{restaurant_id} not found")
+        raise ItemNotFoundError(f"Restaurant with id {restaurant_id} not found.")
+
     item = await menu_item_repository.get_by_id(menu_item_id)
     if item is None or item.restaurant_id != restaurant_id:
-        raise MenuItemNotFoundError(f"Menu item with id:{menu_item_id} not found")
+        raise ItemNotFoundError(f"MenuItem with id {menu_item_id} not found.")
+
     changes = payload.model_dump(exclude_unset=True, exclude_none=True)
     updated = MenuItem(**{**item.model_dump(), **changes})
-    results = await menu_item_repository.update_record(menu_item_id, updated)
-    if results is None:
-        raise MenuItemNotFoundError(f"Menu item with id:{menu_item_id} not found")
-    return results
+
+    result = await menu_item_repository.update_record(menu_item_id, updated)
+    if result is None:
+        raise ItemNotFoundError(f"MenuItem with id {menu_item_id} not found.")
+    return result
 
 def validate_menu_item(menu_item: MenuItem) -> MenuItemOutput:
     return MenuItemOutput(**menu_item.model_dump())

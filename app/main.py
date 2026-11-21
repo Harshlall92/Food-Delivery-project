@@ -2,7 +2,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from app.api.routes import restaurants, menu_items, users
+from app.api.routes import restaurants, menu_items, users, carts, orders
 
 app = FastAPI()
 
@@ -14,6 +14,8 @@ app.mount("/static", StaticFiles(directory=FRONTEND_PATH), name="static")
 app.include_router(restaurants.router)
 app.include_router(menu_items.router)
 app.include_router(users.router)
+app.include_router(carts.router)
+app.include_router(orders.router)
 
 @app.get("/health")
 def health():

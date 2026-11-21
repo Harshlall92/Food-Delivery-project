@@ -87,9 +87,8 @@ The application can then be opened in your web browser at [http://127.0.0.1:8000
 
 API documentation can be found at: `/docs`
 
-- `GET /` - Returns the home page for UI 
+- `GET /` - Returns the home page for UI
 - `GET /health` - Returns a health check message.
-  
 
 - `GET /api/restaurants` - Returns a list of all restaurants.
 - `GET /api/restaurants/search` - Retrieves restaurants that contain the given name
@@ -116,6 +115,75 @@ Endpoints for user-related operations are available under the `/api/users/` path
 - `PATCH /c/{user_id}/{address_label}` - Updates an existing address for a customer account.
 - `POST /r` - Creates a new restaurant owner account.
 - `PATCH /r/{user_id}` - Updates an existing restaurant owner account.
+
+#### Cart API Endpoints
+
+**Root:** `/api/carts`
+
+- `POST /` - Creates a new cart for a customer with its first menu item.
+  - **Request body** (`CartCreate`): `{ "customer_id": str, "menu_item_id": str, "quantity": int (optional, default 1, must be > 0) }`
+  - **Responses:**
+    - `201 Created` - Returns the created `Cart` (`id` = customer id, `restaurant_id`, `items`, `subtotal`)
+    - `401 Unauthorized` - The user does not exist, is not a customer, or is not active
+    - `404 Not Found` - The menu item does not exist
+    - `409 Conflict` - The customer already has an active cart
+    - `422 Unprocessable Entity` - Invalid request body, or the menu item (or its restaurant) is not active
+    
+- `DELETE /{customer_id}` - Deletes the customer's active cart from `data/carts.json`.
+  - **Path parameter:** `customer_id` (string)
+  - **Request body:** None
+  - **Responses:**
+    - `204 No Content` - The cart was deleted (no response body)
+    - `404 Not Found` - The customer does not have an active cart
+
+- `GET /{customer_id}` - Retrieves the customer's active cart, with the restaurant name, each menu item's name, quantity and price, the total quantity, and the subtotal.
+  - **Path parameter:** `customer_id` (string)
+  - **Request body:** None
+  - **Responses:**
+    - `200 OK` - Returns a `CartResponse`
+    - `404 Not Found` - The customer does not have an active cart
+
+- `POST /{customer_id}/items` - Adds a menu item to the customer's cart, or increases its quantity if it is already in the cart.
+  - **Path parameter:** `customer_id` (string)
+  - **Request body** (`CartItemAdd`): `{ "menu_item_id": str, "quantity": int (optional, default 1, must be > 0) }`
+  - **Responses:**
+    - `200 OK` - Returns the updated `Cart` (`id` = customer id, `restaurant_id`, `items`, `subtotal`)
+    - `404 Not Found` - The customer does not have an active cart, or the menu item does not exist
+    - `422 Unprocessable Entity` - Invalid request body, the menu item is unavailable, or the menu item belongs to a different restaurant than the cart
+
+#### Order API Endpoints
+
+**Root:** `/api/orders`
+
+- `POST /` - Checks out a customer's cart: creates an order using the current menu item prices, saves it with its items, and deletes the cart.
+  - **Request body** (`OrderCreate`): `{ "customer_id": str }`
+  - **Responses:**
+    - `201 Created` - Returns the created `Order` (`id`, `customer_id`, `restaurant_id`, `order_date`, `status` = `pending`, `total`)
+    - `404 Not Found` - The customer does not exist, is not an active customer, or has no active cart
+    - `409 Conflict` - A cart item belongs to a different restaurant than the cart
+    - `422 Unprocessable Entity` - Invalid request body, the cart is empty, or the restaurant or a menu item is missing or inactive
+
+- `PATCH /{order_id}/status` - Updates the status of an existing order.
+  - **Path parameter:** `order_id` (string)
+  - **Request body** (`OrderStatusUpdate`): `{ "status": str }`, one of `pending`, `confirmed`, `preparing`, `ready`, `picked up`, `delivered`, `cancelled`
+  - **Responses:**
+    - `200 OK` - Returns the updated `Order` (`id`, `customer_id`, `restaurant_id`, `order_date`, `status`, `total`)
+    - `404 Not Found` - The order does not exist
+    - `422 Unprocessable Entity` - The status is not an allowed value, or the request body is malformed
+
+- `GET /` - Lists orders with their customer name, restaurant name, and items. Filters are optional and can be combined; with none, all orders are returned.
+  - **Query parameters (optional):** `customer_id` (string), `restaurant_id` (string), `status` (one of `pending`, `confirmed`, `preparing`, `ready`, `picked up`, `delivered`, `cancelled`)
+  - **Request body:** None
+  - **Responses:**
+    - `200 OK` - Returns a list of `OrderResponse` (an empty list if no orders match)
+    - `422 Unprocessable Entity` - A query parameter or status value is invalid
+
+- `GET /{order_id}` - Retrieves an order with its customer name, restaurant name, and items.
+  - **Path parameter:** `order_id` (string)
+  - **Request body:** None
+  - **Responses:**
+    - `200 OK` - Returns an `OrderResponse` (`order_id`, `customer_name`, `restaurant_name`, `order_date`, `status`, `total`, `items`)
+    - `404 Not Found` - The order does not exist
 
 ## Representative Data
 

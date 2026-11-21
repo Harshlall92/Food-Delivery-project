@@ -3,6 +3,9 @@ from app.schemas.user import Customer, RestaurantOwner
 from app.repositories.user_repository import UserRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.menu_item_repository import MenuItemRepository
+from app.repositories.cart_repository import CartRepository
+from app.repositories.order_repository import OrderRepository
+from app.repositories.order_item_repository import OrderItemRepository
 
 def create_restaurant_file(tmp_path):
     restaurant_file = tmp_path / "restaurants.json"
@@ -30,6 +33,33 @@ def create_user_file(tmp_path):
 def create_user_repository(user_file):
     with patch("app.repositories.user_repository.FILE_PATH", str(user_file)):
         return UserRepository()
+
+def create_cart_file(tmp_path):
+    cart_file = tmp_path / "cart.json"
+    cart_file.write_text("[]")
+    return cart_file
+
+def create_cart_repository(cart_file):
+    with patch("app.repositories.cart_repository.FILE_PATH", str(cart_file)):
+        return CartRepository()
+
+def create_order_file(tmp_path):
+    order_file = tmp_path / "orders.py"
+    order_file.write_text("[]")
+    return order_file
+
+def create_order_repository(order_file):
+    with patch("app.repositories.order_repository.FILE_PATH", str(order_file)):
+        return OrderRepository()
+
+def create_order_item_file(tmp_path):
+    order_item_file = tmp_path / "order-items.py"
+    order_item_file.write_text("[]")
+    return order_item_file
+
+def create_order_item_repository(order_item_file):
+    with patch("app.repositories.order_item_repository.FILE_PATH", str(order_item_file)):
+        return OrderItemRepository()
 
 def create_test_customer(
         email = "test@example.com",
