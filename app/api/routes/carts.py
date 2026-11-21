@@ -29,7 +29,7 @@ router = APIRouter(
         responses={
             201: {"description": "Cart created successfully"},
             401: {"description": "User is not an active customer"},
-            404: {"description": "Menu item not found"},
+            404: {"description": "Customer or Menu item not found"},
             409: {"description": "Customer already has an active cart"},
             422: {"description": "Invalid input data or menu item is unavailable"},
         },

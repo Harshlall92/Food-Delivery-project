@@ -123,8 +123,8 @@ Endpoints for user-related operations are available under the `/api/users/` path
 - `POST /` - Creates a new cart for a customer with its first menu item.
   - **Request body** (`CartCreate`): `{ "customer_id": str, "menu_item_id": str, "quantity": int (optional, default 1, must be > 0) }`
   - **201 Created**: the created `Cart` (`id` = customer id, `restaurant_id`, `items`, `subtotal`)
-  - **401 Unauthorized**: the user does not exist, is not a customer, or is not active
-  - **404 Not Found**: the menu item does not exist
+  - **401 Unauthorized**: the user is not a customer or is not active
+  - **404 Not Found**: the customer or the menu item does not exist
   - **409 Conflict**: the customer already has an active cart
   - **422 Unprocessable Content**: invalid request body, or the menu item (or its restaurant) is not active
 - `DELETE /{customer_id}` - Deletes the cart for a customer.
