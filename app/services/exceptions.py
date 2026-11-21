@@ -12,17 +12,22 @@ class DuplicateItemError(ServiceError):
 
 class InvalidCredentialsError(ServiceError):
     """Raised when provided credentials are invalid."""
-
-class CustomerNotFoundError(ItemNotFoundError):
-    """Raised when customer is not found"""
-    pass 
+    pass
 
 class InvalidRoleError(ServiceError):
-    """Raised when a user does not have the role required for the operation"""
+    """Raised when a user does not have the role required for the operation."""
     pass
 
 class InactiveUserError(ServiceError):
     """Raised when an inactive user attempts an operation."""
+    pass
+
+class CustomerNotFoundError(ItemNotFoundError):
+    """Raised when a customer is not found."""
+    pass
+
+class RestaurantNotFoundError(ItemNotFoundError):
+    """Raised when a restaurant is not found."""
     pass
 
 class MenuItemNotFoundError(ItemNotFoundError):
@@ -33,16 +38,14 @@ class InactiveMenuItemError(ServiceError):
     """Raised when a menu item is not available and cannot be added to a cart."""
     pass
 
-class CartNotFoundError(ServiceError):
-    """Raised when a cart is not found in the database."""
+class InvalidMenuItemError(ServiceError):
+    """Raised when a menu item belongs to a different restaurant than the cart."""
     pass
-    """Raised when an unavailable menu item is added to a cart."""
+
+class CartNotFoundError(ServiceError):
+    """Raised when a customer does not have an active cart."""
     pass
 
 class DuplicateCartError(DuplicateItemError):
     """Raised when a customer who already has a cart attempts to create another."""
-    pass
-
-class RestaurantNotFoundError(ItemNotFoundError):
-    """Raised when restaurant is not found"""
     pass

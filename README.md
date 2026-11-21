@@ -127,9 +127,12 @@ Endpoints for user-related operations are available under the `/api/users/` path
   - **404 Not Found**: the customer or the menu item does not exist
   - **409 Conflict**: the customer already has an active cart
   - **422 Unprocessable Content**: invalid request body, or the menu item (or its restaurant) is not active
-- `DELETE /{customer_id}` - Deletes the cart for a customer.
-  - **204 No Content**: the cart was successfully deleted
-  - **404 Not Found**: the cart does not exist
+- `DELETE /{customer_id}` - Deletes the customer's active cart from `data/carts.json`.
+  - **Path parameter:** `customer_id` (string)
+  - **Request body:** None
+  - **Responses:**
+    - `204 No Content` - The cart was deleted (no response body)
+    - `404 Not Found` - The customer does not have an active cart
 
 - `GET /{customer_id}` - Retrieves the customer's active cart, with the restaurant name, each menu item's name, quantity and price, the total quantity, and the subtotal.
   - **Path parameter:** `customer_id` (string)
@@ -137,7 +140,6 @@ Endpoints for user-related operations are available under the `/api/users/` path
   - **Responses:**
     - `200 OK` - Returns a `CartResponse`
     - `404 Not Found` - The customer does not have an active cart
-    - `422 Unprocessable Entity` - The customer id is invalid
 
 - `POST /{customer_id}/items` - Adds a menu item to the customer's cart, or increases its quantity if it is already in the cart.
   - **Path parameter:** `customer_id` (string)

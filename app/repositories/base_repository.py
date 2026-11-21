@@ -1,13 +1,12 @@
 import json
-from types import get_original_bases
-from typing import Annotated, Any, Union, get_args
-from typing_extensions import get_origin
-from typing import Any, Generic, TypeVar
-
-from pydantic import BaseModel, TypeAdapter
 from pathlib import Path
+from types import get_original_bases
+from typing import Annotated, Any, Generic, TypeVar, Union, get_args, get_origin
+
 import anyio
-from app.repositories.exceptions import *
+from pydantic import BaseModel, TypeAdapter
+
+from app.repositories.exceptions import DuplicateRecordError
 
 T = TypeVar("T", bound=BaseModel)
 
