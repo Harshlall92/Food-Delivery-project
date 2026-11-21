@@ -27,7 +27,7 @@ async function fetchRestaurant(restaurantId) {
         restaurantDetailsContainer.appendChild(menuItemsContainer);
         if(!document.getElementById('update-restaurant-form')){
             const updateButton = document.createElement("a");
-            updateButton.href = `/website/update-restaurant/${restaurantId}`;
+            updateButton.href = `/update-restaurant/${restaurantId}`;
             updateButton.textContent = "Update";
             updateButton.className = "button";
             restaurantDetailsContainer.appendChild(updateButton);

@@ -1,6 +1,6 @@
 const form = document.getElementById('update-restaurant-form');
 const result = document.getElementById('result');
-const detailsUrl = `/website/restaurants/${restaurantId}`;
+const detailsUrl = `/restaurants/${restaurantId}`;
 let original = {};
 document.getElementById('cancel-link').href = detailsUrl;
 

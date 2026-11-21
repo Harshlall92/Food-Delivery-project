@@ -19,18 +19,16 @@ app.include_router(carts.router)
 @app.get("/health")
 def health():
     return {"status" : "ok"}
-@app.get("/website")
-def log_in_page():
-    return FileResponse(FRONTEND_PATH/"login.html", media_type="text/html")
-@app.get("/website/home")
+
+@app.get("/")
 def index():
     return FileResponse(FRONTEND_PATH / "index.html", media_type="text/html")
 
-@app.get("/website/restaurants")
+@app.get("/restaurants")
 def restaurants_page():
     return FileResponse(FRONTEND_PATH / "restaurants.html", media_type="text/html")
 
-@app.get("/website/restaurants/new")
+@app.get("/restaurants/new")
 def new_restaurant_page():
     return FileResponse(FRONTEND_PATH / "create-restaurant.html", media_type="text/html")
 
@@ -38,19 +36,6 @@ def new_restaurant_page():
 def restaurant_detail_page(restaurant_id: str):
     return FileResponse(FRONTEND_PATH / "restaurant-detail.html", media_type="text/html")
 
-@app.get("/website/update-restaurant/{restaurant_id}")
+@app.get("/update-restaurant/{restaurant_id}")
 def update_restaurant_page(restaurant_id: str):
     return FileResponse(FRONTEND_PATH / "update-restaurant.html", media_type="text/html")
-
-@app.get("/website/restaurants/{restaurant_id}/cart")
-def new_cart_page(restaurant_id: str, customer_id: str):
-    return FileResponse(FRONTEND_PATH / "create-cart.html",media_type="text/html")
-
-@app.get("/website/restaurants/{restaurant_id}/cart/update")
-def update_cart_page(restaurant_id: str, customer_id: str):
-    return FileResponse(FRONTEND_PATH/"update-cart.html", media_type = "text/html")
-
-@app.get("/website/restaurants/{restaurant_id}/order")
-def create_order_page(restaurant_id: str, customer_id: str):
-    return FileResponse(FRONTEND_PATH/"create-order.html", media_type= "text/html")
-
