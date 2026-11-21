@@ -58,3 +58,15 @@ def order_repository(tmp_path) -> OrderRepository:
 @pytest.fixture
 def order_item_repository(tmp_path) -> OrderItemRepository:
     return create_order_item_repository(create_order_item_file(tmp_path))
+
+@pytest.fixture
+def mocked_order_repository(tmp_path, monkeypatch):
+    order_file = create_order_file(tmp_path)
+
+    monkeypatch.setattr("app.repositories.order_repository.FILE_PATH", str(order_file))
+
+@pytest.fixture
+def mocked_order_item_repository(tmp_path, monkeypatch):
+    order_item_file = create_order_item_file(tmp_path)
+
+    monkeypatch.setattr("app.repositories.order_item_repository.FILE_PATH", str(order_item_file))

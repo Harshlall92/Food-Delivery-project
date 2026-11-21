@@ -151,6 +151,18 @@ Endpoints for user-related operations are available under the `/api/users/` path
     - `404 Not Found` - The customer does not have an active cart, or the menu item does not exist
     - `422 Unprocessable Entity` - Invalid request body, the menu item is unavailable, or the menu item belongs to a different restaurant than the cart
 
+#### Order API Endpoints
+
+**Root:** `/api/orders`
+
+- `POST /` - Checks out a customer's cart: creates an order using the current menu item prices, saves it with its items, and deletes the cart.
+  - **Request body** (`OrderCreate`): `{ "customer_id": str }`
+  - **Responses:**
+    - `201 Created` - Returns the created `Order` (`id`, `customer_id`, `restaurant_id`, `order_date`, `status` = `pending`, `total`)
+    - `404 Not Found` - The customer does not exist, is not an active customer, or has no active cart
+    - `409 Conflict` - A cart item belongs to a different restaurant than the cart
+    - `422 Unprocessable Entity` - Invalid request body, the cart is empty, or the restaurant or a menu item is missing or inactive
+
 ## Representative Data
 
 **Restaurants**: [Food-Delivery-project/data/restaurants.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/restaurants.json)

@@ -65,3 +65,7 @@ class EmptyCartCheckoutError(ServiceError):
 class CartRestaurantMismatchError(ServiceError):
     """Raised when a cart item or restaurant no longer matches valid cart state."""
     pass
+
+class InactiveRestaurantError(ServiceError):
+    """Raised when a restaurant is not active."""
+    pass
