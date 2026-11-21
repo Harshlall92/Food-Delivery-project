@@ -13,11 +13,18 @@ class DuplicateItemError(ServiceError):
 class InvalidCredentialsError(ServiceError):
     """Raised when provided credentials are invalid."""
     pass
-class MenuItemNotFound(ServiceError):
-    """Raised when menu item is not found in the database """
+
+class MenuItemNotFoundError(ItemNotFoundError):
+    """Raised when a menu item does not exist."""
     pass
+
 class InactiveMenuItemError(ServiceError):
-    """Raised when menu item is not avaliable """
+    """Raised when a menu item is not available and cannot be added to a cart."""
+    pass
+
+class InvalidMenuItemError(ServiceError):
+    """Raised when a menu item belongs to a different restaurant than the cart."""
+    pass
 
 class CartNotFoundError(ServiceError):
     """Raised when a cart is not found in the database."""

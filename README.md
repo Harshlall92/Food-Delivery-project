@@ -104,8 +104,6 @@ API documentation can be found at: `/docs`
 - `PATCH /api/restaurants/{restaurant_id}` - Changes the one or multiple fields of a existing restaurants(id not included)
 - `PATCH /api/restaurants/{restaurant_id}/menu_items/{menu_item_id}` - Changes the one or multiple fields of a existing restaurant's menus items
 
-
-- `POST /api/carts/{customer_id}/items` - Creates an item in the cart if it exists in the restaurant or increases quantity if already in cart
 #### User API Endpoints
 
 Endpoints for user-related operations are available under the `/api/users/` path.
@@ -121,7 +119,7 @@ Endpoints for user-related operations are available under the `/api/users/` path
 
 #### Cart API Endpoints
 
-**Root:** `/api/cart`
+**Root:** `/api/carts`
 
 - `GET /{customer_id}` - Retrieves the customer's active cart, with the restaurant name, each menu item's name, quantity and price, the total quantity, and the subtotal.
   - **Path parameter:** `customer_id` (string)
@@ -130,6 +128,14 @@ Endpoints for user-related operations are available under the `/api/users/` path
     - `200 OK` - Returns a `CartResponse`
     - `404 Not Found` - The customer does not have an active cart
     - `422 Unprocessable Entity` - The customer id is invalid
+
+- `POST /{customer_id}/items` - Adds a menu item to the customer's cart, or increases its quantity if it is already in the cart.
+  - **Path parameter:** `customer_id` (string)
+  - **Request body** (`CartItemAdd`): `{ "menu_item_id": str, "quantity": int (optional, default 1, must be > 0) }`
+  - **Responses:**
+    - `200 OK` - Returns the updated `Cart` (`id` = customer id, `restaurant_id`, `items`, `subtotal`)
+    - `404 Not Found` - The customer does not have an active cart, or the menu item does not exist
+    - `422 Unprocessable Entity` - Invalid request body, the menu item is unavailable, or the menu item belongs to a different restaurant than the cart
 
 ## Representative Data
 

@@ -7,8 +7,13 @@
                 "menu_item_id": "01a14168-8ce8-7d38-9d02-30cb0bb998ca",
                 "quantity": 1,
                 "price": "10.00"
+            },
+            {
+                "menu_item_id": "01a16a22-582d-7e4d-9095-ded9e2d1e0e8",
+                "quantity": 1,
+                "price": "1.00"
             }
         ],
-        "subtotal": "10.00"
+        "subtotal": "11.00"
     }
 ]
