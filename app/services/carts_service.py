@@ -28,52 +28,37 @@ async def create_cart(
         data: CartCreate,
         ) -> Cart:
     
-    try:
-        user = await user_repository.get_by_id(data.customer_id)
-    except RecordNotFoundError as e:
-        raise CustomerNotFoundError(f"Customer with id {data.customer_id} not found.") from e
+    user = await user_repository.get_by_id(data.customer_id)
+    if user is None:
+        raise CustomerNotFoundError(f"Customer with id {data.customer_id} not found.")
 
-   
-    if user.get("role") != "customer":
+    if user.role != "customer":
         raise InvalidRoleError(f"User with id {data.customer_id} is not a customer.")
 
-    
-    if not user.get("active", False):
+    if not user.active:
         raise InactiveUserError(f"Customer with id {data.customer_id} is not active.")
 
-    try:
-        existing_cart = await cart_repository.get_by_id(data.customer_id)
-    except RecordNotFoundError:
-        existing_cart = None
-    if existing_cart is not None:
+    if await cart_repository.get_by_id(data.customer_id) is not None:
         raise DuplicateCartError(f"Customer with id {data.customer_id} already has an active cart.")
 
-    
-    try:
-        menu_item = await menu_item_repository.get_by_id(data.menu_item_id)
-    except RecordNotFoundError as e:
-        raise MenuItemNotFoundError(f"Menu item with id {data.menu_item_id} not found.") from e
+    menu_item = await menu_item_repository.get_by_id(data.menu_item_id)
+    if menu_item is None:
+        raise MenuItemNotFoundError(f"Menu item with id {data.menu_item_id} not found.")
 
-    
-    if not menu_item.get("available", False):
+    if not menu_item.available:
         raise InactiveMenuItemError(f"Menu item with id {data.menu_item_id} is not available.")
 
-    
-    restaurant_id = menu_item["restaurant_id"]
+    restaurant_id = menu_item.restaurant_id
     try:
         restaurant_active = await restaurant_repository.is_restaurant_active(restaurant_id)
     except RecordNotFoundError:
-        raise InactiveMenuItemError(
-            f"Menu item with id {data.menu_item_id} belongs to a restaurant that is not active."
-        )
-
-    
+        restaurant_active = False
     if not restaurant_active:
         raise InactiveMenuItemError(
             f"Menu item with id {data.menu_item_id} belongs to a restaurant that is not active."
         )
-    
-    price = _to_price(menu_item["price"])
+
+    price = _to_price(menu_item.price)
     cart = Cart(
         customer_id=data.customer_id,
         restaurant_id=restaurant_id,
@@ -83,6 +68,7 @@ async def create_cart(
 
     await cart_repository.add_record(cart)
     return cart
+
 
 async def delete_cart(cart_repository: CartRepository, customer_id: str) -> bool:
     return await cart_repository.delete_record(customer_id)

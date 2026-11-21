@@ -39,4 +39,6 @@ class RestaurantRepository(BaseRepository[Restaurant]):
 
     async def is_restaurant_active(self, restaurant_id: str) -> bool:
         restaurant = await self.get_by_id(restaurant_id)
-        return bool (restaurant.get("active",True))
+        if restaurant is None:
+            raise RecordNotFoundError(Restaurant, restaurant_id)
+        return restaurant.active
