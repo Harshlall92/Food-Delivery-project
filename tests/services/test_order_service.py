@@ -20,7 +20,7 @@ from app.services.exceptions import (
     InvalidOrderStatusError,
     OrderNotFoundError
 )
-from tests.util.builders import create_test_cart, create_test_cart_item, create_test_order
+from tests.util.builders import create_test_cart, create_test_cart_item, create_test_order, create_test_order_item
 from tests.util.fixtures import (
     cart_repository, menu_item_repository, order_item_repository,
     order_repository, restaurant_repository, user_repository,
@@ -252,3 +252,110 @@ class TestUpdateOrderStatus:
     async def test_missing_order_raises(self, order_repository):
         with pytest.raises(OrderNotFoundError, match="Order with id missing not found."):
             await order_service.update_order_status(order_repository, "missing", OrderStatusUpdate(status="ready"))
+
+async def seed_orders(repositories):
+    """Three orders on top of the checkout data: two for the customer (r1 pending, r2 ready)
+    and one for the second customer (r1 ready), each with one item."""
+    order_repository, order_item_repository, *_ = repositories
+    customer, other_customer, _ = await seed_checkout_data(repositories)
+
+    orders = [
+        create_test_order(customer_id=customer.id, restaurant_id="r1", status="pending", total="10.00"),
+        create_test_order(customer_id=customer.id, restaurant_id="r2", status="ready", total="9.00"),
+        create_test_order(customer_id=other_customer.id, restaurant_id="r1", status="ready", total="2.50"),
+    ]
+    for order, (menu_item_id, quantity, price) in zip(orders, [("m1", 2, "5.00"), ("m4", 1, "9.00"), ("m2", 1, "2.50")]):
+        await order_repository.add_record(order)
+        await order_item_repository.add_order_items([
+            create_test_order_item(order_id=order.id, menu_item_id=menu_item_id, quantity=quantity, price_per_item=price)
+        ])
+
+    return customer, other_customer, orders
+
+
+async def get_order(repositories, order_id):
+    order_repository, order_item_repository, _, user_repository, restaurant_repository, menu_item_repository = repositories
+    return await order_service.get_order(
+        order_repository, order_item_repository, user_repository, restaurant_repository, menu_item_repository, order_id
+    )
+
+
+async def query_orders(repositories, **filters):
+    order_repository, order_item_repository, _, user_repository, restaurant_repository, menu_item_repository = repositories
+    return await order_service.query_orders(
+        order_repository, order_item_repository, user_repository, restaurant_repository, menu_item_repository, **filters
+    )
+
+
+class TestGetOrder:
+
+    @pytest.mark.anyio
+    async def test_get_order_returns_response_with_items(self, repositories):
+        _, _, orders = await seed_orders(repositories)
+
+        response = await get_order(repositories, orders[0].id)
+
+        assert response.order_id == orders[0].id
+        assert response.customer_name == "Test User"
+        assert response.restaurant_name == "Open"
+        assert response.status == "pending"
+        assert response.total == Decimal("10.00")
+        assert [(i.menu_item_name, i.quantity, i.price_per_item) for i in response.items] == [
+            ("Pizza", 2, Decimal("5.00"))
+        ]
+
+    @pytest.mark.anyio
+    async def test_get_order_missing_raises(self, repositories):
+        with pytest.raises(OrderNotFoundError, match="Order with id missing not found."):
+            await get_order(repositories, "missing")
+
+
+class TestQueryOrders:
+
+    @pytest.mark.anyio
+    async def test_no_filters_returns_all_orders_with_items(self, repositories):
+        _, _, orders = await seed_orders(repositories)
+
+        responses = await query_orders(repositories)
+
+        assert [r.order_id for r in responses] == [o.id for o in orders]
+        assert all(len(r.items) == 1 for r in responses)
+
+    @pytest.mark.anyio
+    async def test_filter_by_customer(self, repositories):
+        customer, _, orders = await seed_orders(repositories)
+
+        responses = await query_orders(repositories, customer_id=customer.id)
+
+        assert [r.order_id for r in responses] == [orders[0].id, orders[1].id]
+
+    @pytest.mark.anyio
+    async def test_filter_by_restaurant(self, repositories):
+        _, _, orders = await seed_orders(repositories)
+
+        responses = await query_orders(repositories, restaurant_id="r1")
+
+        assert [r.order_id for r in responses] == [orders[0].id, orders[2].id]
+
+    @pytest.mark.anyio
+    async def test_filter_by_status(self, repositories):
+        _, _, orders = await seed_orders(repositories)
+
+        responses = await query_orders(repositories, status="ready")
+
+        assert [r.order_id for r in responses] == [orders[1].id, orders[2].id]
+
+    @pytest.mark.anyio
+    async def test_combined_filters(self, repositories):
+        customer, _, orders = await seed_orders(repositories)
+
+        responses = await query_orders(repositories, customer_id=customer.id, status="ready")
+
+        assert [r.order_id for r in responses] == [orders[1].id]
+        assert responses[0].restaurant_name == "Closed"
+
+    @pytest.mark.anyio
+    async def test_no_matching_orders_returns_empty_list(self, repositories):
+        await seed_orders(repositories)
+
+        assert await query_orders(repositories, customer_id="nobody") == []

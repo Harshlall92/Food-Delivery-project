@@ -6,7 +6,7 @@ from app.repositories.order_item_repository import OrderItemRepository
 from app.repositories.order_repository import OrderRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.user_repository import UserRepository
-from app.schemas.order import Order, OrderCreate, OrderStatusUpdate
+from app.schemas.order import Order, OrderCreate, OrderResponse, OrderStatus, OrderStatusUpdate
 from app.services import order_service as oService
 from app.services.exceptions import (
     CartNotFoundError,
@@ -16,8 +16,11 @@ from app.services.exceptions import (
     InactiveMenuItemError,
     InactiveRestaurantError,
     InactiveUserError,
+    InvalidOrderStatusError,
     InvalidRoleError,
+    ItemNotFoundError,
     MenuItemNotFoundError,
+    OrderNotFoundError,
     RestaurantNotFoundError,
 )
 
@@ -72,3 +75,38 @@ async def update_order_status(order_id: str, data: OrderStatusUpdate):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except InvalidOrderStatusError as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
+
+@router.get(
+    "",
+    response_model=list[OrderResponse],
+    summary="List orders",
+    description="Returns all orders, filtered by any combination of customer, restaurant, and status.",
+    responses={
+        200: {"description": "Matching orders (an empty list if none match)"},
+        422: {"description": "A query parameter or status value is invalid"},
+    },
+)
+async def query_orders(customer_id: str | None = None, restaurant_id: str | None = None, status: OrderStatus | None = None):
+    return await oService.query_orders(
+        OrderRepository(), OrderItemRepository(), UserRepository(), RestaurantRepository(), MenuItemRepository(),
+        customer_id, restaurant_id, status,
+    )
+
+@router.get(
+    "/{order_id}",
+    response_model=OrderResponse,
+    summary="Get an order",
+    description="Returns an order with its customer name, restaurant name, and items.",
+    responses={
+        200: {"description": "The order"},
+        404: {"description": "The order does not exist"},
+    },
+)
+async def get_order(order_id: str):
+    try:
+        return await oService.get_order(
+            OrderRepository(), OrderItemRepository(), UserRepository(), RestaurantRepository(), MenuItemRepository(),
+            order_id,
+        )
+    except ItemNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

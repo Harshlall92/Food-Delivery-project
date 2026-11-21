@@ -6,7 +6,7 @@ from app.repositories.order_item_repository import OrderItemRepository
 from app.repositories.order_repository import OrderRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.user_repository import UserRepository
-from app.schemas.order import Order, OrderCreate, OrderItem, OrderStatus, OrderStatusUpdate
+from app.schemas.order import Order, OrderCreate, OrderItem, OrderItemResponse, OrderResponse, OrderStatus, OrderStatusUpdate
 from typing import get_args
 from app.services.exceptions import (
     CartNotFoundError,
@@ -22,6 +22,8 @@ from app.services.exceptions import (
     InvalidOrderStatusError,
     OrderNotFoundError
 )
+from app.repositories.exceptions import MenuItemNotFoundError as RepoMenuItemNotFoundError
+from app.repositories.exceptions import RestaurantNotFoundError as RepoRestaurantNotFoundError
 
 
 async def checkout_cart(
@@ -107,3 +109,75 @@ async def update_order_status(
         raise InvalidOrderStatusError(f"Status {data.status} is not a valid order status.")
 
     return await order_repository.update_record(order_id, order.model_copy(update={"status": data.status}))
+
+async def _build_order_response(
+        order: Order,
+        order_item_repository: OrderItemRepository,
+        user_repository: UserRepository,
+        restaurant_repository: RestaurantRepository,
+        menu_item_repository: MenuItemRepository,
+        ) -> OrderResponse:
+
+    customer = await user_repository.get_by_id(order.customer_id)
+    if customer is None:
+        raise CustomerNotFoundError(f"Customer with id {order.customer_id} not found.")
+
+    try:
+        restaurant_name = await restaurant_repository.get_restaurant_name_by_id(order.restaurant_id)
+        items = [
+            OrderItemResponse(
+                menu_item_name=await menu_item_repository.get_menu_item_name_by_id(item.menu_item_id),
+                quantity=item.quantity,
+                price_per_item=item.price_per_item,
+            )
+            for item in await order_item_repository.get_items_by_order_id(order.id)
+        ]
+    except (RepoRestaurantNotFoundError, RepoMenuItemNotFoundError) as e:
+        raise ItemNotFoundError(e.message) from e
+
+    return OrderResponse(
+        order_id=order.id,
+        customer_name=f"{customer.first_name} {customer.last_name}",
+        restaurant_name=restaurant_name,
+        order_date=order.order_date,
+        status=order.status,
+        total=order.total,
+        items=items,
+    )
+
+
+async def get_order(
+        order_repository: OrderRepository,
+        order_item_repository: OrderItemRepository,
+        user_repository: UserRepository,
+        restaurant_repository: RestaurantRepository,
+        menu_item_repository: MenuItemRepository,
+        order_id: str,
+        ) -> OrderResponse:
+
+    order = await order_repository.get_by_id(order_id)
+    if order is None:
+        raise OrderNotFoundError(f"Order with id {order_id} not found.")
+
+    return await _build_order_response(
+        order, order_item_repository, user_repository, restaurant_repository, menu_item_repository
+    )
+
+
+async def query_orders(
+        order_repository: OrderRepository,
+        order_item_repository: OrderItemRepository,
+        user_repository: UserRepository,
+        restaurant_repository: RestaurantRepository,
+        menu_item_repository: MenuItemRepository,
+        customer_id: str | None = None,
+        restaurant_id: str | None = None,
+        status: OrderStatus | None = None,
+        ) -> list[OrderResponse]:
+
+    orders = await order_repository.get_orders(customer_id, restaurant_id, status)
+
+    return [
+        await _build_order_response(order, order_item_repository, user_repository, restaurant_repository, menu_item_repository)
+        for order in orders
+    ]

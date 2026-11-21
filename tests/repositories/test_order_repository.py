@@ -56,3 +56,31 @@ async def test_get_orders_by_status(order_repository):
     await order_repository.add_record(create_test_order(status="pending"))
 
     assert await order_repository.get_orders_by_status("ready") == [ready]
+
+@pytest.mark.anyio
+async def test_get_orders_without_filters_returns_all(order_repository):
+    orders = [create_test_order(), create_test_order()]
+    for order in orders:
+        await order_repository.add_record(order)
+
+    assert await order_repository.get_orders() == orders
+
+@pytest.mark.anyio
+async def test_get_orders_combined_filters(order_repository):
+    match = create_test_order(customer_id="c1", restaurant_id="r1", status="ready")
+    for order in (
+        match,
+        create_test_order(customer_id="c1", restaurant_id="r1", status="pending"),
+        create_test_order(customer_id="c1", restaurant_id="r2", status="ready"),
+        create_test_order(customer_id="c2", restaurant_id="r1", status="ready"),
+    ):
+        await order_repository.add_record(order)
+
+    assert await order_repository.get_orders(customer_id="c1", restaurant_id="r1", status="ready") == [match]
+
+@pytest.mark.anyio
+async def test_get_orders_no_match_returns_empty_list(order_repository):
+    await order_repository.add_record(create_test_order(customer_id="c1"))
+
+    assert await order_repository.get_orders(customer_id="nobody") == []
+    assert await order_repository.get_orders_by_status("cancelled") == []

@@ -171,6 +171,20 @@ Endpoints for user-related operations are available under the `/api/users/` path
     - `404 Not Found` - The order does not exist
     - `422 Unprocessable Entity` - The status is not an allowed value, or the request body is malformed
 
+- `GET /` - Lists orders with their customer name, restaurant name, and items. Filters are optional and can be combined; with none, all orders are returned.
+  - **Query parameters (optional):** `customer_id` (string), `restaurant_id` (string), `status` (one of `pending`, `confirmed`, `preparing`, `ready`, `picked up`, `delivered`, `cancelled`)
+  - **Request body:** None
+  - **Responses:**
+    - `200 OK` - Returns a list of `OrderResponse` (an empty list if no orders match)
+    - `422 Unprocessable Entity` - A query parameter or status value is invalid
+
+- `GET /{order_id}` - Retrieves an order with its customer name, restaurant name, and items.
+  - **Path parameter:** `order_id` (string)
+  - **Request body:** None
+  - **Responses:**
+    - `200 OK` - Returns an `OrderResponse` (`order_id`, `customer_name`, `restaurant_name`, `order_date`, `status`, `total`, `items`)
+    - `404 Not Found` - The order does not exist
+
 ## Representative Data
 
 **Restaurants**: [Food-Delivery-project/data/restaurants.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/restaurants.json)
