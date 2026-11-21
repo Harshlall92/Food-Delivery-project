@@ -196,7 +196,7 @@ class TestCreateCart:
         assert cart.restaurant_id == "r1"
         assert [(i.menu_item_id, i.quantity, i.price) for i in cart.items] == [("m1", 2, Decimal("5.00"))]
         assert cart.subtotal == Decimal("10.00")
-        assert await cart_repository.get_active_cart_by_customer_id(customer.id) == cart
+        assert await cart_repository.get_cart_by_customer_id(customer.id) == cart
 
     @pytest.mark.anyio
     async def test_create_cart_customer_not_found(self, cart_repository, user_repository, menu_item_repository, restaurant_repository):
@@ -256,7 +256,7 @@ class TestCreateCart:
                 cart_repository, user_repository, menu_item_repository, restaurant_repository,
                 CartCreate(customer_id=customer.id, menu_item_id="m2"),
             )
-        assert await cart_repository.get_active_cart_by_customer_id(customer.id) is None
+        assert await cart_repository.get_cart_by_customer_id(customer.id) is None
 
     @pytest.mark.anyio
     async def test_create_cart_inactive_restaurant(self, cart_repository, user_repository, menu_item_repository, restaurant_repository):

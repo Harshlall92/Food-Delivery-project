@@ -49,3 +49,19 @@ class CartNotFoundError(ServiceError):
 class DuplicateCartError(DuplicateItemError):
     """Raised when a customer who already has a cart attempts to create another."""
     pass
+
+class OrderNotFoundError(ItemNotFoundError):
+    """Raised when an order does not exist."""
+    pass
+
+class InvalidOrderStatusError(ServiceError):
+    """Raised when an order status is not allowed."""
+    pass
+
+class EmptyCartCheckoutError(ServiceError):
+    """Raised when checkout is attempted with an empty cart."""
+    pass
+
+class CartRestaurantMismatchError(ServiceError):
+    """Raised when a cart item or restaurant no longer matches valid cart state."""
+    pass

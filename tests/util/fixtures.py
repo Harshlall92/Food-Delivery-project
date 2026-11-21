@@ -50,3 +50,11 @@ def mocked_menu_item_repository(tmp_path, monkeypatch):
     menu_item_file = create_menu_item_file(tmp_path)
 
     monkeypatch.setattr("app.repositories.menu_item_repository.FILE_PATH", str(menu_item_file))
+
+@pytest.fixture
+def order_repository(tmp_path) -> OrderRepository:
+    return create_order_repository(create_order_file(tmp_path))
+
+@pytest.fixture
+def order_item_repository(tmp_path) -> OrderItemRepository:
+    return create_order_item_repository(create_order_item_file(tmp_path))
