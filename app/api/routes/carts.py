@@ -45,7 +45,7 @@ async def add_menu_item(customer_id: str, payload: CartItemAdd):
 async def get_cart(customer_id: str):
     try:
         return await cService.retrieve_cart(
-            CartRepository(), RestaurantRepository(), MenuItemRepository(), str(customer_id)
+            CartRepository(), RestaurantRepository(), MenuItemRepository(), customer_id
         )
     except (CartNotFoundError, ItemNotFoundError) as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

@@ -20,7 +20,7 @@ class TestCartItemModel:
 
         assert cart_item.menu_item_id == "menu_item_123"
         assert cart_item.quantity == 2
-        assert cart_item.price_per_item == Decimal("9.99")
+        assert cart_item.price == Decimal("9.99")
 
     @pytest.mark.parametrize("quantity", [0, -1, -5])
     def test_cart_item_model_invalid_quantity(self, quantity: int):
@@ -45,10 +45,10 @@ class TestCartItemModel:
         with pytest.raises(ValidationError):
             cart_item.menu_item_id = "new_menu_item_id"
 
-    def test_price_per_item_is_immutable(self):
+    def test_price_is_immutable(self):
         cart_item = create_test_cart_item()
         with pytest.raises(ValidationError):
-            cart_item.price_per_item = Decimal("19.99")
+            cart_item.price = Decimal("19.99")
 
 class TestCartModel:
     
@@ -140,14 +140,14 @@ class TestCartItemAddModel:
 class TestCartResponseModels:
 
     def test_cart_item_response_valid(self):
-        item = CartItemResponse(menu_item_name="Pizza", quantity=2, price_per_item=Decimal("5.00"))
+        item = CartItemResponse(menu_item_name="Pizza", quantity=2, price=Decimal("5.00"))
         assert item.menu_item_name == "Pizza"
-        assert item.price_per_item == Decimal("5.00")
+        assert item.price == Decimal("5.00")
 
     @pytest.mark.parametrize("quantity", [0, -1])
     def test_cart_item_response_invalid_quantity(self, quantity):
         with pytest.raises(ValidationError):
-            CartItemResponse(menu_item_name="Pizza", quantity=quantity, price_per_item=Decimal("5.00"))
+            CartItemResponse(menu_item_name="Pizza", quantity=quantity, price=Decimal("5.00"))
 
     def test_cart_response_allows_empty_cart(self):
         cart = CartResponse(restaurant_name="R", items=[], total_quantity=0, sub_total=Decimal("0.00"))

@@ -63,13 +63,13 @@ async def retrieve_cart(
             items.append(CartItemResponse(
                 menu_item_name=menu_item_name,
                 quantity=item.quantity,
-                price_per_item=item.price_per_item,
+                price=item.price,
             ))
     except (RestaurantNotFoundError, MenuItemNotFoundError) as e:
         raise ItemNotFoundError(e.message) from e
 
     total_quantity = sum(i.quantity for i in items)
-    sub_total = sum((i.price_per_item * i.quantity for i in items), Decimal("0.00"))
+    sub_total = sum((i.price * i.quantity for i in items), Decimal("0.00"))
 
     return CartResponse(
         restaurant_name=restaurant_name,

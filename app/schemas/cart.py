@@ -6,7 +6,7 @@ from app.schemas.common import Price, CartQuantity
 class CartItem(BaseModel):
     menu_item_id: str = Field(frozen=True)
     quantity: PositiveInt
-    price: Price = Field(alias="price", frozen=True, gt=Decimal("0.00"))
+    price: Price = Field(frozen=True, gt=Decimal("0.00"))
 
 class Cart(BaseModel):
     customer_id: str = Field(

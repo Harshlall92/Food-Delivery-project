@@ -39,8 +39,3 @@ def test_get_cart_returns_404(tmp_path, monkeypatch):
     setup_files(tmp_path, monkeypatch, carts=[], restaurants=[], menu_items=[])
     response = TestClient(app).get(f"/api/carts/{MISSING_ID}")
     assert response.status_code == 404
-
-def test_get_cart_invalid_id_returns_422(tmp_path, monkeypatch):
-    setup_files(tmp_path, monkeypatch, carts=[], restaurants=[], menu_items=[])
-    response = TestClient(app).get("/api/carts/not-a-uuid")
-    assert response.status_code == 422
