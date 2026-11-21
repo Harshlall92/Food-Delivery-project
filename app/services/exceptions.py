@@ -40,3 +40,7 @@ class DuplicateCartError(DuplicateItemError):
 class RestaurantNotFoundError(ItemNotFoundError):
     """Raised when restaurant is not found"""
     pass
+
+class CartNotFoundError(ItemNotFoundError):
+    """Raised when a customer does not have an active cart."""
+    pass

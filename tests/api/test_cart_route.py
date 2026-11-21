@@ -26,7 +26,7 @@ def test_get_cart_returns_200(tmp_path, monkeypatch):
         menu_items=[{"id": "m1", "restaurant_id": "r1", "name": "Taco", "price": 4.0,
                      "description": "", "available": True}],
     )
-    response = TestClient(app).get(f"/api/cart/{CUSTOMER_ID}")
+    response = TestClient(app).get(f"/api/carts/{CUSTOMER_ID}")
 
     assert response.status_code == 200
     body = response.json()
@@ -37,10 +37,10 @@ def test_get_cart_returns_200(tmp_path, monkeypatch):
 
 def test_get_cart_returns_404(tmp_path, monkeypatch):
     setup_files(tmp_path, monkeypatch, carts=[], restaurants=[], menu_items=[])
-    response = TestClient(app).get(f"/api/cart/{MISSING_ID}")
+    response = TestClient(app).get(f"/api/carts/{MISSING_ID}")
     assert response.status_code == 404
 
 def test_get_cart_invalid_id_returns_422(tmp_path, monkeypatch):
     setup_files(tmp_path, monkeypatch, carts=[], restaurants=[], menu_items=[])
-    response = TestClient(app).get("/api/cart/not-a-uuid")
+    response = TestClient(app).get("/api/carts/not-a-uuid")
     assert response.status_code == 422

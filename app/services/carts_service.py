@@ -5,7 +5,7 @@ from app.repositories.exceptions import RecordNotFoundError
 from app.repositories.menu_item_repository import MenuItemRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.user_repository import UserRepository
-from app.schemas.cart import Cart, CartCreate, CartItem
+from app.schemas.cart import Cart, CartCreate, CartItem, CartResponse
 from app.services.exceptions import (
     CustomerNotFoundError,
     DuplicateCartError,
@@ -14,6 +14,10 @@ from app.services.exceptions import (
     InvalidRoleError,
     MenuItemNotFoundError,
 )
+from app.repositories.exceptions import MenuItemNotFoundError as RepoMenuItemNotFoundError
+from app.repositories.exceptions import RestaurantNotFoundError as RepoRestaurantNotFoundError
+from app.schemas.cart import CartItemResponse, CartResponse
+from app.services.exceptions import CartNotFoundError, ItemNotFoundError
 
 
 def _to_price(value) -> Decimal:
@@ -72,3 +76,38 @@ async def create_cart(
 
 async def delete_cart(cart_repository: CartRepository, customer_id: str) -> bool:
     return await cart_repository.delete_record(customer_id)
+
+async def retrieve_cart(
+    cart_repository: CartRepository,
+    restaurant_repository: RestaurantRepository,
+    menu_item_repository: MenuItemRepository,
+    customer_id: str,
+    ) -> CartResponse:
+
+    cart = await cart_repository.get_by_id(customer_id)
+    if cart is None:
+        raise CartNotFoundError(f"No active cart found for customer {customer_id}.")
+
+    try:
+        restaurant_name = await restaurant_repository.get_restaurant_name_by_id(cart.restaurant_id)
+
+        items: list[CartItemResponse] = []
+        for item in cart.items:
+            menu_item_name = await menu_item_repository.get_menu_item_name_by_id(item.menu_item_id)
+            items.append(CartItemResponse(
+                menu_item_name=menu_item_name,
+                quantity=item.quantity,
+                price_per_item=item.price_per_item,
+            ))
+    except (RepoRestaurantNotFoundError, RepoMenuItemNotFoundError) as e:
+        raise ItemNotFoundError(e.message) from e
+
+    total_quantity = sum(i.quantity for i in items)
+    sub_total = sum((i.price_per_item * i.quantity for i in items), Decimal("0.00"))
+
+    return CartResponse(
+        restaurant_name=restaurant_name,
+        items=items,
+        total_quantity=total_quantity,
+        sub_total=sub_total,
+    )

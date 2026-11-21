@@ -25,4 +25,13 @@ class CartItemAdd(BaseModel):
 class CartCreate(CartItemAdd):
     customer_id: str = Field(min_length =1)
 
-    
+class CartItemResponse(BaseModel):
+    menu_item_name: str
+    quantity: CartQuantity
+    price_per_item: Price
+
+class CartResponse(BaseModel):
+    restaurant_name: str
+    items: list[CartItemResponse] = Field(default_factory=list)
+    total_quantity: int = Field(ge=0)
+    sub_total: Price = Field(default=Decimal("0.00"))

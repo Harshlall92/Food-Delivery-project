@@ -107,6 +107,15 @@ class BaseRepository(Generic[T]):
                 await self._write_file(data)
                 return self.adapter.validate_python(data[i])
         return None
+
+    async def delete_record(self, record_id: str) -> bool:
+        data = await self._read_file()
+        for i, item in enumerate(data):
+            if item.get("id") == record_id:
+                del data[i]
+                await self._write_file(data)
+                return True
+        return False
     """
     Data Persistence Methods
     """

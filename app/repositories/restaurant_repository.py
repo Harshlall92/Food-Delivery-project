@@ -1,6 +1,7 @@
 from app.repositories.base_repository import BaseRepository
 from app.schemas.restaurant import Restaurant
-from app.repositories.exceptions import RecordNotFoundError
+from app.repositories.exceptions import RecordNotFoundError, RestaurantNotFoundError
+
 FILE_PATH = "data/restaurants.json"
 
 class RestaurantRepository(BaseRepository[Restaurant]):
@@ -37,6 +38,12 @@ class RestaurantRepository(BaseRepository[Restaurant]):
 
         return cuisines
 
+    async def get_restaurant_name_by_id(self, restaurant_id: str) -> str:
+        restaurant = await self.get_by_id(restaurant_id)
+        if restaurant is None:
+            raise RestaurantNotFoundError(Restaurant, restaurant_id)
+        return restaurant.name
+    
     async def is_restaurant_active(self, restaurant_id: str) -> bool:
         restaurant = await self.get_by_id(restaurant_id)
         if restaurant is None:

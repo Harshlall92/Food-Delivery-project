@@ -6,8 +6,10 @@ from app.repositories.cart_repository import CartRepository
 from app.repositories.menu_item_repository import MenuItemRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.user_repository import UserRepository
-from app.schemas.cart import Cart, CartCreate
+from app.schemas.cart import Cart, CartCreate, CartResponse
 from app.services.exceptions import (
+    CartNotFoundError,
+    ItemNotFoundError,
     CustomerNotFoundError,
     DuplicateCartError,
     InactiveMenuItemError,
@@ -15,6 +17,8 @@ from app.services.exceptions import (
     InvalidRoleError,
     MenuItemNotFoundError,
 )
+from typing import Annotated
+from fastapi import APIRouter, HTTPException, Path, status
 
 router = APIRouter(
     prefix="/api/carts",
@@ -71,3 +75,21 @@ async def delete_cart(customer_id: str):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Cart for customer with id {customer_id} not found.",
         )
+
+@router.get(
+    "/{customer_id}",
+    response_model=CartResponse,
+    summary="Retrieve a customer's active cart",
+    description="Returns the customer's cart with restaurant and menu item names and calculated totals.",
+    responses={
+        404: {"description": "The customer does not have an active cart"},
+        422: {"description": "Pydantic validation error"},
+    },
+)
+async def get_cart(customer_id: Annotated[str, Path(min_length=36, max_length=36)]):
+    try:
+        return await cService.retrieve_cart(
+            CartRepository(), RestaurantRepository(), MenuItemRepository(), customer_id
+        )
+    except (CartNotFoundError, ItemNotFoundError) as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
