@@ -87,9 +87,8 @@ The application can then be opened in your web browser at [http://127.0.0.1:8000
 
 API documentation can be found at: `/docs`
 
-- `GET /` - Returns the home page for UI 
+- `GET /` - Returns the home page for UI
 - `GET /health` - Returns a health check message.
-  
 
 - `GET /api/restaurants` - Returns a list of all restaurants.
 - `GET /api/restaurants/search` - Retrieves restaurants that contain the given name
@@ -116,6 +115,39 @@ Endpoints for user-related operations are available under the `/api/users/` path
 - `PATCH /c/{user_id}/{address_label}` - Updates an existing address for a customer account.
 - `POST /r` - Creates a new restaurant owner account.
 - `PATCH /r/{user_id}` - Updates an existing restaurant owner account.
+
+#### Cart API Endpoints
+
+**Root:** `/api/carts`
+
+- `POST /` - Creates a new cart for a customer with its first menu item.
+  - **Request body** (`CartCreate`): `{ "customer_id": str, "menu_item_id": str, "quantity": int (optional, default 1, must be > 0) }`
+  - **201 Created**: the created `Cart` (`id` = customer id, `restaurant_id`, `items`, `subtotal`)
+  - **401 Unauthorized**: the user is not a customer or is not active
+  - **404 Not Found**: the customer or the menu item does not exist
+  - **409 Conflict**: the customer already has an active cart
+  - **422 Unprocessable Content**: invalid request body, or the menu item (or its restaurant) is not active
+- `DELETE /{customer_id}` - Deletes the customer's active cart from `data/carts.json`.
+  - **Path parameter:** `customer_id` (string)
+  - **Request body:** None
+  - **Responses:**
+    - `204 No Content` - The cart was deleted (no response body)
+    - `404 Not Found` - The customer does not have an active cart
+
+- `GET /{customer_id}` - Retrieves the customer's active cart, with the restaurant name, each menu item's name, quantity and price, the total quantity, and the subtotal.
+  - **Path parameter:** `customer_id` (string)
+  - **Request body:** None
+  - **Responses:**
+    - `200 OK` - Returns a `CartResponse`
+    - `404 Not Found` - The customer does not have an active cart
+
+- `POST /{customer_id}/items` - Adds a menu item to the customer's cart, or increases its quantity if it is already in the cart.
+  - **Path parameter:** `customer_id` (string)
+  - **Request body** (`CartItemAdd`): `{ "menu_item_id": str, "quantity": int (optional, default 1, must be > 0) }`
+  - **Responses:**
+    - `200 OK` - Returns the updated `Cart` (`id` = customer id, `restaurant_id`, `items`, `subtotal`)
+    - `404 Not Found` - The customer does not have an active cart, or the menu item does not exist
+    - `422 Unprocessable Entity` - Invalid request body, the menu item is unavailable, or the menu item belongs to a different restaurant than the cart
 
 ## Representative Data
 

@@ -1,0 +1,19 @@
+[
+    {
+        "id": "01a1e9a4-021a-7f27-8546-c524b7f1ae7b",
+        "restaurant_id": "01a0fd78-2c5c-72f4-b913-672a802a7116",
+        "items": [
+            {
+                "menu_item_id": "01a14168-8ce8-7d38-9d02-30cb0bb998ca",
+                "quantity": 1,
+                "price": "10.00"
+            },
+            {
+                "menu_item_id": "01a16a22-582d-7e4d-9095-ded9e2d1e0e8",
+                "quantity": 1,
+                "price": "1.00"
+            }
+        ],
+        "subtotal": "11.00"
+    }
+]

@@ -26,6 +26,12 @@
         "cuisine": "mexican",
         "address": "211 bernard",
         "active": true
+    },
+    {
+        "id": "01a169d7-0fe6-7a55-858f-4346b7f5a7f1",
+        "name": "blablabla",
+        "address": "blebleble",
+        "cuisine": "blublublu",
+        "active": true
     }
 ]
-   

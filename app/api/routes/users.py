@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 
 from app.repositories.restaurant_repository import RestaurantRepository
-from app.services.exceptions import DuplicateItemError, ItemNotFoundError, UserNotFoundError
+from app.services.exceptions import DuplicateItemError, InvalidCredentialsError, ItemNotFoundError
 from app.repositories.user_repository import UserRepository
 from app.schemas.user import Customer, CustomerAddress, RestaurantOwner, RestaurantOwnerUpdate, UserCreate, UserUpdate
 import app.services.user_service as uService
@@ -29,7 +29,7 @@ async def create_customer(user: UserCreate):
     try:
         customer = await uService.create_customer(UserRepository(), user)
         return customer
-    except ValueError as e:
+    except InvalidCredentialsError as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
     except DuplicateItemError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
@@ -48,9 +48,9 @@ async def update_customer(customer_id: str, user: UserUpdate):
     try:
         updated_customer = await uService.update_customer(UserRepository(), customer_id, user)
         return updated_customer
-    except ValueError as e:
+    except InvalidCredentialsError as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
-    except UserNotFoundError as e:
+    except ItemNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except DuplicateItemError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
@@ -68,11 +68,11 @@ async def add_address(customer_id: str, address: CustomerAddress):
     try:
         updated_customer = await uService.add_customer_address(UserRepository(), customer_id, address)
         return updated_customer
-    except ValueError as e:
+    except InvalidCredentialsError as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
     except DuplicateItemError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
-    except UserNotFoundError as e:
+    except ItemNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 @customer_router.patch(
@@ -89,7 +89,7 @@ async def update_address(customer_id: str, address_label: str, new_address: Cust
     try:
         updated_customer = await uService.update_customer_address(UserRepository(), customer_id, address_label, new_address)
         return updated_customer
-    except ValueError as e:
+    except InvalidCredentialsError as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
     except ItemNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
@@ -109,7 +109,7 @@ async def create_restaurant_owner(user: UserCreate):
     try:
         owner = await uService.create_restaurant_owner(UserRepository(), user)
         return owner
-    except ValueError as e:
+    except InvalidCredentialsError as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
     except DuplicateItemError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
@@ -129,7 +129,7 @@ async def update_restaurant_owner(owner_id: str, user: RestaurantOwnerUpdate):
     try:
         updated_owner = await uService.update_restaurant_owner(UserRepository(), RestaurantRepository(), owner_id, user)
         return updated_owner
-    except ValueError as e:
+    except InvalidCredentialsError as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
     except ItemNotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

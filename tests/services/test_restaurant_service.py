@@ -3,6 +3,7 @@ import pytest
 import json
 from unittest.mock import patch
 from app.repositories.restaurant_repository import RestaurantRepository
+from app.services.exceptions import ItemNotFoundError
 from app.services.restaurant_service import *
 from app.schemas.restaurant import Restaurant
 from tests.util.helpers import *
@@ -169,7 +170,7 @@ async def test_get_full_restaurant_info_not_found(tmp_path):
 
     non_existent_id = "non-existent-id"
 
-    with pytest.raises(mService.RestaurantNotFoundError):
+    with pytest.raises(ItemNotFoundError, match=f"Restaurant with id {non_existent_id} not found."):
         await get_full_restaurant_info(restaurant_repository, menu_item_repository, non_existent_id)
 
 RESTAURANTS_DATA = [
@@ -208,7 +209,7 @@ async def test_update_restaurant(tmp_path):
 async def test_update_restaurant_not_found(tmp_path):
     repository, restaurant_file = setup_update_test(tmp_path)
  
-    with pytest.raises(mService.RestaurantNotFoundError):
+    with pytest.raises(ItemNotFoundError, match=f"Restaurant with id non-existent-id not found."):
         await update_restaurant(repository, "non-existent-id", RestaurantUpdate(name="X"))
  
     # Nothing was written
