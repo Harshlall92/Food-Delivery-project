@@ -87,9 +87,8 @@ The application can then be opened in your web browser at [http://127.0.0.1:8000
 
 API documentation can be found at: `/docs`
 
-- `GET /` - Returns the home page for UI 
+- `GET /` - Returns the home page for UI
 - `GET /health` - Returns a health check message.
-  
 
 - `GET /api/restaurants` - Returns a list of all restaurants.
 - `GET /api/restaurants/search` - Retrieves restaurants that contain the given name
@@ -120,6 +119,17 @@ Endpoints for user-related operations are available under the `/api/users/` path
 #### Cart API Endpoints
 
 **Root:** `/api/carts`
+
+- `POST /` - Creates a new cart for a customer with its first menu item.
+  - **Request body** (`CartCreate`): `{ "customer_id": str, "menu_item_id": str, "quantity": int (optional, default 1, must be > 0) }`
+  - **201 Created**: the created `Cart` (`id` = customer id, `restaurant_id`, `items`, `subtotal`)
+  - **401 Unauthorized**: the user is not a customer or is not active
+  - **404 Not Found**: the customer or the menu item does not exist
+  - **409 Conflict**: the customer already has an active cart
+  - **422 Unprocessable Content**: invalid request body, or the menu item (or its restaurant) is not active
+- `DELETE /{customer_id}` - Deletes the cart for a customer.
+  - **204 No Content**: the cart was successfully deleted
+  - **404 Not Found**: the cart does not exist
 
 - `GET /{customer_id}` - Retrieves the customer's active cart, with the restaurant name, each menu item's name, quantity and price, the total quantity, and the subtotal.
   - **Path parameter:** `customer_id` (string)

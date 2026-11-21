@@ -114,3 +114,7 @@ def test_add_item_from_different_restaurant_returns_422(tmp_path, monkeypatch):
     response = TestClient(app).post(f"/api/carts/{CUSTOMER_ID}/items", json={"menu_item_id": "m4"})
     assert response.status_code == 422
     assert "same restaurant" in response.json()["detail"]
+def test_get_cart_invalid_id_returns_422(tmp_path, monkeypatch):
+    setup_files(tmp_path, monkeypatch, carts=[], restaurants=[], menu_items=[])
+    response = TestClient(app).get("/api/carts/not-a-uuid")
+    assert response.status_code == 422

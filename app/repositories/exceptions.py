@@ -29,10 +29,10 @@ class RestaurantNotFoundError(RepositoryError):
     """Raised when a restaurant is not found in the repository."""
 
     def __init__(self, model: Type[BaseModel], id: str):
-            super().__init__(f"{"Restaurant" if model is BaseModel else model.__name__} with id {id} not found.")
+        super().__init__(f"{"Restaurant" if model is BaseModel else model.__name__} with id {id} not found.")
 
 class MenuItemNotFoundError(RepositoryError):
     """Raised when a menu item is not found in the repository."""
 
     def __init__(self, model: Type[BaseModel], id: str):
-            super().__init__(f"{"Menu Item" if model is BaseModel else model.__name__} with id {id} not found.")
+        super().__init__(f"{"Menu Item" if model is BaseModel else model.__name__} with id {id} not found.")
