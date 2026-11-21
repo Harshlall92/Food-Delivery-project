@@ -75,11 +75,11 @@ class TestUpdateCustomerAccount:
         updated = await user_repository.get_by_id(customer_id)
 
         assert updated is not None
-        assert updated["email"] == update_data.email
-        assert updated["password"] != customer.password  # Password should be hashed and different
-        assert updated["first_name"] == update_data.first_name
-        assert updated["last_name"] == update_data.last_name
-        assert updated["active"] == update_data.active
+        assert updated.email == update_data.email
+        assert updated.password != customer.password  # Password should be hashed and different
+        assert updated.first_name == update_data.first_name
+        assert updated.last_name == update_data.last_name
+        assert updated.active == update_data.active
 
     @pytest.mark.anyio
     async def test_raises_not_found_error_on_nonexistent_user(self, user_repository):

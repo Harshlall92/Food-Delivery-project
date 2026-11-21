@@ -18,3 +18,7 @@ class MenuItemNotFound(ServiceError):
     pass
 class InactiveMenuItemError(ServiceError):
     """Raised when menu item is not avaliable """
+
+class CartNotFoundError(ServiceError):
+    """Raised when a cart is not found in the database."""
+    pass

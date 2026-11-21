@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock
 
 from app.schemas.restaurant import Restaurant
 from app.services.exceptions import ItemNotFoundError
@@ -24,8 +24,9 @@ TEST_RESTAURANT = [
 
 @pytest.mark.anyio
 async def test_get_restaurants_by_name_success(repository):
-    with patch.object(repository, "get_by_name", new_callable=AsyncMock, return_value=TEST_RESTAURANT):
-        result = await get_restaurants_by_name(repository, "kin")
+    await repository._write_file(TEST_RESTAURANT)
+
+    result = await get_restaurants_by_name(repository, "kin")
 
     assert len(result) == 1
     assert isinstance(result[0], Restaurant)
@@ -34,15 +35,15 @@ async def test_get_restaurants_by_name_success(repository):
 
 @pytest.mark.anyio
 async def test_get_restaurants_by_name_not_found(repository):
-    with patch.object(repository, "get_by_name", new_callable=AsyncMock, return_value=[]):
-        with pytest.raises(ItemNotFoundError):
-            await get_restaurants_by_name(repository, "asdasdasdasdasd")
+    with pytest.raises(ItemNotFoundError):
+        await get_restaurants_by_name(repository, "asdasdasdasdasd")
 
 
 @pytest.mark.anyio
 async def test_get_restaurants_by_cuisine_success(repository):
-    with patch.object(repository, "get_by_cuisine", new_callable=AsyncMock, return_value=TEST_RESTAURANT):
-        result = await get_restaurants_by_cuisine(repository, "korean")
+    await repository._write_file(TEST_RESTAURANT)
+
+    result = await get_restaurants_by_cuisine(repository, "korean")
 
     assert len(result) == 1
     assert isinstance(result[0], Restaurant)
@@ -51,6 +52,5 @@ async def test_get_restaurants_by_cuisine_success(repository):
 
 @pytest.mark.anyio
 async def test_get_restaurants_by_cuisine_not_found(repository):
-    with patch.object(repository, "get_by_cuisine", new_callable=AsyncMock, return_value=[]):
-        with pytest.raises(ItemNotFoundError):
-            await get_restaurants_by_cuisine(repository, "mexican")
+    with pytest.raises(ItemNotFoundError):
+        await get_restaurants_by_cuisine(repository, "mexican")

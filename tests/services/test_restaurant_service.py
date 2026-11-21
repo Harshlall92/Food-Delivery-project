@@ -13,20 +13,15 @@ def anyio_backend():
     return "asyncio"
 
 @pytest.mark.anyio
-async def test_get_restaurants(tmp_path, mocker):
+async def test_get_restaurants(tmp_path):
     mock_repository = create_restaurant_repository(create_restaurant_file(tmp_path))
 
     mock_data = [
         {"id": "01a0fd78-2c5c-72f4-b913-672a802a7116", "name": "Restaurant A", "address": "123 Main St", "cuisine": "Italian"},
         {"id": "01a0fd78-2c5d-735a-b1f3-b8c18b0d708a", "name": "Another Test", "address": "456 Oak Ave", "cuisine": "Mexican"}
     ]
+    await mock_repository._write_file(mock_data)
 
-    mocker.patch.object(
-        mock_repository,
-        "get_all",
-        return_value=mock_data
-    )
-    
     result = await get_restaurants(mock_repository)
 
     assert len(result) == 2

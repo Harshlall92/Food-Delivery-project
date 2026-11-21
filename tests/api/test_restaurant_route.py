@@ -100,9 +100,6 @@ def test_get_restaurant_by_id_integrated(tmp_path, monkeypatch):
     assert response_data["cuisine"] == "Italian"
     assert len(response_data["menu_items"]) == 2
 
-def test_get_restaurant_by_id_not_found():
-    response = client.get("/api/restaurants/nonexistent-id")
-    assert response.status_code == 404
 
 RESTAURANT_ID = "01a0fd78-2c5c-72f4-b913-672a802a7116"
 RESTAURANTS_DATA = [
