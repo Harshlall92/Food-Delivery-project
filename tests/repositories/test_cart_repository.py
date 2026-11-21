@@ -25,3 +25,16 @@ async def test_get_cart_by_customer_id_returns_cart(cart_repository):
 @pytest.mark.anyio
 async def test_get_cart_by_customer_id_returns_none(cart_repository):
     assert await cart_repository.get_cart_by_customer_id("nobody") is None
+
+@pytest.mark.anyio
+async def test_get_active_cart_by_customer_id_returns_cart(cart_repository):
+    await cart_repository.add_record(create_test_cart(customer_id="c1"))
+
+    cart = await cart_repository.get_active_cart_by_customer_id("c1")
+
+    assert cart is not None
+    assert cart.customer_id == "c1"
+
+@pytest.mark.anyio
+async def test_get_active_cart_by_customer_id_returns_none(cart_repository):
+    assert await cart_repository.get_active_cart_by_customer_id("nobody") is None

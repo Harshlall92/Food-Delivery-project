@@ -26,3 +26,20 @@ async def test_get_menu_item_name_by_id(menu_item_repository):
 async def test_get_menu_item_name_by_id_not_found(menu_item_repository):
     with pytest.raises(MenuItemNotFoundError):
         await menu_item_repository.get_menu_item_name_by_id("missing")
+
+@pytest.mark.anyio
+async def test_is_restaurant_active_returns_true(restaurant_repository):
+    r = Restaurant(name="Open Place", address="1 Main", cuisine="korean")
+    await restaurant_repository.add_record(r)
+    assert await restaurant_repository.is_restaurant_active(r.id) is True
+
+@pytest.mark.anyio
+async def test_is_restaurant_active_returns_false(restaurant_repository):
+    r = Restaurant(name="Closed Place", address="1 Main", cuisine="korean", active=False)
+    await restaurant_repository.add_record(r)
+    assert await restaurant_repository.is_restaurant_active(r.id) is False
+
+@pytest.mark.anyio
+async def test_is_restaurant_active_not_found_raises(restaurant_repository):
+    with pytest.raises(RestaurantNotFoundError):
+        await restaurant_repository.is_restaurant_active("missing")

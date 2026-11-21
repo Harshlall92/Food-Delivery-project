@@ -13,3 +13,6 @@ class CartRepository(BaseRepository[Cart]):
 
     async def get_cart_by_customer_id(self, customer_id: str) -> Cart | None:
         return await self.get_by_id(customer_id)
+
+    async def get_active_cart_by_customer_id(self, customer_id: str) -> Cart | None:
+        return await self.get_by_id(customer_id)
