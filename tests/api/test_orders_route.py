@@ -11,7 +11,8 @@ from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.user_repository import UserRepository
 from app.schemas.menu_item import MenuItem
 from app.schemas.restaurant import Restaurant
-from tests.util.builders import create_test_cart, create_test_cart_item
+from app.repositories.order_repository import OrderRepository
+from tests.util.builders import create_test_cart, create_test_cart_item, create_test_order
 from tests.util.fixtures import (
     mocked_cart_repository, mocked_menu_item_repository, mocked_order_item_repository,
     mocked_order_repository, mocked_restaurant_repository, mocked_user_repository,
@@ -104,3 +105,48 @@ class TestCheckoutEndpoint:
     def test_checkout_menu_item_from_another_restaurant_returns_409(self, checkout_setup):
         add_cart(checkout_setup["customer"], menu_item_id="m4")
         assert client.post("/api/orders", json={"customer_id": checkout_setup["customer"]}).status_code == 409
+
+    @pytest.fixture
+    def existing_order(mocked_order_repository):
+        order = create_test_order()
+        asyncio.run(OrderRepository().add_record(order))
+        return order
+
+
+class TestUpdateOrderStatusEndpoint:
+
+    def test_update_status_success(self, existing_order):
+        response = client.patch(f"/api/orders/{existing_order.id}/status", json={"status": "ready"})
+
+        assert response.status_code == 200
+        body = response.json()
+        assert body["id"] == existing_order.id
+        assert body["status"] == "ready"
+        assert asyncio.run(OrderRepository().get_by_id(existing_order.id)).status == "ready"
+
+    @pytest.mark.parametrize("new_status", ["pending", "confirmed", "preparing", "ready", "picked up", "delivered", "cancelled"])
+    def test_update_status_every_allowed_status(self, existing_order, new_status):
+        response = client.patch(f"/api/orders/{existing_order.id}/status", json={"status": new_status})
+
+        assert response.status_code == 200
+        assert response.json()["status"] == new_status
+
+    def test_update_status_malformed_request_returns_422(self, existing_order):
+        url = f"/api/orders/{existing_order.id}/status"
+
+        assert client.patch(url, json={}).status_code == 422
+        assert client.patch(url, json={"status": 5}).status_code == 422
+        assert client.patch(url, content="not json", headers={"Content-Type": "application/json"}).status_code == 422
+
+    @pytest.mark.parametrize("bad_status", ["shipped", "Pending", "picked_up", ""])
+    def test_update_status_invalid_value_returns_422(self, existing_order, bad_status):
+        response = client.patch(f"/api/orders/{existing_order.id}/status", json={"status": bad_status})
+
+        assert response.status_code == 422
+        assert asyncio.run(OrderRepository().get_by_id(existing_order.id)).status == "pending"
+
+    def test_update_status_missing_order_returns_404(self, mocked_order_repository):
+        response = client.patch("/api/orders/missing/status", json={"status": "ready"})
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Order with id missing not found."

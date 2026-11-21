@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from app.schemas.menu_item import MenuItem
-from app.schemas.order import OrderCreate
+from app.schemas.order import OrderCreate, OrderStatusUpdate
 from app.schemas.restaurant import Restaurant
 from app.services import order_service
 from app.services.exceptions import (
@@ -17,8 +17,10 @@ from app.services.exceptions import (
     InvalidRoleError,
     MenuItemNotFoundError,
     RestaurantNotFoundError,
+    InvalidOrderStatusError,
+    OrderNotFoundError
 )
-from tests.util.builders import create_test_cart, create_test_cart_item
+from tests.util.builders import create_test_cart, create_test_cart_item, create_test_order
 from tests.util.fixtures import (
     cart_repository, menu_item_repository, order_item_repository,
     order_repository, restaurant_repository, user_repository,
@@ -196,3 +198,57 @@ class TestCheckoutMenuItemErrors:
 
         with pytest.raises(CartRestaurantMismatchError):
             await checkout(repositories, customer.id)
+
+ALLOWED_STATUSES = ["pending", "confirmed", "preparing", "ready", "picked up", "delivered", "cancelled"]
+
+
+class TestUpdateOrderStatus:
+
+    @pytest.mark.anyio
+    async def test_update_status_returns_updated_order(self, order_repository):
+        order = create_test_order()
+        await order_repository.add_record(order)
+
+        result = await order_service.update_order_status(order_repository, order.id, OrderStatusUpdate(status="confirmed"))
+
+        assert result.status == "confirmed"
+        assert result.id == order.id
+        assert result.total == order.total
+        assert result.customer_id == order.customer_id
+
+    @pytest.mark.anyio
+    async def test_update_status_is_persisted(self, order_repository):
+        order = create_test_order()
+        await order_repository.add_record(order)
+
+        await order_service.update_order_status(order_repository, order.id, OrderStatusUpdate(status="ready"))
+
+        assert (await order_repository.get_by_id(order.id)).status == "ready"
+
+    @pytest.mark.anyio
+    @pytest.mark.parametrize("new_status", ALLOWED_STATUSES)
+    async def test_every_allowed_status(self, order_repository, new_status):
+        order = create_test_order()
+        await order_repository.add_record(order)
+
+        result = await order_service.update_order_status(order_repository, order.id, OrderStatusUpdate(status=new_status))
+
+        assert result.status == new_status
+
+    @pytest.mark.anyio
+    @pytest.mark.parametrize("bad_status", ["shipped", "Pending", "picked_up", ""])
+    async def test_invalid_status_is_rejected(self, order_repository, bad_status):
+        order = create_test_order()
+        await order_repository.add_record(order)
+
+        # model_construct skips Pydantic validation, so the service's own check is what's tested
+        with pytest.raises(InvalidOrderStatusError):
+            await order_service.update_order_status(
+                order_repository, order.id, OrderStatusUpdate.model_construct(status=bad_status)
+            )
+        assert (await order_repository.get_by_id(order.id)).status == "pending"
+
+    @pytest.mark.anyio
+    async def test_missing_order_raises(self, order_repository):
+        with pytest.raises(OrderNotFoundError, match="Order with id missing not found."):
+            await order_service.update_order_status(order_repository, "missing", OrderStatusUpdate(status="ready"))

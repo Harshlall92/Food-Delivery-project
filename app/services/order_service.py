@@ -6,7 +6,8 @@ from app.repositories.order_item_repository import OrderItemRepository
 from app.repositories.order_repository import OrderRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.user_repository import UserRepository
-from app.schemas.order import Order, OrderCreate, OrderItem
+from app.schemas.order import Order, OrderCreate, OrderItem, OrderStatus, OrderStatusUpdate
+from typing import get_args
 from app.services.exceptions import (
     CartNotFoundError,
     CartRestaurantMismatchError,
@@ -18,6 +19,8 @@ from app.services.exceptions import (
     InvalidRoleError,
     MenuItemNotFoundError,
     RestaurantNotFoundError,
+    InvalidOrderStatusError,
+    OrderNotFoundError
 )
 
 
@@ -89,3 +92,18 @@ async def checkout_cart(
         raise CartNotFoundError(f"Cart for customer {data.customer_id} could not be deleted after checkout.")
 
     return order
+
+async def update_order_status(
+        order_repository: OrderRepository,
+        order_id: str,
+        data: OrderStatusUpdate,
+        ) -> Order:
+
+    order = await order_repository.get_by_id(order_id)
+    if order is None:
+        raise OrderNotFoundError(f"Order with id {order_id} not found.")
+
+    if data.status not in get_args(OrderStatus):
+        raise InvalidOrderStatusError(f"Status {data.status} is not a valid order status.")
+
+    return await order_repository.update_record(order_id, order.model_copy(update={"status": data.status}))

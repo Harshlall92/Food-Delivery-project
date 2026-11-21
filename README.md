@@ -163,6 +163,14 @@ Endpoints for user-related operations are available under the `/api/users/` path
     - `409 Conflict` - A cart item belongs to a different restaurant than the cart
     - `422 Unprocessable Entity` - Invalid request body, the cart is empty, or the restaurant or a menu item is missing or inactive
 
+- `PATCH /{order_id}/status` - Updates the status of an existing order.
+  - **Path parameter:** `order_id` (string)
+  - **Request body** (`OrderStatusUpdate`): `{ "status": str }`, one of `pending`, `confirmed`, `preparing`, `ready`, `picked up`, `delivered`, `cancelled`
+  - **Responses:**
+    - `200 OK` - Returns the updated `Order` (`id`, `customer_id`, `restaurant_id`, `order_date`, `status`, `total`)
+    - `404 Not Found` - The order does not exist
+    - `422 Unprocessable Entity` - The status is not an allowed value, or the request body is malformed
+
 ## Representative Data
 
 **Restaurants**: [Food-Delivery-project/data/restaurants.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/restaurants.json)

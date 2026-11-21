@@ -6,7 +6,7 @@ from app.repositories.order_item_repository import OrderItemRepository
 from app.repositories.order_repository import OrderRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.user_repository import UserRepository
-from app.schemas.order import Order, OrderCreate
+from app.schemas.order import Order, OrderCreate, OrderStatusUpdate
 from app.services import order_service as oService
 from app.services.exceptions import (
     CartNotFoundError,
@@ -35,7 +35,7 @@ router = APIRouter(
     description="Creates an order from the customer's cart using current menu prices, then deletes the cart.",
     responses={
         201: {"description": "Order created"},
-        404: {"description": "The customer is unavailable or has no active cart"},
+        404: {"description": "The customer not found or has no active cart"},
         409: {"description": "A cart item belongs to a different restaurant than the cart"},
         422: {"description": "Pydantic validation error, empty cart, or the restaurant or a menu item is missing or inactive"},
     },
@@ -52,4 +52,23 @@ async def checkout_cart(data: OrderCreate):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     except (EmptyCartCheckoutError, RestaurantNotFoundError, InactiveRestaurantError,
             MenuItemNotFoundError, InactiveMenuItemError) as e:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
+
+@router.patch(
+    "/{order_id}/status",
+    response_model=Order,
+    summary="Update an order's status",
+    description="Sets the status of an existing order and returns the updated order.",
+    responses={
+        200: {"description": "Order status updated"},
+        404: {"description": "The order does not exist"},
+        422: {"description": "The status is invalid or the request is malformed"},
+    },
+)
+async def update_order_status(order_id: str, data: OrderStatusUpdate):
+    try:
+        return await oService.update_order_status(OrderRepository(), order_id, data)
+    except OrderNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except InvalidOrderStatusError as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
