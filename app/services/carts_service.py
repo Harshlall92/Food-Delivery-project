@@ -1,5 +1,4 @@
-from app.schemas.cart import Cart,CartItemAdd
-from app.repositories import cart_repository as cRepo, menu_item_repository as mRepo
+from app.schemas.cart import Cart,CartItemAdd, CartItem
 from app.services.exceptions import *
 from decimal import Decimal
 from app.repositories.cart_repository import CartRepository
@@ -10,37 +9,39 @@ from app.schemas.cart import CartItemResponse, CartResponse
 from app.services.exceptions import CartNotFoundError, ItemNotFoundError
 
 async def add_item_to_cart(
+        cart_repo: CartRepository,
+        menu_repo: MenuItemRepository,
         customer_id: str, 
         cart_item_add: CartItemAdd) -> Cart:
-    cart = await cRepo.get_by_id(customer_id)
-    menu_item = await mRepo.get_menu_items_by_restaurant_id(cart["restaurant_id"])
-    menu_item = next(
-        (m for m in menu_item if m["id"] == cart_item_add.menu_item_id), None
-    )
-    if menu_item is None:
-        raise MenuItemNotFound
-    if menu_item["available"] == False:
-        raise InactiveMenuItemError
+    cart = await cart_repo.get_by_id(customer_id)
     if cart is None:
-        raise CartNotFoundError
+            raise CartNotFoundError()
+    
+    menu_item = await menu_repo.get_menu_items_by_restaurant_id(cart["restaurant_id"])
+    
+    if menu_item is None or menu_item.restaurant_id != cart.restaurant_id:
+        raise MenuItemNotFound()
+    if not menu_item["available"] :
+        raise InactiveMenuItemError()
 
-    for item in cart["items"]:
-        if item["menu_item_id"] == cart_item_add.menu_item_id:
-            item["quantity"] += cart_item_add.quantity
+    for i, item in enumerate(list(cart.items)):
+        if item.menu_item_id == cart_item_add.menu_item_id:
+            list(cart.items)[i] = item.model_copy(update={"quantity": item.quantity + cart_item_add.quantity})
             break
-        else:
-            cart["items"].append({
-                "menu_item_id":cart_item_add.menu_item_id,
-                "quantity": cart_item_add.quantity,
-                "price": menu_item["price"],
-            }) 
-        subtotal = sum(Decimal(str(i["price"])) * i["quantity"] for i in cart["items"])
-        update = Cart(customer_id=customer_id, 
-                      restaurant_id=cart["restaurant_id"],
-                      items=cart["items"],
-                      subtotal=subtotal)
-        await cRepo.update_record(customer_id, update)
-        return update
+    else:
+        list(cart.items).append(CartItem(
+            menu_item_id=cart_item_add.menu_item_id,
+            quantity=cart_item_add.quantity,
+            price=Decimal(str(menu_item.price)).quantize(Decimal("0.01"))
+        ))
+    
+    subtotal = sum((item.price * item.quantity for item in list(cart.items)), Decimal("0.00"))
+    update = Cart(customer_id=customer_id, 
+        restaurant_id=cart["restaurant_id"],
+        items=cart["items"],
+        subtotal=subtotal)
+    await cart_repo.update_record(customer_id, update)
+    return update
     
 async def retrieve_cart(
     cart_repository: CartRepository,

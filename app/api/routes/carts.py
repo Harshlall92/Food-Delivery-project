@@ -1,12 +1,10 @@
 from fastapi import APIRouter, HTTPException, status
-from app.schemas.cart import CartItemAdd
 from app.services import carts_service as cService 
-from app.services.exceptions import ItemNotFoundError,CartNotFoundError
+from app.services.exceptions import *
 from app.repositories.cart_repository import CartRepository
 from app.repositories.menu_item_repository import MenuItemRepository
 from app.repositories.restaurant_repository import RestaurantRepository
-from app.schemas.cart import CartResponse
-from uuid import UUID
+from app.schemas.cart import CartResponse,CartItemAdd, Cart
 
 router = APIRouter(
     prefix="/api/carts",
@@ -15,7 +13,7 @@ router = APIRouter(
 
 @router.post(
     "/{customer_id}/items", 
-    response_model = CartItemAdd,
+    response_model = Cart,
     summary = "Add item to Cart",
     description = "Creates an item in the cart if it exists in the restaurant or increases quantity if already in cart",
     responses = {
@@ -27,11 +25,13 @@ router = APIRouter(
 async def add_menu_item(customer_id: str, payload: CartItemAdd):
     try: 
         return await cService.add_item_to_cart(
-            customer_id, payload
+            CartRepository(), MenuItemRepository(),customer_id, payload, 
         )
-    except ItemNotFoundError as e:
+    except (CartNotFoundError, MenuItemNotFound) as e:
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = str(e))
-    
+    except InactiveMenuItemError as e:
+        raise HTTPException(status_code= status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
+        
 @router.get(
     "/{customer_id}",
     response_model=CartResponse,
@@ -42,7 +42,7 @@ async def add_menu_item(customer_id: str, payload: CartItemAdd):
         422: {"description": "Pydantic validation error"},
     },
 )
-async def get_cart(customer_id: UUID):
+async def get_cart(customer_id: str):
     try:
         return await cService.retrieve_cart(
             CartRepository(), RestaurantRepository(), MenuItemRepository(), str(customer_id)
