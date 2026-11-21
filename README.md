@@ -193,6 +193,11 @@ Endpoints for user-related operations are available under the `/api/users/` path
 
 **Users**: [Food-Delivery-project/data/users.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/users.json)
 
+**Carts**: [Food-Delivery-project/data/cart.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/cart.json)
+
+**Order**: [Food-Delivery-project/data/order-item.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/order-item.json)
+           [Food-Delivery-project/data/orders.json](https://github.com/Harshlall92/Food-Delivery-project/blob/main/data/orders.json)
+
 ## Tests
 
 Tests can be run with the following command in your terminal:
@@ -224,16 +229,22 @@ Food-Delivery-project/
 ├── data/
 │   ├── restaurants.json
 │   ├── menu-items.json
+│   ├── orders.json
+│   ├── order-item.json
+│   ├── cart.json
 │   └── users.json
 ├── docs/
+│   ├── scrum/
+│   │   ├── team-agreement.md
+│   │   ├── milestone1node.md
+│   │   └── Team-Meeting-2026-10-26.md
 │   ├── Software-Architecture.md
 │   └── Software-Requirements-Specification.md
-├── frontend
-│   ├── css
-│   └── js
-├── scrum/
-│   └── team-agreement.md
+├── frontend/
+│   ├── css/
+│   └── js/
 ├── tests/
+├── PROVENANCE.md
 ├── .gitignore
 ├── requirements.txt
 └── README.md
