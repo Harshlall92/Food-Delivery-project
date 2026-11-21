@@ -44,3 +44,9 @@ def mocked_cart_repository(tmp_path, monkeypatch):
 @pytest.fixture
 def menu_item_repository(tmp_path) -> MenuItemRepository:
     return create_menu_item_repository(create_menu_item_file(tmp_path))
+
+@pytest.fixture
+def mocked_menu_item_repository(tmp_path, monkeypatch):
+    menu_item_file = create_menu_item_file(tmp_path)
+
+    monkeypatch.setattr("app.repositories.menu_item_repository.FILE_PATH", str(menu_item_file))

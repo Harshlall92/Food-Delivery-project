@@ -6,7 +6,7 @@ import pytest
 from tests.util.builders import create_test_cart_item
 from app.schemas.cart import Cart, CartItem, CartItemAdd
 
-from app.schemas.cart import CartItemResponse, CartResponse
+from app.schemas.cart import CartItemResponse, CartResponse, CartCreate
 
 
 class TestCartItemModel:
@@ -152,3 +152,30 @@ class TestCartResponseModels:
     def test_cart_response_allows_empty_cart(self):
         cart = CartResponse(restaurant_name="R", items=[], total_quantity=0, sub_total=Decimal("0.00"))
         assert cart.total_quantity == 0
+
+class TestCartCreateModel:
+
+    def test_cart_create_valid(self):
+        cart_create = CartCreate(customer_id="customer_123", menu_item_id="menu_item_123", quantity=2)
+
+        assert isinstance(cart_create, CartItemAdd)
+        assert cart_create.customer_id == "customer_123"
+        assert cart_create.menu_item_id == "menu_item_123"
+        assert cart_create.quantity == 2
+
+    def test_cart_create_quantity_defaults_to_one(self):
+        cart_create = CartCreate(customer_id="customer_123", menu_item_id="menu_item_123")
+        assert cart_create.quantity == 1
+
+    @pytest.mark.parametrize("quantity", [0, -1])
+    def test_cart_create_invalid_quantity(self, quantity: int):
+        with pytest.raises(ValidationError):
+            CartCreate(customer_id="customer_123", menu_item_id="menu_item_123", quantity=quantity)
+
+    def test_cart_create_missing_customer_id(self):
+        with pytest.raises(ValidationError):
+            CartCreate(menu_item_id="menu_item_123")
+
+    def test_cart_create_empty_customer_id(self):
+        with pytest.raises(ValidationError):
+            CartCreate(customer_id="", menu_item_id="menu_item_123")
