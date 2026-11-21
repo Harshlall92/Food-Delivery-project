@@ -32,3 +32,16 @@ def create_test_cart_item_add(
         menu_item_id=menu_item_id,
         quantity=quantity
     )
+
+
+
+def create_test_cart_create(
+        customer_id: str = "test_customer_001",
+        menu_item_id: str = "test_menu_item_001",
+        quantity: int = 1
+        ) -> CartCreate:
+    return CartCreate(
+        customer_id=customer_id,
+        menu_item_id=menu_item_id,
+        quantity=quantity
+    )

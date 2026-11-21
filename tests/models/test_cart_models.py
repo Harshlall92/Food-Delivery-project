@@ -4,7 +4,7 @@ from pydantic_core import ValidationError
 import pytest
 
 from tests.util.builders import create_test_cart_item
-from app.schemas.cart import Cart, CartItem, CartItemAdd
+from app.schemas.cart import Cart, CartItem, CartItemAdd, CartCreate
 
 from app.schemas.cart import CartItemResponse, CartResponse
 
@@ -152,3 +152,33 @@ class TestCartResponseModels:
     def test_cart_response_allows_empty_cart(self):
         cart = CartResponse(restaurant_name="R", items=[], total_quantity=0, sub_total=Decimal("0.00"))
         assert cart.total_quantity == 0
+
+    
+
+class TestCartCreateModel:
+
+    def test_cart_create_model_valid(self):
+        cart_create = CartCreate(customer_id="customer_123", menu_item_id="menu_item_123", quantity=3)
+
+        assert isinstance(cart_create, CartItemAdd)
+        assert cart_create.customer_id == "customer_123"
+        assert cart_create.menu_item_id == "menu_item_123"
+        assert cart_create.quantity == 3
+
+    def test_cart_create_model_default_quantity(self):
+        cart_create = CartCreate(customer_id="customer_123", menu_item_id="menu_item_123")
+
+        assert cart_create.quantity == 1
+
+    def test_cart_create_model_missing_customer_id(self):
+        with pytest.raises(ValidationError):
+            CartCreate(menu_item_id="menu_item_123")
+
+    def test_cart_create_model_empty_customer_id(self):
+        with pytest.raises(ValidationError):
+            CartCreate(customer_id="", menu_item_id="menu_item_123")
+
+    @pytest.mark.parametrize("quantity", [0, -1])
+    def test_cart_create_model_invalid_quantity(self, quantity: int):
+        with pytest.raises(ValidationError):
+            CartCreate(customer_id="customer_123", menu_item_id="menu_item_123", quantity=quantity)

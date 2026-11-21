@@ -8,13 +8,17 @@ from app.schemas.restaurant import Restaurant
 from app.services import carts_service
 from app.services.exceptions import (
     CartNotFoundError,
+    CustomerNotFoundError,
+    DuplicateCartError,
     InactiveMenuItemError,
+    InactiveUserError,
     InvalidMenuItemError,
+    InvalidRoleError,
     MenuItemNotFoundError,
 )
-from tests.util.builders import create_test_cart, create_test_cart_item
-from tests.util.fixtures import anyio_backend, cart_repository, menu_item_repository, restaurant_repository
-
+from tests.util.builders import create_test_cart, create_test_cart_item, create_test_cart_create
+from tests.util.fixtures import anyio_backend, cart_repository, menu_item_repository, restaurant_repository, user_repository
+from tests.util.helpers import create_test_customer, create_test_restaurant_owner
 
 class TestRetrieveCart:
 
@@ -154,3 +158,102 @@ class TestDeleteCart:
     async def test_delete_cart_not_found_raises(self, cart_repository):
         with pytest.raises(CartNotFoundError, match="Cart for customer with id non_existent_user_id not found."):
             await carts_service.delete_cart(cart_repository, "non_existent_user_id")
+
+
+
+@pytest.fixture
+async def setup(cart_repository, user_repository, menu_item_repository, restaurant_repository):
+    customer = create_test_customer()
+    await user_repository.add_record(customer)
+
+    restaurant = Restaurant(name="Test Restaurant", address="1 Main St", cuisine="thai")
+    await restaurant_repository.add_record(restaurant)
+
+    menu_item = MenuItem(restaurant_id=restaurant.id, name="Pad Thai", price=12.5)
+    await menu_item_repository.add_record(menu_item)
+
+    return {
+        "cart_repo": cart_repository,
+        "user_repo": user_repository,
+        "menu_repo": menu_item_repository,
+        "restaurant_repo": restaurant_repository,
+        "customer": customer,
+        "restaurant": restaurant,
+        "menu_item": menu_item,
+    }
+
+
+async def make_cart(setup, customer_id, menu_item_id, quantity=1):
+    data = create_test_cart_create(customer_id=customer_id, menu_item_id=menu_item_id, quantity=quantity)
+    return await carts_service.create_cart(setup["cart_repo"], setup["user_repo"], setup["menu_repo"], setup["restaurant_repo"], data)
+
+
+class TestCreateCart:
+
+    @pytest.mark.anyio
+    async def test_create_cart_success(self, setup):
+        cart = await make_cart(setup, setup["customer"].id, setup["menu_item"].id, quantity=2)
+
+        assert cart.subtotal == Decimal("25.00")
+        assert await setup["cart_repo"].get_by_id(setup["customer"].id) is not None
+
+    @pytest.mark.anyio
+    async def test_customer_not_found(self, setup):
+        with pytest.raises(CustomerNotFoundError):
+            await make_cart(setup, "missing", setup["menu_item"].id)
+
+        assert await setup["cart_repo"].get_all() == []
+
+    @pytest.mark.anyio
+    async def test_user_is_not_a_customer(self, setup):
+        owner = create_test_restaurant_owner(email="owner@example.com")
+        await setup["user_repo"].add_record(owner)
+
+        with pytest.raises(InvalidRoleError):
+            await make_cart(setup, owner.id, setup["menu_item"].id)
+
+    @pytest.mark.anyio
+    async def test_customer_is_inactive(self, setup):
+        inactive = create_test_customer(email="inactive@example.com")
+        inactive.active = False
+        await setup["user_repo"].add_record(inactive)
+
+        with pytest.raises(InactiveUserError):
+            await make_cart(setup, inactive.id, setup["menu_item"].id)
+
+    @pytest.mark.anyio
+    async def test_customer_already_has_cart(self, setup):
+        await setup["cart_repo"].add_record(create_test_cart(customer_id=setup["customer"].id))
+
+        with pytest.raises(DuplicateCartError):
+            await make_cart(setup, setup["customer"].id, setup["menu_item"].id)
+
+    @pytest.mark.anyio
+    async def test_menu_item_not_found(self, setup):
+        with pytest.raises(MenuItemNotFoundError):
+            await make_cart(setup, setup["customer"].id, "missing")
+
+        assert await setup["cart_repo"].get_all() == []
+
+    @pytest.mark.anyio
+    async def test_menu_item_unavailable(self, setup):
+        item = MenuItem(restaurant_id=setup["restaurant"].id, name="Green Curry", price=14.0, available=False)
+        await setup["menu_repo"].add_record(item)
+
+        with pytest.raises(InactiveMenuItemError):
+            await make_cart(setup, setup["customer"].id, item.id)
+
+        assert await setup["cart_repo"].get_all() == []
+
+    @pytest.mark.anyio
+    async def test_restaurant_is_inactive(self, setup):
+        
+        closed = Restaurant(name="Closed", address="2 Main St", cuisine="thai", active=False)
+        await setup["restaurant_repo"].add_record(closed)
+        item = MenuItem(restaurant_id=closed.id, name="Soup", price=5.0)
+        await setup["menu_repo"].add_record(item)
+
+        with pytest.raises(InactiveMenuItemError):
+            await make_cart(setup, setup["customer"].id, item.id)
+
+        assert await setup["cart_repo"].get_all() == []
