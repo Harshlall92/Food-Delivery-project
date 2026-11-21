@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 @router.post(
-    "/cart/{customer_id}/items", 
+    "/{customer_id}/items", 
     response_model = CartItemAdd,
     summary = "Add item to Cart",
     description = "Creates an item in the cart if it exists in the restaurant or increases quantity if already in cart",
@@ -33,7 +33,7 @@ async def add_menu_item(customer_id: str, payload: CartItemAdd):
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND, detail = str(e))
     
 @router.get(
-    "/cart/{customer_id}",
+    "/{customer_id}",
     response_model=CartResponse,
     summary="Retrieve a customer's active cart",
     description="Returns the customer's cart with restaurant and menu item names and calculated totals.",
