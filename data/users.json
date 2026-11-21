@@ -29,5 +29,115 @@
         "active": true,
         "role": "restaurant_owner",
         "restaurant_id": "01a0fd78-2c5c-72f4-b913-672a802a7116"
+    },
+    {
+        "id": "test-cust-alice",
+        "email": "alice@example.com",
+        "password": "$2b$12$h1a8YgvqKshKk5uUGyHN9e2HjbUPA6jXmqgafug.33466aNxUDd1O",
+        "first_name": "Alice",
+        "last_name": "Smith",
+        "active": true,
+        "role": "customer",
+        "addresses": [],
+        "payment_method": null
+    },
+    {
+        "id": "test-cust-bob",
+        "email": "bob@example.com",
+        "password": "$2b$12$h1a8YgvqKshKk5uUGyHN9e2HjbUPA6jXmqgafug.33466aNxUDd1O",
+        "first_name": "Bob",
+        "last_name": "Jones",
+        "active": true,
+        "role": "customer",
+        "addresses": [],
+        "payment_method": null
+    },
+    {
+        "id": "test-cust-inactive",
+        "email": "inactive@example.com",
+        "password": "$2b$12$h1a8YgvqKshKk5uUGyHN9e2HjbUPA6jXmqgafug.33466aNxUDd1O",
+        "first_name": "Ivan",
+        "last_name": "Inactive",
+        "active": false,
+        "role": "customer",
+        "addresses": [],
+        "payment_method": null
+    },
+    {
+        "id": "test-cust-nocart",
+        "email": "nocart@example.com",
+        "password": "$2b$12$h1a8YgvqKshKk5uUGyHN9e2HjbUPA6jXmqgafug.33466aNxUDd1O",
+        "first_name": "Nora",
+        "last_name": "Nocart",
+        "active": true,
+        "role": "customer",
+        "addresses": [],
+        "payment_method": null
+    },
+    {
+        "id": "test-cust-empty",
+        "email": "empty@example.com",
+        "password": "$2b$12$h1a8YgvqKshKk5uUGyHN9e2HjbUPA6jXmqgafug.33466aNxUDd1O",
+        "first_name": "Emma",
+        "last_name": "Empty",
+        "active": true,
+        "role": "customer",
+        "addresses": [],
+        "payment_method": null
+    },
+    {
+        "id": "test-cust-closed",
+        "email": "closed@example.com",
+        "password": "$2b$12$h1a8YgvqKshKk5uUGyHN9e2HjbUPA6jXmqgafug.33466aNxUDd1O",
+        "first_name": "Carl",
+        "last_name": "Closed",
+        "active": true,
+        "role": "customer",
+        "addresses": [],
+        "payment_method": null
+    },
+    {
+        "id": "test-cust-unavailable",
+        "email": "unavailable@example.com",
+        "password": "$2b$12$h1a8YgvqKshKk5uUGyHN9e2HjbUPA6jXmqgafug.33466aNxUDd1O",
+        "first_name": "Uma",
+        "last_name": "Unavailable",
+        "active": true,
+        "role": "customer",
+        "addresses": [],
+        "payment_method": null
+    },
+    {
+        "id": "test-cust-mismatch",
+        "email": "mismatch@example.com",
+        "password": "$2b$12$h1a8YgvqKshKk5uUGyHN9e2HjbUPA6jXmqgafug.33466aNxUDd1O",
+        "first_name": "Mia",
+        "last_name": "Mismatch",
+        "active": true,
+        "role": "customer",
+        "addresses": [],
+        "payment_method": null
+    },
+    {
+        "id": "test-cust-missingitem",
+        "email": "missingitem@example.com",
+        "password": "$2b$12$h1a8YgvqKshKk5uUGyHN9e2HjbUPA6jXmqgafug.33466aNxUDd1O",
+        "first_name": "Max",
+        "last_name": "Missing",
+        "active": true,
+        "role": "customer",
+        "addresses": [],
+        "payment_method": null
+    },
+    {
+        "id": "test-cust-missingrest",
+        "email": "missingrest@example.com",
+        "password": "$2b$12$h1a8YgvqKshKk5uUGyHN9e2HjbUPA6jXmqgafug.33466aNxUDd1O",
+        "first_name": "Rita",
+        "last_name": "Missing",
+        "active": true,
+        "role": "customer",
+        "addresses": [],
+        "payment_method": null
     }
 ]

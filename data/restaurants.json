@@ -33,5 +33,12 @@
         "address": "blebleble",
         "cuisine": "blublublu",
         "active": true
+    },
+    {
+        "id": "test-rest-closed",
+        "name": "Closed Cafe",
+        "address": "1 closed road",
+        "cuisine": "cafe",
+        "active": false
     }
 ]

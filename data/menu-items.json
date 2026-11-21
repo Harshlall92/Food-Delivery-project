@@ -46,5 +46,21 @@
         "price": 1.0,
         "description": "",
         "available": true
+    },
+    {
+        "id": "test-menu-unavailable",
+        "restaurant_id": "01a0fd78-2c5c-72f4-b913-672a802a7116",
+        "name": "sold out soup",
+        "price": 3.0,
+        "description": "",
+        "available": false
+    },
+    {
+        "id": "test-menu-closed",
+        "restaurant_id": "test-rest-closed",
+        "name": "closed burger",
+        "price": 7.0,
+        "description": "",
+        "available": true
     }
 ]
