@@ -32,6 +32,8 @@ class User(BaseModel):
     @field_validator("password", mode="before")
     @classmethod
     def validate_password(cls, value):
+        if value.startswith("$2b$") and len(value) == 60:
+            return value  # Already hashed
         value = value.strip()
         if value == "":
             raise ValueError("Password cannot be empty")
