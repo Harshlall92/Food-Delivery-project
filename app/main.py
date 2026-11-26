@@ -40,8 +40,16 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
         )
     return {"access_token": user_id, "token_type": "bearer"}
     
-@app.get("/health")
-def health():
+@app.get(
+    "/health",
+    responses={
+        200: {"description": "Service is healthy"},
+        401: {"description": "User is not authenticated"},
+        403: {"description": "User does not have the required permissions"},
+    },
+    description="Check the health of the application"
+)
+def health(current_admin: CurrentAdmin):
     return {"status" : "ok"}
 
 @app.get("/")
