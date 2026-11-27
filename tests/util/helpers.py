@@ -1,9 +1,12 @@
+import asyncio
 from unittest.mock import patch
 
 import jwt
 from datetime import datetime, timedelta, UTC
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import BaseModel
 
+from app.repositories.base_repository import BaseRepository
 from app.services.authentication import SECRET_KEY, ALGORITHM
 from app.schemas.user import AnyUser, Customer, RestaurantOwner
 from app.repositories.user_repository import UserRepository
@@ -108,3 +111,15 @@ def token_for(user_id: str, *, secret=None, expires=None) -> str:
         secret or SECRET_KEY,
         algorithm=ALGORITHM
     )
+
+def _add_record_to_repository(repository: BaseRepository, record: BaseModel):
+    """
+    Adds a record to the specified repository.
+    """
+    asyncio.run(repository.add_record(record))
+
+def add_user_to_repository(user: AnyUser):
+    """
+    Adds a user to the UserRepository.
+    """
+    _add_record_to_repository(UserRepository(), user)
