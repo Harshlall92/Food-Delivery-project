@@ -2,10 +2,11 @@ from fastapi.testclient import TestClient
 import pytest
 
 from app.main import app
-from tests.util.fixtures import login_customer
-from tests.util.builders import PASSWORD
+from tests.util.fixtures import mocked_user_repository
+from tests.util.builders import PASSWORD, create_test_customer
 
 import app.services.authentication as auth
+from tests.util.helpers import add_user_to_repository
 
 
 
@@ -13,15 +14,18 @@ client = TestClient(app)
 
 class TestTokenEndpoint:
 
-    def test_returns_bearer_token_for_valid_credentials(self, login_customer):
+    def test_returns_bearer_token_for_valid_credentials(self, mocked_user_repository):
+        customer = create_test_customer(password=PASSWORD)
+        add_user_to_repository(customer)
+
         response = client.post(
             "/token",
-            data={"username": login_customer.email, "password": PASSWORD},
+            data={"username": customer.email, "password": PASSWORD},
         )
 
         assert response.status_code == 200
         assert response.json()["token_type"] == "bearer"
-        assert auth.decode_token(response.json()["access_token"]) == login_customer.id
+        assert auth.decode_token(response.json()["access_token"]) == customer.id
 
     @pytest.mark.parametrize(
         ("username", "password"),
@@ -30,7 +34,7 @@ class TestTokenEndpoint:
             ("customer@example.com", "wrong-password")
         ]
     )
-    def test_rejects_invalid_credentials(self, login_customer, username, password):
+    def test_rejects_invalid_credentials(self,mocked_user_repository, username, password):
         response = client.post(
             "/token",
             data={"username": username, "password": password}
