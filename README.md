@@ -89,6 +89,11 @@ API documentation can be found at: `/docs`
 
 - `GET /` - Returns the home page for UI
 - `GET /health` - Returns a health check message.
+  - **Responses:**
+  - `200 OK` - Returns a JSON object with a message indicating that the API is healthy.
+  - `400 Bad Request` - The request is malformed, missing required parameters, or the user is inactive
+  - `401 Unauthorized` - The user is not authenticated
+  - `403 Forbidden` - The user does not have permission to access the resource (is not an admin)
 
 - `GET /api/restaurants` - Returns a list of all restaurants.
 - `GET /api/restaurants/search` - Retrieves restaurants that contain the given name
