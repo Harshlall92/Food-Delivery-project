@@ -72,17 +72,3 @@ def mocked_order_item_repository(tmp_path, monkeypatch):
     order_item_file = create_order_item_file(tmp_path)
 
     monkeypatch.setattr("app.repositories.order_item_repository.FILE_PATH", str(order_item_file))
-@pytest.fixture
-def login_customer(tmp_path, monkeypatch):
-    """
-    Adds a test customer to a mocked user repository and returns the customer.
-    """
-    user_file = create_user_file(tmp_path)
-
-    monkeypatch.setattr("app.repositories.user_repository.FILE_PATH", str(user_file))
-
-    customer = create_test_customer()
-
-    asyncio.run(UserRepository().add_record(customer))
-
-    return customer
