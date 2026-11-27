@@ -1,8 +1,14 @@
 from pathlib import Path
-from fastapi import FastAPI
+from typing import Annotated
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.responses import FileResponse
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from app.api.routes import restaurants, menu_items, users, carts, orders
+from app.repositories.user_repository import UserRepository
+from app.services.authentication import CurrentAdmin
+from app.services.exceptions import InvalidCredentialsError, ItemNotFoundError
+from app.services import authentication
 
 app = FastAPI()
 
@@ -17,8 +23,33 @@ app.include_router(users.router)
 app.include_router(carts.router)
 app.include_router(orders.router)
 
-@app.get("/health")
-def health():
+
+@app.post("/token", description="Authenticate a user and return an access token")
+async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    try:
+        user_id = await authentication.authenticate_user(UserRepository(), form_data)
+    except InvalidCredentialsError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Incorrect email or password"
+        )
+    except ItemNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Incorrect email or password"
+        )
+    return {"access_token": user_id, "token_type": "bearer"}
+    
+@app.get(
+    "/health",
+    responses={
+        200: {"description": "Service is healthy"},
+        401: {"description": "User is not authenticated"},
+        403: {"description": "User does not have the required permissions"},
+    },
+    description="Check the health of the application"
+)
+def health(current_admin: CurrentAdmin):
     return {"status" : "ok"}
 
 @app.get("/")

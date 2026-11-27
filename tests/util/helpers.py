@@ -1,5 +1,14 @@
+import asyncio
 from unittest.mock import patch
-from app.schemas.user import Customer, RestaurantOwner
+
+import jwt
+from datetime import datetime, timedelta, UTC
+from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import BaseModel
+
+from app.repositories.base_repository import BaseRepository
+from app.services.authentication import SECRET_KEY, ALGORITHM
+from app.schemas.user import AnyUser, Customer, RestaurantOwner
 from app.repositories.user_repository import UserRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.menu_item_repository import MenuItemRepository
@@ -92,3 +101,25 @@ def create_test_restaurant_owner(
         last_name=last_name,
         restaurant_id=restaurant_id
     )
+
+def credentials(username: str, password: str):
+    return OAuth2PasswordRequestForm(username=username, password=password)
+
+def token_for(user_id: str, *, secret=None, expires=None) -> str:
+    return jwt.encode(
+        {"sub": user_id, "exp": expires or datetime.now(UTC) + timedelta(minutes=5)},
+        secret or SECRET_KEY,
+        algorithm=ALGORITHM
+    )
+
+def _add_record_to_repository(repository: BaseRepository, record: BaseModel):
+    """
+    Adds a record to the specified repository.
+    """
+    asyncio.run(repository.add_record(record))
+
+def add_user_to_repository(user: AnyUser):
+    """
+    Adds a user to the UserRepository.
+    """
+    _add_record_to_repository(UserRepository(), user)

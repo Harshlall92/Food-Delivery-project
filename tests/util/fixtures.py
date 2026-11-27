@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 
 from app.repositories.restaurant_repository import RestaurantRepository
