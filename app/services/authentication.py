@@ -25,7 +25,7 @@ TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30)  # Default t
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-async def verify_password(plain_password: str, hashed_password: str) -> bool:
+def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
     Verifies that the provided plain password matches the hashed password.
     """
