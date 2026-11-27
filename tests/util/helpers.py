@@ -1,5 +1,11 @@
 from unittest.mock import patch
-from app.schemas.user import Customer, RestaurantOwner
+
+import jwt
+from datetime import datetime, timedelta, UTC
+from fastapi.security import OAuth2PasswordRequestForm
+
+from app.services.authentication import SECRET_KEY, ALGORITHM
+from app.schemas.user import AnyUser, Customer, RestaurantOwner
 from app.repositories.user_repository import UserRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.menu_item_repository import MenuItemRepository
@@ -91,4 +97,14 @@ def create_test_restaurant_owner(
         first_name=first_name,
         last_name=last_name,
         restaurant_id=restaurant_id
+    )
+
+def credentials(username: str, password: str):
+    return OAuth2PasswordRequestForm(username=username, password=password)
+
+def token_for(user_id: str, *, secret=None, expires=None) -> str:
+    return jwt.encode(
+        {"sub": user_id, "exp": expires or datetime.now(UTC) + timedelta(minutes=5)},
+        secret or SECRET_KEY,
+        algorithm=ALGORITHM
     )
